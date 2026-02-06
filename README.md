@@ -36,10 +36,10 @@ Below are the tentatively planning topics for the problem sets.
 
 Materials to prepare for the in-class midterm exam (TBD):
 
-- [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
+<!-- - [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf); -->
 - [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/topics/midterm-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/review/midterm-review.html) (no solutions)
+- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-review.html) (no solutions)
 
 The problem sets should also help you review.
 

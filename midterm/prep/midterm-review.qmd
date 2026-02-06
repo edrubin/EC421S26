@@ -91,3 +91,24 @@ Suppose we omitted the variable $\text{Ability}$. Will our estimate $\hat{\beta}
 - `lm(log(y) ~ x1 + x2)`
 - `lm(log(y) ~ log(x1))`
 
+27\. What is the difference between a **static** time-series model and a **dynamic** time-series model?
+
+28\. How would we estimate the *total effect* of **income** on **births** using the following estimated model? $$
+\begin{align}
+  \text{Births}_t = \hat{\beta}_0 + \hat{\beta}_1 \text{Income}_{t} + \hat{\beta}_2 \text{Income}_{t-1} + \hat{\beta}_3 \text{Income}_{t-2} + e_t
+\end{align}
+$$
+
+29\. We are interested in the effect of income on births. Write down an ADL(2,2) model.
+
+30\. **T/F** By including a lagged dependent variable, we implicitly include many lags of the explanatory variable.
+
+31\. **T/F** In the model $\text{Births}_t = \beta_0 + \beta_1 \text{Income}_t + u_t$, the parameter $\beta_1$ gives the effect of income in the previous time period on births in the current period.
+
+32\. **T/F** OLS is consistent for dynamic time-series models with lagged dependent variables as long as the model maintains the contemporaenous exogeneity assumption.
+
+33\. How do lagged explanatory variables affect OLS? Is this effect different from lagged dynamic variables?
+
+34\. Define autocorrelation. Give an example of a variable that you believe is autocorrelated and, using your definition, explain why you believe it is autocorrelated.
+
+35\. Write down the formula/equation for an AR(3) process.

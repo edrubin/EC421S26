@@ -17,11 +17,16 @@ lec09 : notes/09-nonstationarity/slides.html notes/09-nonstationarity/slides.pdf
 lec10 : notes/10-causality/slides.html notes/10-causality/slides.pdf
 lec11 : notes/11-iv/slides.html notes/11-iv/slides.pdf
 lec12 : notes/12-ml/slides.html notes/12-ml/slides.pdf
+midterm-topics : midterm/prep/midterm-topics.html
+midterm-review : midterm/prep/midterm-review.html
+midterm-exam : midterm/exam/exam-inclass.pdf
 
-# Define individual links ------------------------------------------------------
+# Define links: Syllabus -------------------------------------------------------
 # Build syllabus
 syllabus/syllabus.pdf : syllabus/syllabus.tex
 	tectonic syllabus/syllabus.tex
+
+# Define links: Lecture --------------------------------------------------------
 # Lecture 01
 notes/01-intro/slides.html : notes/01-intro/slides.rmd
 	Rscript -e "rmarkdown::render('$<')"
@@ -87,6 +92,14 @@ notes/12-ml/slides.html : notes/12-ml/slides.rmd
 	Rscript -e "rmarkdown::render('$<')"
 notes/12-ml/slides.pdf : notes/12-ml/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+
+# Define links: Exam material --------------------------------------------------
+midterm/prep/midterm-topics.html : midterm/prep/midterm-topics.qmd
+	quarto render $< --to html
+midterm/prep/midterm-review.html : midterm/prep/midterm-review.qmd
+	quarto render $< --to html
+midterm/exam/exam-inclass.pdf : midterm/exam/exam-inclass.qmd my-header.tex my-macros.tex
+	quarto render $< --to pdf
 
 # Global targets ---------------------------------------------------------------
 lec-all: lec01 lec01r lec02 lec03 lec04 lec05 lec06 lec07 lec08 lec09 lec10 lec11 lec12

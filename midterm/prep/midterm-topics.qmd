@@ -89,3 +89,20 @@ format:
   - Probability limits
 - Consistency
 - Signing the bias from omitted variables.
+- Measurement error
+
+## Slide Set 7: Time Series
+
+-   Notation
+-   Assumptions
+-   Static models
+-   Dynamic models
+    -   With lagged explanatory variables
+    -   Autoregressive, distributed lag (ADL) models
+    -   ADL(p,q)
+    -   Long-run vs. short-run effects
+-   Contemporaenous exogeneity
+
+## Slide Set 8: Autocorrelation
+
+-   Definition of autocorrelation
