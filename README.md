@@ -21,8 +21,8 @@ Below are the tentatively planning topics for the problem sets.
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/000/data-ps0.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-solutions.html)
 
 **Problem Set 1: Heteroskedasticity, Clustering, and OLS Assumptions**
-<br>Due: TBA
-<br>Files: assignment | data | solutions 
+<br>Due: Monday, 02 February 2026 by 11:59 PM
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/001/data-ps1.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-solutions.html)
 
 **Problem Set 2: Time series data, analyses, and nonstationarity**
 <br>Due: TBA
@@ -102,7 +102,7 @@ Here are some exams from previous years:
 | Winter 2023 | [home key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-home-key.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-inclass.pdf) [in-class key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-inclass-key.pdf) | [home exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-home.html) [home key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-home-key.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-inclass.pdf) [in-class key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-inclass-key.pdf) |
 | Spring 2023 | [home exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-home.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-inclass.pdf) | [home exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s-inclass.pdf) |
 | Winter 2025 | [exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w-key.pdf) | [exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w-key.pdf) |
-| Spring 2025 | [exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025s.pdf) | [exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025s.pdf) |
+| Spring 2025 | [exam](https://raw.githack.com/edrubin/EC421W26/master/midterm/past/midterm-2025s.pdf) | [exam](https://raw.githack.com/edrubin/EC421W26/master/final/past/final-2025s.pdf) |
 
 **Note:** If there is no key posted, then I do not have it and will not distribute it.
 
