@@ -9,8 +9,8 @@ problem-sets/001/001-solutions.html
 notes/*/slides_cache/*
 
 # Non-review test files
-midterm/exam*
-final/exam*
+midterm/exam/*
+final/exam/*
 
 # Misc files
 *.DS_Store

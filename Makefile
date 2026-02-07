@@ -103,7 +103,8 @@ midterm/exam/exam-inclass.pdf : midterm/exam/exam-inclass.qmd my-header.tex my-m
 
 # Global targets ---------------------------------------------------------------
 lec-all: lec01 lec01r lec02 lec03 lec04 lec05 lec06 lec07 lec08 lec09 lec10 lec11 lec12
-all: lec-all syllabus
+midterm-all: midterm-topics midterm-review midterm-exam
+all: lec-all syllabus midterm-all
 # Define clean
 clean:
 	rm -f lec-all
