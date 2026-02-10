@@ -34,7 +34,7 @@ Below are the tentatively planning topics for the problem sets.
 
 ## Midterm exam
 
-Materials to prepare for the in-class midterm exam (TBD):
+Materials to prepare for the in-class midterm exam:
 
 - [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
 - [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
