@@ -93,7 +93,7 @@ $$
 
 \tf{T} The White test can detect more forms of heteroskedasticity than the Goldfeld–Quandt test.
 
-\tf{F} If the 95\% confidence interval for a coefficient estimate is [0.1, 0.5], then we can reject the null hypothesis that the coefficient equals 0 (at the 5\% level).
+\tf{T} If the 95\% confidence interval for a coefficient estimate is [0.1, 0.5], then we can reject the null hypothesis that the coefficient equals 0 (at the 5\% level).
 
 \tf{F} If $\text{Var}(x)=0$, OLS can still estimate the slope coefficient.
 
