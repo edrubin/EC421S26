@@ -1,0 +1,314 @@
+---
+title: ''
+editor:
+  render-on-save: true
+format:
+  pdf:
+    documentclass: exam
+    papersize: letter
+    fontsize: 10pt
+    include-in-header:
+      - ./my-header.tex
+      - ./my-macros.tex
+    toc: false
+    number-sections: true
+    colorlinks: false
+---
+
+
+\noindent\makebox[0.75\textwidth]{Name:\enspace\hrulefill}
+
+\vspace{5mm}
+
+\begin{center}
+    \LARGE{\textbf{In-class midterm, EC421, Winter 2026}}
+    \\ \large{145 points possible}
+\end{center}
+
+\vspace{5mm}
+
+```{r, setup, include=FALSE}
+# Packages
+library(pacman)
+p_load(fastverse, extrafont, latex2exp, ggplot2, scales)
+```
+
+## True or false (75 points; 30 questions)
+
+**Note** In this section, select the correct answer (true or false). You do not need to explain your answer.
+
+\begin{questions}
+
+\tf{T} If the disturbance correlates with a regressor, then exogeneity is violated.
+
+\tf{F} A p-value of 0.15 rejects the null hypothesis at the 5\% level.
+
+\tf{F} When OLS is biased for the standard errors, it is also biased for the coefficients.
+
+\tf{F} When an estimator is consistent, it is also unbiased.
+
+\tf{T} In the following model, we interpret the intercept as the expected wages for an individual with zero years of education
+$$
+  \text{Wages}_i = \beta_0 + \beta_1 \text{Education}_i + u_i
+$$
+
+\tf{F} Omitted-variable bias occurs whenever we omit a variable that correlates with the outcome---\textit{even} if the omitted variable is independent of the included regressors.
+
+\tf{F} Classical measurement error in the dependent variable biases slope coefficients toward zero.
+
+\tf{T} In the model below, a 1-percent increase in price is associated with a $\beta_1$ percent change in quantity (holding all else constant):
+$$
+  \log \text{Quantity}_i = \beta_0 + \beta_1 \log \text{Price}_i + u_i
+$$
+
+\tf{T} Weighted least squares gives \textit{less} weight to observations whose disturbances have relatively \textit{larger} variances.
+
+\tf{T} If the variance of the disturbance differs across observations, then the assumption of homoskedasticity is violated.
+
+\tf{F} Homoskedasticity is required for OLS coefficient estimates to be unbiased.
+
+\tf{T} If $\text{Cov}(x_i,\,u_i)\neq0$, then OLS is generally inconsistent.
+
+\tf{T} Heteroskedasticity-robust standard errors remain valid whether disturbances are homoskedastic or heteroskedastic.
+
+\tf{F} If disturbances correlate across observations, OLS coefficient estimates are biased.
+
+\tf{F} In the model below, past levels of \textit{wealth} affect the current level of wealth.
+$$
+  \text{Wealth}_t = \beta_0 + \beta_1 \text{Income}_{t} + \beta_2 \text{Income}_{t-1} + u_t
+$$
+
+\tf{T} Adding an additional regressor to a regression model will increase R$^2$.
+
+\tf{F} Consistency describes an estimator's distribution when the sample size is fixed.
+
+\tf{F} The model below allows the effect of income on health to differ between Hispanic and non-Hispanic individuals:
+$$
+  \text{Health}_i = \beta_0 + \beta_1 \text{Income}_i + \beta_2 \text{Hispanic}_i + u_i
+$$
+
+\tf{T} Autocorrelation violates the assumption that disturbances are uncorrelated across observations.
+
+\tf{F} The assumption of \textit{linearity} is violated when we include a squared term in the regression model.
+
+\tf{T} The White test can detect more forms of heteroskedasticity than the Goldfeld–Quandt test.
+
+\tf{F} If the 95\% confidence interval for a coefficient estimate is [0.1, 0.5], then we can reject the null hypothesis that the coefficient equals 0 (at the 5\% level).
+
+\tf{F} If $\text{Var}(x)=0$, OLS can still estimate the slope coefficient.
+
+\tf{F} If the White test rejects the null hypothesis, then we conclude there is no evidence of heteroskedasticity.
+
+\tf{F} WLS is always more efficient than OLS.
+
+\tf{T} The Goldfeld–Quandt test tests for heteroskedasticity by comparing the variance of the residuals across two subsamples of the data.
+
+\tf{T} Functional-form misspecification can lead to heteroskedasticity.
+
+\tf{T} A \textit{static} regression model includes only contemporaneous regressors.
+
+\tf{T} If the standard error estimates are biased, it is possible for the coefficient estimates to be unbiased.
+
+\tf{T} If the standard error estimates are biased, hypothesis tests and confidence intervals are not trustworthy.
+
+\end{questions}
+
+## Multiple choice (20 points; 5 questions)
+
+**Note** In this section, check ($\checkmark$ or $\times$) \textbf{all} correct answers. You do not need to explain your answer.
+
+\begin{questions}
+
+\setcounter{question}{30}
+
+\mc \\ Under which of the following situations would OLS be biased for estimating the regression coefficients?
+
+\vspace{\stretch{0}}
+\begin{oneparcheckboxes} 
+  \CorrectChoice $E\left[\hat{\beta}\right] \neq \beta$
+  \CorrectChoice $E[u_i | X_i] \neq 0$
+  \choice $\text{Var}(u_i) \neq \text{Var}(u_j)$
+  \choice $\text{Cov}(u_i, u_j) \neq 0$
+\end{oneparcheckboxes} 
+\vspace{\stretch{.5}}
+
+\mc \\ Which of the conditions would cause \textit{classic} OLS standard errors to be biased?
+
+\vspace{\stretch{0}}
+\begin{oneparcheckboxes} 
+  \choice $E[u_i | X_i] = 0$
+  \choice $\text{Var}(u_i) = \sigma^2$ for all $i$
+  \CorrectChoice $\text{Cov}(u_i, u_j) > 0$
+  \CorrectChoice $\text{Var}(u_i) = \sigma^2 \times x_i$
+\end{oneparcheckboxes} 
+\vspace{\stretch{.5}}
+
+\mc \\ In the presence of heteroskedasticity, which of the following statements are true?
+
+\vspace{\stretch{0}}
+\begin{oneparcheckboxes}
+  \CorrectChoice OLS is less efficient than WLS.
+  \CorrectChoice Standard OLS confidence intervals are biased. \newline
+  \choice OLS is unbiased for the standard errors.
+  \choice OLS is biased for the coefficients.
+\end{oneparcheckboxes} 
+\vspace{\stretch{.5}}
+
+\mc \\ Which of the following will cause OLS to be biased for estimating regression coefficients?
+
+\vspace{\stretch{0}}
+\begin{oneparcheckboxes} 
+  \choice Omitting a variable. \newline
+  \choice Classical measurement error in the dependent variable. \newline
+  \CorrectChoice Classical measurement error in the explanatory variable. \newline
+  \choice Weighting observations inversely to the variance of their disturbances.
+\end{oneparcheckboxes} 
+\vspace{\stretch{.5}}
+
+\mc \\ For the following regression model, which of the descriptions are correct?
+$$
+  \text{Health}_i = \beta_0 + \beta_1 \text{Income}_i + \beta_2 \text{Income}^2_i + \beta_3 \text{Hispanic}_i + u_i
+$$
+
+\vspace{\stretch{0}}
+\begin{oneparcheckboxes} 
+  \choice The effect of income on health depends on the individual's ethnicity (Hispanic). \newline
+  \CorrectChoice The effect of additional income on health depends on the level of income. \newline
+  \CorrectChoice $\beta_0$ gives the expected health for a non-Hispanic individual with zero income. \newline
+  \CorrectChoice $\beta_3$ gives the average difference in health between Hispanic and non-Hispanic individuals, holding income constant.
+\end{oneparcheckboxes} 
+\vspace{\stretch{.25}}
+
+
+\end{questions}
+
+## Short answer (50 points; 10 questions)
+
+\textbf{Note} In this section, briefly answer the questions/prompts in 1--3 short (and complete) sentences. \newline We will deduct points for excessively long answers.
+
+\begin{questions}
+
+\setcounter{question}{35}
+
+\short Define the concept of a \textit{standard error}.
+
+\begin{solution}
+  The standard error is the standard deviation of an estimator's sampling distribution. It quantifies the amount of variability in the estimate due to sampling.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short Explain how OLS defines the ``best-fit'' line.
+
+\begin{solution}
+  OLS defines the best-fit line by minimizing the sum of squared residuals, where the \textit{residuals} represent the differences between the observed values and the predicted values (the line).
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short We showed in class that the probability limit of the OLS estimator (for the slope coefficient in a simple linear regression) is
+$$
+  \text{plim}\, \hat{\beta}_1 = \beta_1  + \frac{\text{Cov}(x,u)}{\text{Var}(x)}
+$$
+Using this formula, explain how our OLS assumptions imply that the OLS estimator is consistent (when the assumptions are satisfied).
+
+\begin{solution}
+  The assumption of exogeneity implies that the covariance between the regressor and the disturbance is zero, \ie \( \text{Cov}(x,u) = 0 \).
+
+  We also assume that the variance of the regressor is non-zero, \ie \( \text{Var}(x) > 0 \).
+  
+  Together, these two assumptions imply the second term in the equation above is zero.
+  
+  Thus, the probability limit of the OLS estimator equals to the true population parameter \( \beta_1 \), which implies that the OLS estimator is consistent.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short We want to estimate the model below, but we cannot get data on \textit{Ability}
+$$
+  \text{Wages}_i = \beta_0 + \beta_1 \text{Education}_i + \beta_2 \text{Ability}_i + u_i
+$$
+Use the following omitted-variable-bias formula from class to explain whether OLS will be biased upward or downward when we omit \textit{Ability} from the regression.
+$$
+  \text{plim}\, \hat{\beta}_1 = \beta_1  + \beta_2 \frac{\text{Cov}(x_1,\,x_2)}{\text{Var}(x_1)}
+$$
+
+\begin{solution}
+  The ``bias'' from omitting Ability is $\beta_2 \frac{\text{Cov}(\text{Education}, \text{Ability})}{\text{Var}(\text{Education})}$. If we assume that ability is positively correlated with education, the covariance term is also positive. Hopefully, ability has a positive effect on wages $(\beta_2 > 0)$. Thus, omitting ability will push OLS upwards, resulting in positive bias. OLS will be biased upward when we omit Ability from the regression.
+\end{solution}
+
+\vspace{\stretch{1}} 
+
+\short Suppose your boss tells you to estimate the regression above, but with \textit{SAT Score} instead of \textit{Ability}. Would the coefficient on \textit{SAT Score} be a biased estimate for the effect of \textit{Ability}? Explain.
+
+\begin{solution}
+  The coefficient on SAT Score would likely be a biased estimate for the effect of Ability. This is because SAT Score is an imperfect proxy for Ability, meaning we would have measurement error. If we assume that the measurement error is classical, then this would bias the coefficient on SAT Score toward zero.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short Can \textit{big data} (\textit{i.e.}, larger sample sizes) solve the problem of omitted-variable bias? Explain.
+
+\begin{solution}
+  No, big data cannot solve the problem of omitted-variable bias. Omitted-variable bias occurs when we violate exogeneity---when the disturbance correlates with a regressor. Adding additional observations does not change this correlation. Further, we showed that OLS is also inconsistent when exogeneity is violated: even as the sample size approaches infinity, the OLS estimator does not converge to the true population parameter (in the presence of omitted-variable bias).
+\end{solution}
+
+\vspace{\stretch{1}} 
+
+\short How do we quantify the uncertainty behind our OLS estimates?
+
+\begin{solution}
+  We quantify the uncertainty behind our OLS estimates using standard errors, which we use to construct confidence intervals and conduct hypothesis tests.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+The questions on this page refer to the following regression model for housing prices:
+$$
+  \text{Price}_i = \beta_0 + \beta_1 \text{Size}_i + \beta_2 \text{New}_i + \beta_3 \text{Size}_i \times \text{New}_i + u_i
+$$
+where $\text{Price}_i$ is the sales price of a house in dollars; $\text{Size}_i$ is the area of the house in square feet; and $\text{New}_i$ is a binary (indicator) variable that equals $1$ if the house is new and 0 otherwise.
+
+Suppose $\beta_0 = 500$, $\beta_1 = 150$, $\beta_2 = 500$, and $\beta_3 = 50$. 
+
+\short Interpret $\beta_1$ and $\beta_3$ in the context of the model above.
+
+\begin{solution}
+  The coefficient \( \beta_1 = 150 \) tells us the effect of size on price for non-new houses: for one square-foot increase in size, we expect the price to increase by \$150, holding all else constant.
+
+  The coefficient \( \beta_3 = 50 \) tells us how the effect of size on price differs between new and non-new houses. Specifically, the value here indicates that for a one square foot increase in size, the price increases an additional \$50 for new houses, relative to non-new houses.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Explain how the regression model above describes two different lines for new and non-new houses---give the intercept and the slope for each line.
+
+\begin{solution}
+  The regression model describes two different lines for new and non-new houses. For non-new houses (\(\text{New} = 0\)), the intercept is \(\beta_0 = 500\) and the slope on size is \(\beta_1 = 150\). For new houses (\(\text{New} = 1\)), the intercept is \(\beta_0 + \beta_2 = 500 + 500 = 1,000\) and the slope on size is \(\beta_1 + \beta_3 = 150 + 50 = 200\).
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Continuing: What is the expected price for a new house that is 1,000 square feet? \newline If you don't want to do the math, you can write out the equation you would use, for example, $2 \times 3$.
+
+\begin{solution}
+  The expected price for a new house that is 1,000 square feet is
+\begin{align*}
+  \text{Price} &= \beta_0 + \beta_1 \text{Size} + \beta_2 \text{New} + \beta_3 \text{Size} \times \text{New} \\
+  &= 500 + 150 \times 1,000 + 500 \times 1 + 50 \times 1,000 \times 1 \\
+  &= 500 + 150,000 + 500 + 50,000 \\
+  &= 201,000
+\end{align*}
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\end{questions}
