@@ -34,7 +34,7 @@ Below are the tentatively planning topics for the problem sets.
 
 ## Midterm exam
 
-Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf)
+Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf).
 
 Materials to prepare for the in-class midterm exam:
 
