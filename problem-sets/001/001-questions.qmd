@@ -1,0 +1,620 @@
+---
+title: "Problem Set 1: Heteroskedasticity, Clustering, and Omitted-Variable Bias"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+params:
+  showanswers: true
+---
+
+## Instructions
+
+[**Due**]{style="text-decoration: underline;"} Upload your **PDF or HTML answers** on [Canvas](https://canvas.uoregon.edu/) *before* 11:59PM on Monday, 02 Feb. 2026.
+
+[**Important**]{style="text-decoration: underline;"} **Submit** your answers as an **HTML or PDF file**. The submitted file should be built from an RMarkdown (`.rmd`) or Quarto (`.qmd`) file. Do not submit the `.rmd` or `.qmd` file. You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or the regression results should be in the document that you submit (not just the code—we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero—for the assignment and possibly for the course. We may report you to the dean. Cheating includes copying from your classmates, from the internet, and from previous assignments.
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has three goals: (1) build your understanding of how violations of OLS assumptions affect inference; (2) continue building your [R]{.mono} analytical/coding skillset; (3) practice writing up your results in a clear and concise manner.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set (stored as `data-ps1.csv`) come from a study titled *The Association Between Income and Life Expectancy in the United States, 2001-2014* (by Raj Chetty, Augustin Bergeron, David Cutler, Benjamin Scuderi, Michael Stepner, and Nicholas Turner). The authors created a nice website for the project [here](https://opportunityinsights.org/paper/lifeexpectancy/). Below is a brief description of project ([written](https://opportunityinsights.org/paper/lifeexpectancy/) by the authors)[^1]:
+
+[^1]: You can find the full paper on [JAMA](https://jamanetwork.com/journals/jama/fullarticle/2513561?guestAccessKey=4023ce75-d0fb-44de-bb6c-8a10a30a6173) and a non-technical summary from the authors [here](https://opportunityinsights.org/wp-content/uploads/2018/03/healthineq_summary.pdf).
+
+> How can we reduce socioeconomic disparities in health outcomes? Although it is well known that there are significant differences in health and longevity between income groups, debate remains about the magnitudes and determinants of these differences. We use new data from 1.4 billion anonymous earnings and mortality records to construct more precise estimates of the relationship between income and life expectancy at the national level than was feasible in prior work. We then construct new local area (county and metro area) estimates of life expectancy by income group and identify factors that are associated with higher levels of life expectancy for low-income individuals.
+<br> <br>
+Our findings show that disparities in life expectancy are not inevitable. There are cities throughout America — from New York to San Francisco to Birmingham, AL — where gaps in life expectancy are relatively small or are narrowing over time. Replicating these successes more broadly will require targeted local efforts, focusing on improving health behaviors among the poor in cities such as Las Vegas and Detroit. Our findings also imply that federal programs such as Social Security and Medicare are less redistributive than they might appear because low-income individuals obtain these benefits for significantly fewer years than high-income individuals, especially in cities like Detroit.
+<br> <br>
+Going forward, the challenge is to understand the mechanisms that lead to better health and longevity for low-income individuals in some parts of the U.S. To facilitate future research and monitor local progress, we have posted annual statistics on life expectancy by income group and geographic area (state, CZ, and county) at The Health Inequality Project website. Using these data, researchers will be able to study why certain places have high or improving levels of life expectancy and ultimately apply these lessons to reduce health disparities in other parts of the country.
+
+
+| Variable name       | Variable type | Variable description |
+|:--------------------|:--------------|:---------------------|
+| `county_name`       | character     | County name |
+| `county_code`       | integer       | County FIPS code |
+| `state_abb`         | character     | State abbreviation |
+| `income_quartile`   | character     | Income quartile (1 or 4) |
+| `life_exp`          | numeric       | Life expectancy (years) |
+| `pct_uninsured`     | numeric       | Percent uninsured |
+| `poverty_rate`      | numeric       | Share below poverty line |
+| `pct_religious`     | numeric       | Percent religious |
+| `pct_black`         | numeric       | Percent Black |
+| `pct_hispanic`      | numeric       | Percent Hispanic |
+| `unemployment_rate` | numeric       | Unemployment rate |
+| `median_hh_inc`     | numeric       | Median household income |
+| `is_urban`          | integer       | Urban county indicator (1 or 0) |
+| `pop`               | integer       | County population |
+| `pop_density`       | numeric       | Population density |
+| `pct_smoke`         | numeric       | Percent who smoke |
+| `pct_obese`         | numeric       | Percent obese (BMI) |
+| `pct_exercise`      | numeric       | Percent who exercise |
+
+: Variable names and descriptions
+
+You can find more information about the life-expectancy variables [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_11_readme.pdf) and the county characteristics [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_12_readme.pdf).
+
+## Setup 
+
+**[00]** Let's start by loading the `R` packages.
+
+*Reminder:* You will need to install any packages that are not already installed. After you've installed them one time, you will not need to install them again. (The `pacman` package makes this easier; see the hint below.)
+
+*Hints*
+
+- Use `pacman` to load/install desired packages.
+- You will likely want to use `tidyverse`, `here`, and `fixest` (among others).
+
+As before, here's an example where I load five packages:
+
+- `tidyverse` (for data manipulation),
+- `scales` (for formatting numbers),
+- `fixest` (for regressions),
+- `here` (for managing file paths).
+
+```{r, answer00}
+
+# Load packages using 'pacman'
+library(pacman)
+p_load(tidyverse, scales, fixest, here)
+```
+
+**[01]** Now load the data (stored in `data-ps1.csv`).
+
+*Remember:* The `here()` function helps with the file path to the data file (as does creating *Projects* in RStudio)
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r, answer01}
+
+# Load data
+life_df = here('problem-sets', '001', 'data-ps1.csv') |> read_csv()
+```
+::::
+:::
+
+## Get to know your data
+
+As with the first problem set, the first step in any data analysis is to get to know your data.
+
+**[02]** Use `R` to
+
+- show the number of observations in the dataset,
+- show the number of observations without any missing data,
+- show the names of the variables in the dataset.
+
+*Hints*
+
+1. The functions `dim()`, `nrow()`, `ncol()` show the number of rows and columns in a dataset, *e.g.*, `nrow(some_data)`.
+1. The function `na.omit()` removes observations with _any_ missing data.
+1. The function `names()` shows the variable names in a dataset, *e.g.*, `names(some_data)`.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer02}
+ 
+# The number of observations in the dataset
+life_df |> nrow() |> comma()
+# The number of observations without missing data
+life_df |> na.omit() |> nrow() |> comma()
+# The number of variables
+life_df |> names()
+```
+
+We have `r life_df |> nrow() |> comma()` total observations in the dataset, and `r life_df |> na.omit() |> nrow() |> comma()` observations without any missing data.
+
+The names of the `r life_df |> ncol()` variables are printed above. 
+::::
+:::
+
+
+## Visualize the data
+
+Let's visualize some of the key variables in the dataset.
+
+**[03]** **Important** The dataset contains a variable called `income_quartile`, which indicates whether the observation is in the lowest income quartile (1) or the highest income quartile (4). In other words, for every county, there are two observations: `income_quartile = 1` for the individuals in the county with incomes below the 25th percentile of income in the US, and `income_quartile = 4` for the individuals in the county with incomes above the 75th percentile of income in the US.
+
+Create a histogram of life expectancy (`life_exp`) for individuals in the lowest income quartile (`income_quartile = 1`) and another histogram of life expectancy for individuals in the highest income quartile (`income_quartile = 4`).
+
+You can create two separate plot or can try to combine them into a single plot.
+
+*Note:* Make sure to label your axes. A title would be good too. Aesthetics (colors, themes, *etc.*) are up to you.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} Using `ggplot2`
+
+```{r}
+#| label: answer03
+#| fig-cap: "US life expectancy in lowest and highest income quartiles"
+
+# Histogram of life expectancy by income quartile
+ggplot(data = life_df, aes(x = life_exp, fill = factor(income_quartile))) +
+geom_histogram(
+  bins = 50, color = 'white', alpha = .80,
+  position = 'identity', linewidth = .25
+) +
+geom_hline(yintercept = 0, color = 'black', linewidth = .25) +
+scale_x_continuous('Life expectancy', labels = comma) +
+scale_y_continuous('Number of counties', labels = comma) +
+scale_fill_viridis_d(
+  name = 'Income quartile',
+  labels = c('1 (lowest)', '4 (highest)'),
+  option = 'rocket',
+  begin = .15,
+  end = .75
+) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed') +
+theme(legend.position = 'bottom')
+```
+
+::::
+:::
+
+**[04]** Repeat **[03]** but instead plot histograms of the share of the population that smokes (`pct_smoke`) for individuals in the lowest income quartile (`income_quartile = 1`) and for individuals in the highest income quartile (`income_quartile = 4`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} 
+
+```{r}
+#| label: answer04
+#| fig-cap: "US share of population that smokes in lowest and highest income quartiles"
+
+# Histogram of share of population that smokes by income quartile
+ggplot(data = life_df, aes(x = pct_smoke, fill = factor(income_quartile))) +
+geom_histogram(
+  bins = 50, color = 'white', alpha = .80,
+  position = 'identity', linewidth = .25
+) +
+geom_hline(yintercept = 0, color = 'black', linewidth = .25) +
+scale_x_continuous('Percent smokes', labels = percent) +
+scale_y_continuous('Number of counties', labels = comma) +
+scale_fill_viridis_d(
+  name = 'Income quartile',
+  labels = c('1 (lowest)', '4 (highest)'),
+  option = 'rocket',
+  begin = .15,
+  end = .75
+) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed') +
+theme(legend.position = 'bottom')
+```
+
+::::
+:::
+
+**[05]** One more pair of histograms: Repeat **[03]** but instead plot histograms of the share of the population that exercises (`pct_exercise`) for individuals in the lowest income quartile (`income_quartile = 1`) and for individuals in the highest income quartile (`income_quartile = 4`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans}
+```{r}
+#| label: answer05
+#| fig-cap: "US share of population that exercises in lowest and highest income quartiles"
+
+# Histogram of share of population that exercises by income quartile
+ggplot(data = life_df, aes(x = pct_exercise, fill = factor(income_quartile))) +
+geom_histogram(
+  bins = 50, color = 'white', alpha = .80,
+  position = 'identity', linewidth = .25
+) +
+geom_hline(yintercept = 0, color = 'black', linewidth = .25) +
+scale_x_continuous('Percent exercises', labels = percent) +
+scale_y_continuous('Number of counties', labels = comma) +
+scale_fill_viridis_d(
+  name = 'Income quartile',
+  labels = c('1 (lowest)', '4 (highest)'),
+  option = 'rocket',
+  begin = .15,
+  end = .75
+) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed') +
+theme(legend.position = 'bottom')
+```
+
+::::
+:::
+
+**[06]** Summarize the three histograms you created in **[03]**, **[04]**, and **[05]**. What are your takeaways about life expectancy, smoking rates, and exercise rates in the US across low- and high-income quartiles?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The difference in life expectancy between the lowest and highest income quartiles striking: the histograms barely overlap, and the median life expectancy for individuals in the first quartile (low-income) is more than seven years lower than that of individuals in the  fourth quartile (high-income).
+::::
+:::
+
+**[07]** One more plot: Now create a single scatter plot of life expectancy (`life_exp` on the *y* axis) against the share of the population that recently exercised (`pct_exercise`). Color the points by income quartile (`income_quartile`).
+
+*Hint* You can use the `color` aesthetic in `ggplot2` to color points by a categorical variable, *e.g.*,
+```{r}
+#| eval: FALSE
+
+ggplot(
+  data = some_df,
+  aes(x = some_x, y = some_y, color = factor(some_category))
+) +
+geom_point()
+```
+For more examples, see [here](https://ggplot2.tidyverse.org/reference/geom_point.html).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans}
+
+```{r}
+#| label: answer07
+#| fig-cap: "Scatter plot of life expectancy against percent smokes, by income quartile"
+
+# Scatter plot of life expectancy against percent exercise, colored by income quartile
+ggplot(data = life_df, aes(x = pct_exercise, y = life_exp, color = factor(income_quartile))) +
+geom_point(alpha = .60, size = 1.5) +
+scale_x_continuous('Percent exercises', labels = percent) +
+scale_y_continuous('Life expectancy', labels = comma) +
+scale_color_viridis_d(
+  name = 'Income quartile',
+  labels = c('1 (lowest)', '4 (highest)'),
+  option = 'rocket',
+  begin = .15,
+  end = .75
+) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed') +
+theme(legend.position = 'bottom')
+```
+
+::::
+:::
+
+**[08]** Summarize the scatter plot you created in **[07]**. What are your takeaways about the relationship between life expectancy and exercise rates in the US across low- and high-income quartiles?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} Lots of options here. Higher exercise rates correlate with higher life expectancy. However, higher income quartile *also* correlates with both (a) exercise rate and (b) higher life expectancy.
+
+::::
+:::
+
+## Omitted-variable bias
+
+**[09]** Suppose we are interested in estimating the effect of exercise on life expectancy, *i.e.*,
+$$
+\text{(Life expectancy)}_i = \beta_0 + \beta_1 \text{Exercise}_i + u_i
+$$
+Explain how the scatterplot from **[07]** shows that we should be concerned about omitted-variable bias for this regression.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The scatterplot shows that income quartile is correlated with both exercise rates and life expectancy. Assuming income impacts life expectancy (and is thus in the disturbance), omitting income quartile from the regression will lead to omitted-variable bias in the OLS estimate of $\beta_1$.
+:::::
+:::
+
+**[10]** Using what you observe in the scatterplot from **[07]**, explain whether you expect the OLS estimate of $\beta_1$ to be biased upward or downward. Explain your answer.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Higher income positively correlates with higher exercise rates. Higher income likely leads to higher life expectancy. Using our handy *signing the bias* formula, we expect the OLS estimates of $\beta_1$ to be biased upward—overstating the effect of exercise (when we omit income).
+::::
+:::
+
+**[11]** Create a new variable called `high_income` that equals 1 if the observation is in the highest income quartile (`income_quartile = 4`) and 0 otherwise.
+
+*Hint:* You can use the `mutate()` function from the `dplyr` package to create new variables, *e.g.*,
+```{r}
+#| eval: FALSE
+some_df =
+  some_df |>
+  mutate(new_variable = as.numeric(old_variable == 'some_value'))
+```
+The code above creates a new variable called `new_variable` that equals 1 if `old_variable` equals `'some_value'` and 0 otherwise. The `as.numeric()` function converts the logical variable (`TRUE`/`FALSE`) into a numeric variable (`1`/`0`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r}
+#| label: answer11
+
+# Create 'high_income' variable
+life_df =
+  life_df |>
+  mutate(high_income = as.numeric(income_quartile == 4))
+```
+::::
+:::
+
+**[12]** Now use `R` to estimate
+
+a) the regression model above, and
+b) a regression model that includes exercise *and* the high-income variable as regressors,
+$$
+\text{(Life expectancy)}_i = \beta_0 + \beta_1 \text{Exercise}_i + \beta_2 \text{(High income)}_i + u_i
+$$
+
+Provide a table of your results.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer12
+
+# Estimate regression models
+model_a =
+  feols(life_exp ~ pct_exercise, data = life_df)
+model_b =
+  feols(life_exp ~ pct_exercise + high_income, data = life_df)
+# Show results
+etable(model_a, model_b)
+```
+::::
+:::
+
+**[13]** Compare the estimates of $\beta_1$ from the two regressions in **[12]**. How does including income quartile as a regressor change the estimate of the effect of exercise on life expectancy? Is this consistent with your expectations from **[10]**? Explain.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Including the high-income variable *substantially* decreased the estimate of $\beta_1$---moving from approximately 20 to 4. This decrease is consistent with our expectation from **[10]** that the OLS estimate of $\beta_1$ would be biased upward when omitting income.
+::::
+:::
+
+**[14]** Suppose you have access to a dataset with *many* more observations, but the dataset does not have information on income. Would increasing the sample size help address omitted-variable bias in this case? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} No. Omitted-variable bias comes from violating exogeneity. OLS is both biased *and* inconsistent when exogeneity is violated. Increasing the sample size will not fix the bias/inconsistency problem.
+::::
+:::
+
+**[15]** Imagine that people are not entirely truthful when reporting their exercise habits. How would this untruthful reporting affect OLS estimates of the effect of exercise on life expectancy? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} If we have measurement error, when OLS is biased. If the measurement error is classical, then OLS estimates are biased toward zero (attenuation bias). The more mismeasurement, the more we are biased toward zero.
+::::
+:::
+
+
+## Testing for heteroskedasticity
+
+**[16]** Does the scatterplot from **[07]** suggest that we should be concerned about heteroskedasticity? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Yes, the scatterplot suggests that the variance of life expectancy gets smaller as exercise rates increase. In addition, we seems to have higher-variance disturbances for the low-income quartile. Both of these patterns suggest heteroskedasticity.
+::::
+:::
+
+**[17]** If heteroskedasticity is present, how would it affect the OLS estimates in **[12]**? Explain.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Heteroskedasticity does not bias OLS estimates of the coefficients. However, heteroskedasticity does make the usual OLS standard errors invalid, which affects inference (hypothesis tests and confidence intervals). It also means OLS is no longer the most efficient linear unbiased estimator (BLUE).
+::::
+:::
+
+**[18]** Conduct a Goldfeld-Quandt test for heteroskedasticity on the regression model from **[12b]** (the model with both exercise and high income as regressors). Use `pct_exercise` as the variable to order the observations. Report your results and interpret them.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer18
+
+# Arrange data by 'pct_exercise'
+life_df = 
+  life_df |>
+  arrange(pct_exercise)
+# Run regressions for top and bottom thirds (1,035 observations each)
+gq1 =
+  feols(
+    life_exp ~ pct_exercise + high_income,
+    data = life_df |> head(1035)
+  )
+gq2 =
+  feols(
+    life_exp ~ pct_exercise + high_income,
+    data = life_df |> tail(1035)
+  )
+# SSE for each regression
+sse1 = sum(residuals(gq1)^2)
+sse2 = sum(residuals(gq2)^2)
+# Goldfeld-Quandt test statistic
+gq_stat = sse1 / sse2
+# p-Value
+gq_pv = pf(gq_stat, df1 = 1035 - 3, df2 = 1035 - 3, lower.tail = FALSE)
+```
+
+The Goldfeld-Quandt test statistic is `r round(gq_stat, 3)`, with a *p*-value of `r round(gq_pv, 3)`. Since the *p*-value is less than 0.05, we reject the null hypothesis of homoskedasticity at the 5% significance level. Thus, we have statistically significant evidence of heteroskedasticity in the regression model.
+::::
+:::
+
+**[19]** Now use the White test to test for heteroskedasticity in the regression model from **[12b]**. Report your results and interpret them.
+
+**Important:** If you re-ordered your dataset in **[18]**, make sure to re-estimate the regression model from **[12b]** using this new re-ordered dataset before adding your residuals onto the data frame. Otherwise, your results will be incorrect (because the residuals will not correspond to the correct observations).
+
+*Hint:* Squared a binary indicator variable is just the variable itself.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer19
+
+# Run the original regression
+reg19 =
+  feols(
+    life_exp ~ pct_exercise + high_income,
+    data = life_df
+  )
+# Get residuals and add to data frame
+life_df$resid = residuals(reg19)
+# Run White regression
+white_reg = 
+  feols(
+    I(resid^2) ~ pct_exercise + I(pct_exercise^2) + high_income + I(pct_exercise * high_income),
+    data = life_df
+  )
+# White test statistic
+white_stat = nrow(life_df) * summary(white_reg)$sq.cor
+# p-value
+white_pv = pchisq(white_stat, df = 4, lower.tail = FALSE)
+```
+The White test statistic is `r round(white_stat, 3)`, with a *p*-value of `r comma(white_pv, .0000001)`. Since the *p*-value is less than 0.05, we reject the null hypothesis of homoskedasticity at the 5% significance level. Again, we have statistically significant evidence of heteroskedasticity in the regression model.
+::::
+:::
+
+**[20]** Do the Goldfeld-Quandt and White tests always agree on whether heteroskedasticity is present? Explain why or why not.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} To a degree, yes. Both tests find statistically significant evidence of heteroskedasticity in this case. However, the G-Q test finds more marginal evidence (a larger *p*-value). The White test finds much stronger evidence.
+::::
+:::
+
+
+## Living with heteroskedasticity
+
+**[21]** Let's update the model slightly. Estimate the following regression model:
+$$
+\text{(Life expectancy)}_i = \beta_0 + \beta_1 \text{Exercise}_i + \beta_2 \text{(High income)}_i + \beta_3 \text{Exercise}_i \times \text{(High income)}_i + u_i
+$$
+Show the results of this regression and interpret the coefficient *and* *p*-value on the interaction term.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer21
+
+# Estimate regression model with interaction term
+model21 =
+  feols(
+    life_exp ~ pct_exercise * high_income,
+    data = life_df
+  )
+# Show results
+etable(model21)
+```
+
+The coefficient on the interaction term is `r round(coef(model21)['pct_exercise:high_income'], 3)`, with a *p*-value of `r round(summary(model21)$coeftable['pct_exercise:high_income', 'Pr(>|t|)'], 3)`. This indicates that the effect of exercise on life expectancy is significantly different (lower) for high-income individuals compared to low-income individuals. Specifically, the effect of moving from 0% to 100% "exercisers" (*i.e.*, 0 to 1) has a `r coef(model21)['pct_exercise:high_income'] |> round(3) |> abs()`-year smaller effect on higher-income individuals relative to the effect for lower-income individuals.
+
+::::
+:::
+
+**[22]** Update your standard errors to be *heteroskedasticity robust*.
+
+*Hint:* Remember that the `fixest` package allows you to get heteroskedasticity-robust standard errors using the `vcov = 'het'` argument in the `feols()` function, the `summary()` function, and/or the `etable()` function.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer22
+
+# Use heteroskedasticity-robust standard errors
+model21 |> etable(vcov = 'het')
+```
+::::
+:::
+
+**[23]** Does using heteroskedasticity-robust standard errors change any of your conclusions/inferences from **[22]**? Explain.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} To a degree, yes. The standard errors increase by abount 20%, which moves the *p*-value from significant at the 5% level to significant at the 10% level. Thus, using heteroskedasticity-robust standard errors does change our inference about the statistical significance of the interaction term.
+::::
+:::
+
+**[24]** Would it make sense to use weighted least squares (WLS) here? Explain why or why not.
+
+*Hints:* Think about what the data represent, how WLS works, and the example we discussed in class.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} It certainly *could*. The data are heteroskedastic, and WLS is more efficient than OLS in the presence of heteroskedasticity (if we know the correct weights). However, we do not know the correct weights. We *could* use population as weights, as each observation is actually a summary of a group defined by county and income-quartile. Because these groups have different sizes, population weighting could make some sense—though this difference-in-sizes may not be the sole source of heteroskedasticity.
+::::
+:::
+
+
+## Clustering
+
+**[25]** Explain the concept of *correlated disturbances* and how it affects inference for OLS estimates.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} As the name suggests, *correlated disturbances* occurs when the disturbances of different observations are not independent—*i.e.*, there is something that links the disturbances of different observations (causing them to correlate).
+
+When distrubances correlate, we violate the classical OLS assumption $\text{Cov}(u_i, u_j) = 0$ for $i \neq j$. This violation biases the usual OLS standard errors, which again affects inference (hypothesis tests and confidence intervals).
+::::
+:::
+
+**[26]** Why might we expect correlated disturbances in this dataset? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} We might expect the disturbances to correlate here because we have two observations per county (one for low-income individuals and one for high-income individuals). If there are county-specific factors that affect life expectancy (aside from the included regressors), then these factors will be in the disturbance term for both observations in the county, causing the disturbances to correlate. Similarly, we might expect larger areas (*e.g.*, states) to have correlated disturbances.
+::::
+:::
+
+**[27]** Update your regression from **[21]** to use *cluster-robust* standard errors, clustering at the state level (`state_abb`). Show the results.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r}
+#| label: answer27
+
+# Use cluster-robust standard errors (clustered by state)
+model21 |> etable(cluster = ~ state_abb)
+```
+:::::
+:::
+
+*Hint:* Remember that the `feols()` function allows you to get *cluster-robust* standard errors via `cluster = ~ some_var` (where `some_var` is the clustering variable).
+
+**[28]** How do the cluster-robust standard errors compare to the heteroskedasticity-robust standard errors from **[22]**? Explain any differences you observe. Did accounting for potential correlated disturbances change any of your conclusions/inferences from **[22]**?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The cluster-robust standard errors (allowing for correlated disturbances at the state level) are about 20% larger than the heteroskedasticity-robust standard errors (and approximately 40% larger than the "classic" OLS standard errors). This increase in the standard errors moves the *p*-value on the interaction term to above 0.10, meaning we would no longer consider the interaction between high income and exercise to be statistically significant at conventional significance levels. 
+::::
+:::

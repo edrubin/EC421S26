@@ -2,15 +2,13 @@
 # Temporary holds: Lecture
 
 # Temporary holds: Assignments
-problem-sets/001/001-questions.qmd
-problem-sets/001/001-solutions.html
+problem-sets/002*
 
 # Notes cache
 notes/*/slides_cache/*
 
 # Non-review test files
-midterm/exam*
-final/exam*
+final/exam/*
 
 # Misc files
 *.DS_Store

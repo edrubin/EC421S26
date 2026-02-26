@@ -21,8 +21,8 @@ Below are the tentatively planning topics for the problem sets.
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/000/data-ps0.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-solutions.html)
 
 **Problem Set 1: Heteroskedasticity, Clustering, and OLS Assumptions**
-<br>Due: TBA
-<br>Files: assignment | data | solutions 
+<br>Due: Monday, 02 February 2026 by 11:59 PM
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/001/data-ps1.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-solutions.html)
 
 **Problem Set 2: Time series data, analyses, and nonstationarity**
 <br>Due: TBA
@@ -34,12 +34,14 @@ Below are the tentatively planning topics for the problem sets.
 
 ## Midterm exam
 
-Materials to prepare for the in-class midterm exam (TBD):
+Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf).
+
+Materials to prepare for the in-class midterm exam:
 
 - [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
 - [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/topics/midterm-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/review/midterm-review.html) (no solutions)
+- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-review.html) (no solutions)
 
 The problem sets should also help you review.
 
@@ -76,13 +78,13 @@ In case you're interested, I created the slides with [`xaringan`](https://github
 
 7. [Introduction to time series](https://raw.githack.com/edrubin/EC421W26/master/notes/07-time-series/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/07-time-series/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/07-time-series/slides.rmd)
 
-8. [Autocorrelated disturbances](https://raw.githack.com/edrubin/EC421S25/master/notes/08-autocorrelation/slides.html)<br>Implications, testing, and estimation. Also: introduction `ggplot2` and user-defined functions. <br> [PDF](https://raw.githack.com/edrubin/EC421S25/master/notes/08-autocorrelation/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421S25/blob/master/notes/08-autocorrelation/slides.Rmd)
+8. [Autocorrelated disturbances](https://raw.githack.com/edrubin/EC421W26/master/notes/08-autocorrelation/slides.html)<br>Implications, testing, and estimation. Also: introduction `ggplot2` and user-defined functions. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/08-autocorrelation/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/08-autocorrelation/slides.Rmd)
 
-9. [Nonstationarity](https://raw.githack.com/edrubin/EC421W25/master/notes/09-nonstationarity/slides.html)<br>Introduciton, implications for OLS, testing, and estimation. Also: in-class exercise for model selection. <br> [PDF](https://raw.githack.com/edrubin/EC421W25/master/notes/09-nonstationarity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W25/blob/master/notes/09-nonstationarity/slides.Rmd)
+9. [Nonstationarity](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.html)<br>Introduciton, implications for OLS, testing, and estimation. Also: in-class exercise for model selection. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/09-nonstationarity/slides.Rmd)
 
-10. [Causality](https://raw.githack.com/edrubin/EC421W25/master/notes/10-causality/slides.html)<br>Introduction to causality and the Neymam-Rubin causal model. Also: Recap of in-class model-selection exercise. <br> [PDF](https://raw.githack.com/edrubin/EC421W25/master/notes/10-causality/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W25/blob/master/notes/10-causality/slides.Rmd)
+10. [Causality](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.html)<br>Introduction to causality and the Neymam-Rubin causal model. Also: Recap of in-class model-selection exercise. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/10-causality/slides.Rmd)
 
-11. [Instrumental Variables](https://raw.githack.com/edrubin/EC421W25/master/notes/11-iv/slides.html)<br>Review the Neymam-Rubin causal model; introduction to instrumental variables (IV) and two-stage least squares (2SLS). Applications to causal inference and measurement error. Venn diagrams. <br> [PDF](https://raw.githack.com/edrubin/EC421W25/master/notes/11-iv/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W25/blob/master/notes/11-iv/slides.Rmd)
+11. [Instrumental Variables](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.html)<br>Review the Neymam-Rubin causal model; introduction to instrumental variables (IV) and two-stage least squares (2SLS). Applications to causal inference and measurement error. Venn diagrams. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/11-iv/slides.Rmd)
 
 ## Exams
 
@@ -102,7 +104,7 @@ Here are some exams from previous years:
 | Winter 2023 | [home key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-home-key.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-inclass.pdf) [in-class key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023w-inclass-key.pdf) | [home exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-home.html) [home key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-home-key.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-inclass.pdf) [in-class key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023w-inclass-key.pdf) |
 | Spring 2023 | [home exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-home.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-inclass.pdf) | [home exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s-inclass.pdf) |
 | Winter 2025 | [exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w-key.pdf) | [exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w-key.pdf) |
-| Spring 2025 | [exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025s.pdf) | [exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025s.pdf) |
+| Spring 2025 | [exam](https://raw.githack.com/edrubin/EC421W26/master/midterm/past/midterm-2025s.pdf) | [exam](https://raw.githack.com/edrubin/EC421W26/master/final/past/final-2025s.pdf) |
 
 **Note:** If there is no key posted, then I do not have it and will not distribute it.
 
