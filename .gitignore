@@ -2,7 +2,7 @@
 # Temporary holds: Lecture
 
 # Temporary holds: Assignments
-problem-sets/002*
+problem-sets/002/data-raw*
 
 # Notes cache
 notes/*/slides_cache/*
