@@ -3,6 +3,7 @@
 
 # Temporary holds: Assignments
 problem-sets/002/data-raw*
+problem-sets/002/002-questions.qmd
 
 # Notes cache
 notes/*/slides_cache/*

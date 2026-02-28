@@ -15,10 +15,10 @@
 
 # Clean data -----------------------------------------------------------------------------
   # Clean names
-  setnames(ue, c('date', 'unemployment_rate'))
+  setnames(ue, c('date', 'unemp_rate'))
   setnames(cpi, c('date', 'cpi'))
-  setnames(gdp, c('date', 'gdp'))
-  setnames(rec, c('date', 'recession_prob'))
+  setnames(gdp, c('date', 'gdppc'))
+  setnames(rec, c('date', 'rec_prob'))
   # Aggregate ue, cpi, and rec to quarterly
   ue[, q := quarter(date)]
   cpi[, q := quarter(date)]
@@ -26,17 +26,17 @@
   ue =
     ue[, .(
       date = min(date),
-      unemployment_rate = mean(unemployment_rate, na.rm = TRUE) |> round(1)
+      unemp_rate = mean(unemp_rate, na.rm = TRUE) |> round(2)
     ), by = .(year(date), q)]
   cpi =
     cpi[, .(
       date = min(date),
-      cpi = mean(cpi, na.rm = TRUE) |> round()
+      cpi = mean(cpi, na.rm = TRUE) |> round(2)
     ), by = .(year(date), q)]
   rec =
     rec[, .(
       date = min(date),
-      recession_prob = mean(recession_prob, na.rm = TRUE) |> round(2)
+      rec_prob = mean(rec_prob, na.rm = TRUE) |> round(2)
     ), by = .(year(date), q)]
   cpi[, c('q', 'year') := NULL]
   rec[, c('q', 'year') := NULL]
@@ -56,10 +56,10 @@
   # Reorder columns
   setcolorder(
     full_dt,
-    c('time', 'date', 'q', 'country', 'unemployment_rate', 'cpi', 'gdp', 'recession_prob')
+    c('time', 'date', 'q', 'country', 'unemp_rate', 'cpi', 'gdppc', 'rec_prob')
   )
   # Rescale GDP
-  full_dt[, gdp := gdp / 1e3]
+  full_dt[, gdppc := gdppc / 1e3]
 
 # Save cleaned dataset -------------------------------------------------------------------
   # Save

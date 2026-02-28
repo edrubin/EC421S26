@@ -26,7 +26,7 @@ Below are the tentatively planning topics for the problem sets.
 
 **Problem Set 2: Time series data, analyses, and nonstationarity**
 <br>Due: TBA
-<br>Files: assignment | data | solutions 
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/002/002-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/002/data-ps2.csv) | solutions
 
 **Problem Set 3: Problem Set 3: Causality, Instrumental Variables, and Review**
 <br>Due: TBA
