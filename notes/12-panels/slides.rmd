@@ -1,0 +1,837 @@
+---
+title: "Panel Estimation"
+subtitle: "EC 421, Set 12"
+author: "Edward Rubin"
+date: ""
+output:
+  xaringan::moon_reader:
+    css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: inverse, middle
+
+```{r, setup, include = FALSE}
+options(htmltools.dir.version = FALSE)
+library(pacman)
+p_load(
+  broom, dplyr, fixest, ggplot2, kableExtra, knitr,
+  magrittr, scales, tidyr
+)
+
+# Define colors
+red_pink <- "#e64173"
+turquoise <- "#20B2AA"
+orange <- "#FFA500"
+red <- "#fb6107"
+blue <- "#2b59c3"
+green <- "#8bb174"
+grey_light <- "grey70"
+grey_mid <- "grey50"
+grey_dark <- "grey20"
+purple <- "#6A5ACD"
+
+# Knitr options
+opts_chunk$set(
+  comment = "#>",
+  fig.align = "center",
+  fig.height = 7,
+  fig.width = 10.5,
+  warning = FALSE,
+  message = FALSE
+)
+opts_chunk$set(dev = "svg")
+options(device = function(file, width, height) {
+  svg(tempfile(), width = width, height = height)
+})
+options(crayon.enabled = FALSE)
+options(knitr.table.format = "html")
+
+table_style <- function(x, digits = 2, font_size = 22) {
+  align <- paste(rep("c", ncol(x)), collapse = "")
+  x %>%
+    kable(escape = FALSE, digits = digits, align = align) %>%
+    kable_styling(font_size = font_size, full_width = FALSE)
+}
+
+fmt3 <- function(x) sprintf("%.3f", x)
+
+theme_set(theme_minimal(base_size = 20))
+
+set.seed(421)
+
+# Tiny example panel for early slides
+example_panel <- tribble(
+  ~Unit, ~Year, ~`y_it`, ~`x_it`,
+  "A", 1, 10, 2,
+  "A", 2, 11, 3,
+  "A", 3, 13, 4,
+  "B", 1, 7, 1,
+  "B", 2, 8, 1,
+  "B", 3, 9, 2
+)
+
+# Simulated state panel for minimum-wage example
+states <- state.abb[1:40]
+years <- 2014:2021
+alpha_state <- rnorm(length(states), sd = 3)
+policy_pref <- 0.9 * alpha_state + rnorm(length(states), sd = 1)
+names(alpha_state) <- states
+names(policy_pref) <- states
+lambda_t <- c(-1.0, -0.5, -0.2, 0.0, 0.3, 0.6, 0.9, 1.1)
+
+mw_df <- expand_grid(state = states, year = years) %>%
+  mutate(
+    alpha = alpha_state[state],
+    policy = policy_pref[state],
+    post = year >= 2018,
+    min_wage = 7.25 + 0.35 * policy + 0.18 * (year - min(years)) +
+      if_else(policy > median(policy) & post, 1.1, 0) + rnorm(n(), sd = 0.18),
+    teen_emp = 58 - 1.6 * min_wage + 2.7 * alpha + lambda_t[match(year, years)] +
+      rnorm(n(), sd = 1.4)
+  )
+
+plot_ids <- mw_df %>%
+  distinct(state, alpha) %>%
+  arrange(alpha) %>%
+  slice(c(3, 10, 17, 24, 31, 38)) %>%
+  pull(state)
+
+mw_plot_df <- mw_df %>%
+  filter(state %in% plot_ids) %>%
+  mutate(state = factor(state, levels = plot_ids))
+
+mw_df$mw_tw <- resid(feols(min_wage ~ 1 | state + year, data = mw_df))
+mw_df$emp_tw <- resid(feols(teen_emp ~ 1 | state + year, data = mw_df))
+
+pool_mod <- feols(teen_emp ~ min_wage, data = mw_df)
+fe_mod <- feols(teen_emp ~ min_wage | state + year, cluster = "state", data = mw_df)
+
+pool_se <- sqrt(diag(vcov(pool_mod)))[["min_wage"]]
+fe_se <- sqrt(diag(vcov(fe_mod)))[["min_wage"]]
+fe_wr2 <- as.numeric(fitstat(fe_mod, "wr2"))
+
+model_compare <- tibble(
+  Model = c("Truth", "Pooled OLS", "State + year FE"),
+  `Slope on MinWage_it` = c("-1.600", fmt3(coef(pool_mod)[["min_wage"]]), fmt3(coef(fe_mod)[["min_wage"]])),
+  `Std. error` = c("", fmt3(pool_se), fmt3(fe_se)),
+  `Within R^2` = c("", "", fmt3(fe_wr2))
+)
+
+# DiD example from fixest
+data(base_did)
+
+did_cells <- base_did %>%
+  group_by(treat, post) %>%
+  summarize(mean_y = mean(y), .groups = "drop") %>%
+  mutate(
+    Group = ifelse(treat == 1, "Treated", "Control"),
+    Period = ifelse(post == 1, "Post", "Pre")
+  )
+
+did_table <- did_cells %>%
+  select(Group, Period, mean_y) %>%
+  pivot_wider(names_from = Period, values_from = mean_y) %>%
+  mutate(
+    Change = Post - Pre,
+    across(c(Pre, Post, Change), fmt3)
+  ) %>%
+  arrange(Group)
+
+control_change <- did_cells %>%
+  filter(treat == 0) %>%
+  summarize(change = mean_y[post == 1] - mean_y[post == 0]) %>%
+  pull(change)
+
+treated_change <- did_cells %>%
+  filter(treat == 1) %>%
+  summarize(change = mean_y[post == 1] - mean_y[post == 0]) %>%
+  pull(change)
+
+did_est <- treated_change - control_change
+
+did_plot_df <- base_did %>%
+  group_by(treat, period) %>%
+  summarize(mean_y = mean(y), .groups = "drop") %>%
+  mutate(Group = ifelse(treat == 1, "Treated", "Control"))
+
+did_mod <- feols(y ~ i(post, treat, ref = 0) | id + period, cluster = "id", data = base_did)
+did_se <- sqrt(diag(vcov(did_mod)))[["post::1:treat"]]
+
+did_reg_table <- tibble(
+  Term = "post x treat",
+  Estimate = fmt3(coef(did_mod)[["post::1:treat"]]),
+  `Std. error` = fmt3(did_se),
+  `Within R^2` = fmt3(as.numeric(fitstat(did_mod, "wr2")))
+)
+```
+
+# Prologue
+
+---
+name: schedule
+
+# Schedule
+
+## Last Time
+
+Instrumental variables
+
+## Today
+
+- What panel data buy us
+- Fixed effects
+- Difference-in-differences
+- Brief extension: synthetic controls
+
+---
+layout: false
+class: inverse, middle
+
+# Panel Estimation
+
+---
+layout: true
+# Panel Estimation
+## Introduction
+
+---
+name: panel_intro
+
+Until now, we mostly used one of two data structures:
+
+--
+
+- .hi-slate[Cross section:] many units, one period
+
+--
+
+- .hi-purple[Time series:] one unit, many periods
+
+--
+
+A .hi[panel] gives us both:
+
+- units indexed by $i$
+- periods indexed by $t$
+- outcomes and regressors like $\color{#e64173}{y_{it}}$ and $\color{#e64173}{x_{it}}$
+
+---
+
+## Example: A tiny panel
+
+```{r, example-panel, echo = FALSE}
+table_style(example_panel, digits = 0, font_size = 24)
+```
+
+--
+
+We observe the .hi[same unit repeatedly].
+
+--
+
+That means we can compare .hi-purple[unit A to itself over time], not just A to B.
+
+---
+
+## Why economists like panels
+
+Panels can help because they let us
+
+--
+
+- control for .hi[time-invariant differences] across units
+
+--
+
+- study .hi-purple[changes], not just levels
+
+--
+
+- evaluate policies that start at a known time
+
+--
+
+- use the same logic for workers, firms, counties, states, or countries
+
+---
+
+## Panels are helpful, not magical
+
+Panels still have several traps:
+
+--
+
+- We need .hi-orange[within variation] in $\color{#FFA500}{x_{it}}$.
+
+--
+
+- Time-varying omitted variables can still bias us.
+
+--
+
+- Errors within a unit are often correlated over time.
+
+--
+
+- Attrition and missing periods can matter.
+
+---
+layout: true
+# Panel Estimation
+## Fixed Effects
+
+---
+name: pooled_problem
+
+Start with the familiar panel regression
+
+$$
+\begin{align}
+  y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}
+\end{align}
+$$
+
+--
+
+Now suppose the error term contains a unit-specific factor:
+
+$$
+\begin{align}
+  u_{it} = \alpha_i + v_{it}
+\end{align}
+$$
+
+--
+
+If $\mathop{\text{Cov}}\left( x_{it}, \alpha_i \right) \neq 0$, then pooled OLS mixes
+
+- .hi-slate[between-unit differences] and
+- .hi-purple[within-unit changes].
+
+---
+
+## Fixed effects idea
+
+Let each unit have its own intercept:
+
+$$
+\begin{align}
+  y_{it} = \beta_1 x_{it} + \alpha_i + \lambda_t + u_{it}
+\end{align}
+$$
+
+--
+
+- $\color{#314f4f}{\alpha_i}$: unit fixed effects
+
+--
+
+- $\color{#6A5ACD}{\lambda_t}$: time fixed effects
+
+--
+
+- $\beta_1$: effect of $x_{it}$ using .hi[within-unit variation], net of common time shocks
+
+---
+
+## The within transformation
+
+For intuition, focus on unit fixed effects:
+
+$$
+\begin{align}
+  y_{it} &= \beta_0 + \beta_1 x_{it} + \alpha_i + u_{it}
+\end{align}
+$$
+
+Subtract the unit mean from both sides:
+
+$$
+\begin{align}
+  y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \left( u_{it} - \overline{u}_i \right)
+\end{align}
+$$
+
+--
+
+.hi[Why this matters:] $\alpha_i$ disappears because it is constant within unit $i$.
+
+---
+
+## What fixed effects use
+
+Fixed effects do .hi[not] ask:
+
+- Why is unit A different from unit B?
+
+--
+
+Fixed effects ask:
+
+- When unit A changes $\color{#e64173}{x_{it}}$, how does $\color{#e64173}{y_{it}}$ change?
+
+--
+
+So FE uses .hi-purple[within variation].
+
+--
+
+Time-invariant regressors are dropped because
+
+$$
+\begin{align}
+  z_i - \overline{z}_i = 0
+\end{align}
+$$
+
+for every period.
+
+---
+
+## Applied example: state minimum wages
+
+Suppose we want to estimate the effect of the minimum wage on employment.
+
+$$
+\begin{align}
+  \text{Emp}_{it} = \beta_1 \text{MinWage}_{it} + \alpha_i + \lambda_t + u_{it}
+\end{align}
+$$
+
+--
+
+Here,
+
+- $i$ is a .hi-purple[state]
+- $t$ is a .hi-slate[year or quarter]
+
+--
+
+- $\alpha_i$ absorbs time-invariant state differences
+- $\lambda_t$ absorbs national shocks
+
+---
+
+## What FE means in that example
+
+In the minimum-wage panel, fixed effects net out factors like
+
+--
+
+- state geography
+- long-run industry mix
+- baseline labor-market conditions
+- permanent political differences
+
+--
+
+So $\beta_1$ comes from .hi[states that change their minimum wage], relative to their own histories and common national trends.
+
+---
+
+## Example: pooled OLS vs. fixed effects
+
+```{r, fe-raw-plot, echo = FALSE}
+ggplot(mw_plot_df, aes(x = min_wage, y = teen_emp, color = state)) +
+  geom_point(size = 2.4, alpha = 0.9) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, linewidth = 0.9) +
+  geom_smooth(
+    data = mw_df,
+    aes(x = min_wage, y = teen_emp),
+    inherit.aes = FALSE,
+    method = "lm",
+    formula = y ~ x,
+    se = FALSE,
+    color = grey_dark,
+    linewidth = 1.4
+  ) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    x = "State minimum wage",
+    y = "Teen employment rate",
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
+  )
+```
+
+The dark line is .hi-orange[pooled OLS].
+
+--
+
+It slopes .hi-orange[up] because high-wage states also have stronger labor markets for other reasons.
+
+--
+
+That is .hi[cross-sectional selection bias]: states with high minimum wages are not directly comparable to states with low minimum wages.
+
+---
+
+## Minimum-wage example results
+
+```{r, fe-model-table, echo = FALSE}
+table_style(model_compare, digits = 3, font_size = 24)
+```
+
+--
+
+.hi[Truth:] Raising the minimum wage lowers teen employment in this example.
+
+--
+
+.hi-purple[Fixed effects] flip the sign because they compare each state to itself over time.
+
+---
+
+## After partialling out unit and year effects
+
+```{r, fe-resid-plot, echo = FALSE}
+ggplot(mw_df, aes(x = mw_tw, y = emp_tw)) +
+  geom_hline(yintercept = 0, color = grey_light, linewidth = 0.5) +
+  geom_vline(xintercept = 0, color = grey_light, linewidth = 0.5) +
+  geom_point(color = blue, alpha = 0.35, size = 2) +
+  geom_smooth(
+    method = "lm",
+    formula = y ~ x,
+    se = FALSE,
+    color = red_pink,
+    linewidth = 1.4
+  ) +
+  labs(
+    x = "Minimum wage residual",
+    y = "Employment residual"
+  ) +
+  theme_minimal(base_size = 21) +
+  theme(panel.grid.minor = element_blank())
+```
+
+--
+
+This is the .hi[within relationship] after removing state and year averages.
+
+---
+
+## `fixest` syntax
+
+```{r, fe-code, eval = FALSE}
+fe_mod <- feols(
+  teen_emp ~ min_wage | state + year,
+  cluster = "state",
+  data = mw_df
+)
+```
+
+--
+
+- Left of `|`: regressors of interest
+
+--
+
+- Right of `|`: fixed effects
+
+--
+
+- `cluster = "state"`: allow correlation within a state over time
+
+---
+
+## Within $R^2$
+
+For the FE model above:
+
+```{r, fe-wr2, echo = FALSE}
+table_style(
+  tibble(
+    Statistic = c("Slope on min_wage", "Within R^2"),
+    Value = c(fmt3(coef(fe_mod)[["min_wage"]]), fmt3(fe_wr2))
+  ),
+  digits = 3,
+  font_size = 25
+)
+```
+
+--
+
+.hi[Within $R^2$] asks:
+
+> After removing the fixed effects, how much of the remaining variation in teen employment do changes in the minimum wage explain?
+
+--
+
+It is the right fit measure when FE identification comes from .hi-purple[within variation].
+
+---
+
+## What FE does not fix
+
+Fixed effects solve one important problem:
+
+- .hi[time-invariant omitted variables]
+
+--
+
+But FE does .hi-orange[not] solve
+
+- time-varying confounders
+- reverse causality
+- bad measurement of treatment timing
+- weak within variation
+
+---
+layout: false
+class: inverse, middle
+
+# Difference-in-Differences
+
+---
+layout: true
+# Difference-in-Differences
+## Core Idea
+
+---
+name: did_intuition
+
+Difference-in-differences (DiD) is a .hi[panel-data design].
+
+--
+
+We compare
+
+- a .hi-purple[treated group] and
+- a .hi-slate[control group]
+
+--
+
+before and after treatment begins.
+
+--
+
+It is fixed effects plus a very specific source of within variation:
+
+.hi-orange[a policy shock that turns on for some units and not others.]
+
+---
+
+## The basic DiD formula
+
+$$
+\begin{align}
+  \widehat{\delta}_{DiD} =
+  \left( \overline{y}_{T,post} - \overline{y}_{T,pre} \right) -
+  \left( \overline{y}_{C,post} - \overline{y}_{C,pre} \right)
+\end{align}
+$$
+
+--
+
+The first difference removes permanent treated-control differences.
+
+--
+
+The second difference removes common time shocks.
+
+---
+
+## A 2 x 2 DiD table
+
+```{r, did-cell-table, echo = FALSE}
+table_style(did_table, digits = 3, font_size = 24)
+```
+
+--
+
+- Treated change: `r fmt3(treated_change)`
+- Control change: `r fmt3(control_change)`
+- DiD estimate: `r fmt3(did_est)`
+
+---
+
+## Classic DiD example: Card and Krueger
+
+One famous application compares .hi[fast-food employment]
+
+--
+
+- in .hi-purple[New Jersey], where the minimum wage rose
+- to .hi-slate[Pennsylvania], where it did not
+
+--
+
+before and after the policy change.
+
+--
+
+DiD asks whether employment in New Jersey changed .hi-orange[more or less than the counterfactual trend] suggested by Pennsylvania.
+
+---
+
+## DiD as a regression
+
+With two groups and two periods:
+
+$$
+\begin{align}
+  y_{it} = \beta_0 + \beta_1 \text{Treat}_i + \beta_2 \text{Post}_t + \delta \left( \text{Treat}_i \times \text{Post}_t \right) + u_{it}
+\end{align}
+$$
+
+--
+
+With panel data, we often write
+
+$$
+\begin{align}
+  y_{it} = \alpha_i + \lambda_t + \delta D_{it} + u_{it}
+\end{align}
+$$
+
+--
+
+where $D_{it}=1$ only for treated units after treatment starts.
+
+---
+
+## DiD in pictures
+
+```{r, did-plot, echo = FALSE}
+ggplot(did_plot_df, aes(x = period, y = mean_y, color = Group)) +
+  geom_vline(xintercept = 5.5, linetype = "dashed", color = grey_mid) +
+  geom_line(linewidth = 1.3) +
+  geom_point(size = 2.7) +
+  scale_color_manual(values = c("Control" = purple, "Treated" = red_pink)) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(
+    x = "Period",
+    y = "Average y",
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
+  )
+```
+
+--
+
+Treatment begins between periods 5 and 6.
+
+---
+
+## `fixest` DiD code
+
+```{r, did-code, eval = FALSE}
+did_mod <- feols(
+  y ~ i(post, treat, ref = 0) | id + period,
+  cluster = "id",
+  data = base_did
+)
+```
+
+--
+
+```{r, did-reg-table, echo = FALSE}
+table_style(did_reg_table, digits = 3, font_size = 24)
+```
+
+--
+
+The interaction term is the .hi[DiD estimate].
+
+---
+
+## The key DiD assumption
+
+.hi[Parallel trends:]
+
+In the absence of treatment, treated and control units would have followed the same average trend.
+
+--
+
+What threatens DiD?
+
+--
+
+- treated units were already on a different trend
+- anticipation changes behavior before treatment
+- another shock hits treated units at the same time
+- standard errors ignore within-unit dependence
+
+---
+
+## Where DiD fits
+
+DiD is especially useful when
+
+--
+
+- treatment timing is clear
+
+--
+
+- you have good pre-treatment data
+
+--
+
+- untreated units provide a plausible counterfactual
+
+--
+
+- the treatment effect is tied to a policy or event
+
+---
+layout: true
+# Panel Estimation
+## What Comes Next
+
+---
+name: scm
+
+## Synthetic control and friends
+
+If one unit gets treated and many do not, .hi[synthetic control methods] can help.
+
+--
+
+Idea:
+
+- build a weighted average of control units
+- match the treated unit's pre-treatment path
+- compare treated vs. synthetic control after treatment
+
+--
+
+There are many related panel methods, but for us the core ideas today are still
+
+- .hi[within variation]
+- .hi-purple[fixed effects]
+- .hi-orange[treated vs. untreated changes over time]
+
+---
+
+## Takeaways
+
+- Panel data let us compare a unit .hi[to itself over time].
+
+--
+
+- Fixed effects remove .hi-purple[time-invariant omitted variables].
+
+--
+
+- The identifying variation is .hi-orange[within variation], so within $R^2$ matters.
+
+--
+
+- DiD is a panel-data strategy built around a treated-control change over time.
+
+--
+
+- Panels help a lot, but they still depend on strong assumptions.

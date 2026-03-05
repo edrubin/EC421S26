@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Panel Estimation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Edward Rubin" />
+    <script src="slides_files/header-attrs/header-attrs.js"></script>
+    <link href="slides_files/remark-css/default.css" rel="stylesheet" />
+    <link href="slides_files/remark-css/metropolis.css" rel="stylesheet" />
+    <link href="slides_files/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <script src="slides_files/kePrint/kePrint.js"></script>
+    <link href="slides_files/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="my-css.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Panel Estimation
+]
+.subtitle[
+## EC 421, Set 12
+]
+.author[
+### Edward Rubin
+]
+
+---
+
+class: inverse, middle
+
+
+
+# Prologue
+
+---
+name: schedule
+
+# Schedule
+
+## Last Time
+
+Instrumental variables
+
+## Today
+
+- What panel data buy us
+- Fixed effects
+- Difference-in-differences
+- Brief extension: synthetic controls
+
+---
+layout: false
+class: inverse, middle
+
+# Panel Estimation
+
+---
+layout: true
+# Panel Estimation
+## Introduction
+
+---
+name: panel_intro
+
+Until now, we mostly used one of two data structures:
+
+--
+
+- .hi-slate[Cross section:] many units, one period
+
+--
+
+- .hi-purple[Time series:] one unit, many periods
+
+--
+
+A .hi[panel] gives us both:
+
+- units indexed by `\(i\)`
+- periods indexed by `\(t\)`
+- outcomes and regressors like `\(\color{#e64173}{y_{it}}\)` and `\(\color{#e64173}{x_{it}}\)`
+
+---
+
+## Example: A tiny panel
+
+&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Unit &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Year &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; y_it &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; x_it &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+We observe the .hi[same unit repeatedly].
+
+--
+
+That means we can compare .hi-purple[unit A to itself over time], not just A to B.
+
+---
+
+## Why economists like panels
+
+Panels can help because they let us
+
+--
+
+- control for .hi[time-invariant differences] across units
+
+--
+
+- study .hi-purple[changes], not just levels
+
+--
+
+- evaluate policies that start at a known time
+
+--
+
+- use the same logic for workers, firms, counties, states, or countries
+
+---
+
+## Panels are helpful, not magical
+
+Panels still have several traps:
+
+--
+
+- We need .hi-orange[within variation] in `\(\color{#FFA500}{x_{it}}\)`.
+
+--
+
+- Time-varying omitted variables can still bias us.
+
+--
+
+- Errors within a unit are often correlated over time.
+
+--
+
+- Attrition and missing periods can matter.
+
+---
+layout: true
+# Panel Estimation
+## Fixed Effects
+
+---
+name: pooled_problem
+
+Start with the familiar panel regression
+
+$$
+`\begin{align}
+  y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}
+\end{align}`
+$$
+
+--
+
+Now suppose the error term contains a unit-specific factor:
+
+$$
+`\begin{align}
+  u_{it} = \alpha_i + v_{it}
+\end{align}`
+$$
+
+--
+
+If `\(\mathop{\text{Cov}}\left( x_{it}, \alpha_i \right) \neq 0\)`, then pooled OLS mixes
+
+- .hi-slate[between-unit differences] and
+- .hi-purple[within-unit changes].
+
+---
+
+## Fixed effects idea
+
+Let each unit have its own intercept:
+
+$$
+`\begin{align}
+  y_{it} = \beta_1 x_{it} + \alpha_i + \lambda_t + u_{it}
+\end{align}`
+$$
+
+--
+
+- `\(\color{#314f4f}{\alpha_i}\)`: unit fixed effects
+
+--
+
+- `\(\color{#6A5ACD}{\lambda_t}\)`: time fixed effects
+
+--
+
+- `\(\beta_1\)`: effect of `\(x_{it}\)` using .hi[within-unit variation], net of common time shocks
+
+---
+
+## The within transformation
+
+For intuition, focus on unit fixed effects:
+
+$$
+`\begin{align}
+  y_{it} &amp;= \beta_0 + \beta_1 x_{it} + \alpha_i + u_{it}
+\end{align}`
+$$
+
+Subtract the unit mean from both sides:
+
+$$
+`\begin{align}
+  y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \left( u_{it} - \overline{u}_i \right)
+\end{align}`
+$$
+
+--
+
+.hi[Why this matters:] `\(\alpha_i\)` disappears because it is constant within unit `\(i\)`.
+
+---
+
+## What fixed effects use
+
+Fixed effects do .hi[not] ask:
+
+- Why is unit A different from unit B?
+
+--
+
+Fixed effects ask:
+
+- When unit A changes `\(\color{#e64173}{x_{it}}\)`, how does `\(\color{#e64173}{y_{it}}\)` change?
+
+--
+
+So FE uses .hi-purple[within variation].
+
+--
+
+Time-invariant regressors are dropped because
+
+$$
+`\begin{align}
+  z_i - \overline{z}_i = 0
+\end{align}`
+$$
+
+for every period.
+
+---
+
+## Applied example: state minimum wages
+
+Suppose we want to estimate the effect of the minimum wage on employment.
+
+$$
+`\begin{align}
+  \text{Emp}_{it} = \beta_1 \text{MinWage}_{it} + \alpha_i + \lambda_t + u_{it}
+\end{align}`
+$$
+
+--
+
+Here,
+
+- `\(i\)` is a .hi-purple[state]
+- `\(t\)` is a .hi-slate[year or quarter]
+
+--
+
+- `\(\alpha_i\)` absorbs time-invariant state differences
+- `\(\lambda_t\)` absorbs national shocks
+
+---
+
+## What FE means in that example
+
+In the minimum-wage panel, fixed effects net out factors like
+
+--
+
+- state geography
+- long-run industry mix
+- baseline labor-market conditions
+- permanent political differences
+
+--
+
+So `\(\beta_1\)` comes from .hi[states that change their minimum wage], relative to their own histories and common national trends.
+
+---
+
+## Example: pooled OLS vs. fixed effects
+
+&lt;img src="slides_files/figure-html/fe-raw-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+The dark line is .hi-orange[pooled OLS].
+
+--
+
+It slopes .hi-orange[up] because high-wage states also have stronger labor markets for other reasons.
+
+--
+
+That is .hi[cross-sectional selection bias]: states with high minimum wages are not directly comparable to states with low minimum wages.
+
+---
+
+## Minimum-wage example results
+
+&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Model &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Slope on MinWage_it &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Std. error &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Within R^2 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Truth &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.600 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Pooled OLS &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.926 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.171 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; State + year FE &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.441 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.196 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.131 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+.hi[Truth:] Raising the minimum wage lowers teen employment in this example.
+
+--
+
+.hi-purple[Fixed effects] flip the sign because they compare each state to itself over time.
+
+---
+
+## After partialling out unit and year effects
+
+&lt;img src="slides_files/figure-html/fe-resid-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+--
+
+This is the .hi[within relationship] after removing state and year averages.
+
+---
+
+## `fixest` syntax
+
+
+``` r
+fe_mod &lt;- feols(
+  teen_emp ~ min_wage | state + year,
+  cluster = "state",
+  data = mw_df
+)
+```
+
+--
+
+- Left of `|`: regressors of interest
+
+--
+
+- Right of `|`: fixed effects
+
+--
+
+- `cluster = "state"`: allow correlation within a state over time
+
+---
+
+## Within `\(R^2\)`
+
+For the FE model above:
+
+&lt;table class="table" style="font-size: 25px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Slope on min_wage &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.441 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Within R^2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.131 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+.hi[Within `\(R^2\)`] asks:
+
+&gt; After removing the fixed effects, how much of the remaining variation in teen employment do changes in the minimum wage explain?
+
+--
+
+It is the right fit measure when FE identification comes from .hi-purple[within variation].
+
+---
+
+## What FE does not fix
+
+Fixed effects solve one important problem:
+
+- .hi[time-invariant omitted variables]
+
+--
+
+But FE does .hi-orange[not] solve
+
+- time-varying confounders
+- reverse causality
+- bad measurement of treatment timing
+- weak within variation
+
+---
+layout: false
+class: inverse, middle
+
+# Difference-in-Differences
+
+---
+layout: true
+# Difference-in-Differences
+## Core Idea
+
+---
+name: did_intuition
+
+Difference-in-differences (DiD) is a .hi[panel-data design].
+
+--
+
+We compare
+
+- a .hi-purple[treated group] and
+- a .hi-slate[control group]
+
+--
+
+before and after treatment begins.
+
+--
+
+It is fixed effects plus a very specific source of within variation:
+
+.hi-orange[a policy shock that turns on for some units and not others.]
+
+---
+
+## The basic DiD formula
+
+$$
+`\begin{align}
+  \widehat{\delta}_{DiD} =
+  \left( \overline{y}_{T,post} - \overline{y}_{T,pre} \right) -
+  \left( \overline{y}_{C,post} - \overline{y}_{C,pre} \right)
+\end{align}`
+$$
+
+--
+
+The first difference removes permanent treated-control differences.
+
+--
+
+The second difference removes common time shocks.
+
+---
+
+## A 2 x 2 DiD table
+
+&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Group &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Pre &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Post &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Change &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.323 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.036 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.713 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Treated &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.465 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.172 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.707 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+- Treated change: 5.707
+- Control change: 0.713
+- DiD estimate: 4.993
+
+---
+
+## Classic DiD example: Card and Krueger
+
+One famous application compares .hi[fast-food employment]
+
+--
+
+- in .hi-purple[New Jersey], where the minimum wage rose
+- to .hi-slate[Pennsylvania], where it did not
+
+--
+
+before and after the policy change.
+
+--
+
+DiD asks whether employment in New Jersey changed .hi-orange[more or less than the counterfactual trend] suggested by Pennsylvania.
+
+---
+
+## DiD as a regression
+
+With two groups and two periods:
+
+$$
+`\begin{align}
+  y_{it} = \beta_0 + \beta_1 \text{Treat}_i + \beta_2 \text{Post}_t + \delta \left( \text{Treat}_i \times \text{Post}_t \right) + u_{it}
+\end{align}`
+$$
+
+--
+
+With panel data, we often write
+
+$$
+`\begin{align}
+  y_{it} = \alpha_i + \lambda_t + \delta D_{it} + u_{it}
+\end{align}`
+$$
+
+--
+
+where `\(D_{it}=1\)` only for treated units after treatment starts.
+
+---
+
+## DiD in pictures
+
+&lt;img src="slides_files/figure-html/did-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+--
+
+Treatment begins between periods 5 and 6.
+
+---
+
+## `fixest` DiD code
+
+
+``` r
+did_mod &lt;- feols(
+  y ~ i(post, treat, ref = 0) | id + period,
+  cluster = "id",
+  data = base_did
+)
+```
+
+--
+
+&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Term &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Std. error &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Within R^2 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; post x treat &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.993 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.521 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.065 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+--
+
+The interaction term is the .hi[DiD estimate].
+
+---
+
+## The key DiD assumption
+
+.hi[Parallel trends:]
+
+In the absence of treatment, treated and control units would have followed the same average trend.
+
+--
+
+What threatens DiD?
+
+--
+
+- treated units were already on a different trend
+- anticipation changes behavior before treatment
+- another shock hits treated units at the same time
+- standard errors ignore within-unit dependence
+
+---
+
+## Where DiD fits
+
+DiD is especially useful when
+
+--
+
+- treatment timing is clear
+
+--
+
+- you have good pre-treatment data
+
+--
+
+- untreated units provide a plausible counterfactual
+
+--
+
+- the treatment effect is tied to a policy or event
+
+---
+layout: true
+# Panel Estimation
+## What Comes Next
+
+---
+name: scm
+
+## Synthetic control and friends
+
+If one unit gets treated and many do not, .hi[synthetic control methods] can help.
+
+--
+
+Idea:
+
+- build a weighted average of control units
+- match the treated unit's pre-treatment path
+- compare treated vs. synthetic control after treatment
+
+--
+
+There are many related panel methods, but for us the core ideas today are still
+
+- .hi[within variation]
+- .hi-purple[fixed effects]
+- .hi-orange[treated vs. untreated changes over time]
+
+---
+
+## Takeaways
+
+- Panel data let us compare a unit .hi[to itself over time].
+
+--
+
+- Fixed effects remove .hi-purple[time-invariant omitted variables].
+
+--
+
+- The identifying variation is .hi-orange[within variation], so within `\(R^2\)` matters.
+
+--
+
+- DiD is a panel-data strategy built around a treated-control change over time.
+
+--
+
+- Panels help a lot, but they still depend on strong assumptions.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
