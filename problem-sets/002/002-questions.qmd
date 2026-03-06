@@ -13,7 +13,7 @@ format:
 editor:
   render-on-save: true
 params:
-  showanswers: false
+  showanswers: true
 ---
 
 ## Instructions
@@ -474,9 +474,27 @@ etable(model_static_nw, model_dynamic, model_adl)
 
 **[19]** Is the lagged dependent variable statistically significant? What does this result suggest about the nature of quarterly changes in the unemployment rate?
 
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The lagged dependent variable is not statistically significant at the five-percent level (or any conventional level). This result suggests that conditional on the contemporaneous and lagged values of GDP growth and inflation, changes in the unemployment rate do not exhibit strong persistence from one quarter to the next. It also suggests that we don't need an ADL model.
+::::
+:::
+
 **[20]** How do the GDP and inflation coefficients change when including the lagged dependent variable? Why might that occur?
 
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The coefficients on GDP growth and inflation (both contemporaneous and lags) change very little when including the lagged dependent variable. Using our omitted-variable bias intuition/formula, this lack of change suggests that (1) (changes in) lagged unemployment does not strongly correlate with the other regressors, and/or (2) changes in lagged unemployment do not have a strong effect on current changes in unemployment.
+::::
+:::
+
 **[21]** How does OLS perform in this setting—*i.e.*, for ADL(1,1) models? Make sure you explain how the presence of autocorrelation in the disturbance affects OLS here.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Because we're considering ADL(1,1) models, we know there is a lagged dependent variable. In cases with a lagged dependent variable, we cannot guarantee OLS is unbiased—regardless of whether the disturbance is autocorrelated or not. If the disturbance *is* autocorrelated, then OLS will be *both* biased and inconsistent. If the disturbance is *not* autocorrelated, then OLS is biased but consistent (assuming the other OLS assumptions hold).
+::::
+:::
 
 ## Back to levels?
 
@@ -541,6 +559,16 @@ Adding a time trend to the regression changes the estimated coefficients on real
 
 **[25]** If your goal were forecasting unemployment changes, which model would you choose and why? On the other hand, if your goal were causal inference about the effect of GDP growth on unemployment, which model would you choose and why?
 
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} This question is pretty open-ended.
+
+If my goal were *forecasting* unemployment changes, then I would focus on a model that includes *lags* of the regressors, as the contemporaneous values of GDP growth and inflation may not be available at the time that we need a forecast/prediction. I *might* still use a lag of the dependent variable if it increases model performance sufficiently. While OLS might be biased/inconsistent for estimating the coefficients in an ADL model, prediction performance may still be good (prediction doesn't care about biased coefficient estimates). I would probably add some interactions and generally make the model specification a bit more flexible. 
+
+If my goal were *causal inference* about the effect of GDP growth on unemployment, I would not use a lagged dependent variable, as we know that can generate bias and inconsistency for OLS. I would probably still use lags of the other regressors because it appears that they are important/significant. In fact, if we omit the lagged versions of the variables, we can induce omitted variable bias—something we're generally trying to avoid in a causal inference setting. 
+::::
+:::
+
 ## Bonus
 
 This is a bonus question. You do not have to answer it.
@@ -556,26 +584,30 @@ This is a bonus question. You do not have to answer it.
 
 :::{.content-hidden unless-meta="params.showanswers"}
 ::::{.answer}
-[Answer]{.ans}
+[Answer]{.ans} I'm going to create an indicator variable for post-2000 years (`post_2000`). Then I will use that indicator variable and `feols`'s argument `fsplit` to estimate the model on the full data and the two subsets (pre- and post-2000). 
 ```{r, answer26}
-# Subsample 1: before 2000
-model_dynamic_pre2000 =
+# Create an indicator variable for pre- or post-2000
+ps_df = ps_df %>%
+  mutate(post_2000 = year(date) >= 2000)
+# Estimate the dynamic model on the full and the two subsamples
+model_dynamic_split =
   feols(
     d_unemp ~ g_gdp + l(g_gdp, 1) + infl + l(infl, 1),
-    data = ps_df %>% filter(year(date) < 2000),
+    data = ps_df,
+    fsplit = ~ post_2000,
     vcov = 'NW',
     panel.id = ~ country + time
   )
-# Subsample 2: from 2000 onward
-model_dynamic_post2000 =
-  feols(
-    d_unemp ~ g_gdp + l(g_gdp, 1) + infl + l(infl, 1),
-    data = ps_df %>% filter(year(date) >= 2000),
-    vcov = 'NW',
-    panel.id = ~ country + time
-  )
-etable(model_dynamic_pre2000, model_dynamic_post2000)
+etable(model_dynamic_split)
 ```
-The results differ across the two subsamples. The contemporaneous effect of GDP growth on unemployment changes is larger in the pre-2000 subsample than in the post-2000 subsample. The lagged effect of GDP growth is also larger in the pre-2000 subsample.
+The results differ across the two subsamples—and each differs from the full sample.
+
+The contemporaneous effect of GDP growth on unemployment changes is much larger (in magnitude) in the post-2000 subsample than in the pre-2000 subsample. The lagged effect of GDP growth is slightly larger in the post-2000 subsample.
+
+Only in the pre-2000 subsample is the contemporaneous effect of inflation on unemployment changes statistically significant. That said, the coefficient estimate is quite similar to those in the other samples.
+
+Finally, in the post-2000 model explains *a lot* more of the variation in unemployment changes than in the pre-2000 model (R-squared of .82 *vs.* .60).
+
+Combining all years into a single model hides some of the differences across time.
 ::::
 :::
