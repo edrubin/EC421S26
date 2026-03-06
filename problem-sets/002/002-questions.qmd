@@ -1,0 +1,581 @@
+---
+title: "Problem Set 2: Time Series"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+params:
+  showanswers: false
+---
+
+## Instructions
+
+[**Due**]{style="text-decoration: underline;"} Upload your answer on Canvas *before* midnight on Tuesday, 03 March 2026.
+
+[**Important**]{style="text-decoration: underline;"} You must submit your answers as an HTML or PDF file, built from an RMarkdown (`.Rmd`) or Quarto (`.qmd`) file. **Do not submit the `.Rmd` or `.qmd` file.** You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or regression results should be in the document that you submit (not just the code—we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero—for the assignment and possibly for the course.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set come from the Federal Reserve Bank of St. Louis [FRED database](https://fred.stlouisfed.org/). The dataset contains **quarterly** U.S. macroeconomic variables.
+
+The table below describes each variable.
+
+| Variable name | Description |
+|:--------------|:------------|
+| `time` | *Time* in the dataset (starting 1970 Q1) |
+| `date` | Quarter of observation (*e.g.*, '1970-01-01') |
+| `q` | Quarter of the year (1, 2, 3, or 4) |
+| `country` | Country (always 'United States') |
+| `unemp_rate` | [Unemployment rate](https://fred.stlouisfed.org/series/UNRATE) (percent) |
+| `cpi` | [Consumer Price Index](https://fred.stlouisfed.org/series/CPIAUCSL) (1982–84 = 100) |
+| `gdppc` | [Real GDP per capita](https://fred.stlouisfed.org/series/A939RX0Q048SBEA) (chained dollars) |
+| `rec_prob` | [Probability of recession](https://fred.stlouisfed.org/series/RECPROUSM156N) (percent, 0–100) |
+
+: Variable names and descriptions
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has four purposes:
+
+1. Strengthen your understanding of time-series properties (trend, persistence, stationarity).
+2. Practice dynamic regression modeling.
+3. Learn to implement and interpret Newey–West standard errors using `fixest`.
+4. Develop your judgment about which regression specifications are reasonable in macroeconomic time-series settings.
+
+---
+
+## Setup
+
+**[01]** Load your `R` packages and the dataset (`data-ps2.csv`). You will likely want `tidyverse`, `here`, and `fixest`.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r, answer01}
+
+# Load packages using 'pacman'
+library(pacman)
+p_load(tidyverse, patchwork, scales, fixest, here)
+# Load the data
+ps_df = here('problem-sets', '002', 'data-ps2.csv') %>% read_csv()
+```
+::::
+:::
+
+**[02]** What time period do the data cover? How many quarters are in the sample?
+
+Note that (1) each row represents a quarter and (2) the data are already sorted by date.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The data cover Q`r ps_df$q[1]` of `r ps_df$time[1] |> year()` to Q`r ps_df$q |> tail(1)` of `r ps_df$time |> tail(1) |> year()`. There are `r nrow(ps_df)` quarters in the sample.
+
+```{r, answer02}
+
+# First observation
+ps_df |> head(1)
+# Last observation
+ps_df |> tail(1)
+# Number of quarters
+nrow(ps_df)
+```
+::::
+:::
+
+## Time-series plots
+
+**[03]** Create time-series plots for:
+
+- Unemployment rate (`unemp_rate`)
+- Real GDP per capita (`gdppc`)
+- CPI (`cpi`)
+- Probability of recession (`rec_prob`)
+
+Use properly labeled axes and titles.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `ggplot2` to create the time-series plots.
+
+```{r, answer03}
+#| warning: false
+#| fig-height: 10
+
+# Unemployment
+ue =
+  ggplot(ps_df, aes(x = date, y = unemp_rate)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Unemployment rate",
+    x = "Date",
+    y = "Percent"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# GDP per capita
+gdp =
+  ggplot(ps_df, aes(x = date, y = gdppc)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Real GDP per capita",
+    x = "Date",
+    y = "Chained dollars (thousands)"
+  ) +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1)) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# CPI
+cpi =
+  ggplot(ps_df, aes(x = date, y = cpi)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Consumer Price Index",
+    x = "Date",
+    y = "1982–84 = 100"
+  ) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# Recession probability
+rec =
+  ggplot(ps_df, aes(x = date, y = rec_prob)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Probability of recession",
+    x = "Date",
+    y = "Percent"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# Combine the plots
+ue / gdp / cpi / rec
+```
+::::
+:::
+
+**[04]** For each variable, describe whether it appears to:
+
+- Trend upward or downward
+- Exhibit strong persistence (*i.e.*, is strongly autocorrelated)
+- Exhibit any other notable features
+
+Be specific. Do not just say "yes" or "no."
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Here are my descriptions of the time-series properties of each variable:
+
+**Unemployment rate**: The unemployment rate appears to be quite persistent, with periods of elevated unemployment during recessions. It does not exhibit a clear upward or downward trend over the entire sample.
+
+**Real GDP per capita**: Real GDP per capita exhibits a strong upward trend over the sample period, reflecting economic growth. It also appears to be persistent, as growth tends to build on previous growth.
+
+**Consumer Price Index**: The CPI also shows a clear upward trend, reflecting inflation over time. It appears to be persistent as well, with periods of more rapid inflation during certain decades (*e.g.*, post-2020).
+
+**Probability of recession**: The probability of recession does not exhibit a clear trend. It spikes during recessions, indicating that it is responsive to economic conditions, but it does not show strong persistence outside of those periods.
+
+::::
+:::
+
+**[05]** Based on the plots alone, which variables appear likely to be non-stationary in levels (in their means)? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Based on the plots, real GDP per capita and the CPI appear likely to be non-stationary in levels, as they both exhibit strong upward trends over time. The unemployment rate and probability of recession do not show clear trends, so they *may* be stationary in levels.
+::::
+:::
+
+## Transformations
+
+Macroeconomic time series are often transformed before analysis.
+
+**[06]** Create the following new variables:
+
+- **GDP per capita growth**, `g_gdp`: $100\times\Delta\log(\texttt{gdppc})_t$ <br> This variable is often called the *growth rate* of GDP per capita, and it is approximately equal to the percent change in GDP per capita.
+
+- **Inflation**, `infl`: $100\times\dfrac{\Delta\texttt{cpi}_t}{\texttt{cpi}_{t-1}}$ <br> This variable is the percent change in the CPI, which is a common measure of inflation (units are percent).
+
+- **Change in unemployment**, `d_unemp`: $\Delta\texttt{unemp}_t$ <br> This variable is the change in the unemployment rate, which is often used to study short-run dynamics in the labor market. Its units are percentage points.
+
+**Important**: Remember that $\Delta x_t$ means the *difference* between $x_t$ and its lag. So, $\Delta x_t = x_t - x_{t-1}$ and $\Delta\log(x_t) = \log(x_t) - \log(x_{t-1})$. It may also be helpful to remember that differences in logs equal the log of the ratio: $\Delta\log(x_t) = \log(x_t) - \log(x_{t-1}) = \log\left(\frac{x_t}{x_{t-1}}\right)$.
+
+**Hint**: You can use `dplyr::mutate()` to create new variables. You can use `lag()` to access lagged values. It may be helpful to create intermediate (lagged) variables before moving on to the final transformations.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `mutate()` and `lag()` to create the new variables.
+```{r, answer06}
+ps_df = ps_df %>%
+  mutate(
+    lag_gdppc = lag(gdppc),
+    lag_cpi = lag(cpi),
+    lag_unemp = lag(unemp_rate),
+    g_gdp = 100 * (log(gdppc) - log(lag_gdppc)),
+    infl = 100 * (cpi - lag_cpi) / lag_cpi,
+    d_unemp = unemp_rate - lag_unemp
+  )
+```
+::::
+:::
+
+**[07]** Plot these three transformed variables. How do their properties differ from the original series?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Here are the plots of the transformed variables:
+```{r, answer07}
+#| warning: false
+#| fig-height: 8
+
+# GDP growth
+gdp_growth =
+  ggplot(ps_df, aes(x = date, y = g_gdp)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "GDP per capita growth",
+    x = "Date",
+    y = "Percent"
+  ) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# Inflation
+inflation =
+  ggplot(ps_df, aes(x = date, y = infl)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Inflation",
+    x = "Date",
+    y = "Percent"
+  ) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# Change in unemployment
+d_unemp =
+  ggplot(ps_df, aes(x = date, y = d_unemp)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = "Change in unemployment",
+    x = "Date",
+    y = "Percentage points"
+   ) +
+  theme_minimal(base_family = 'Fira Sans Condensed')
+# Combine the plots
+gdp_growth / inflation / d_unemp
+```
+The transformed variables differ from the original series in that they do not exhibit strong trends *in levels*. The the three time-series fluctuate around their means, which suggests that the transformed variables may be more (mean) stationary than the original levels.
+
+There is some evidence that the *variance* of the transformed variables may not be constant over time, especially for inflation.
+::::
+:::
+
+**[08]** For studying short-run macroeconomic relationships: would you recommend using *levels* (the untransformed variables) or *changes*/*growth* (the transformed variables)? Explain your answer carefully.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} For studying short-run macroeconomic relationships, I would recommend using the transformed variables (changes/growth) rather than the levels. The levels of macroeconomic variables often exhibit strong trends---suggesting non-stationarity---which can lead to spurious regression results if not properly addressed. The transformed variables, which are more likely to be stationary, allow us to focus on the short-run dynamics and relationships between the variables without being confounded by long-term trends.
+::::
+:::
+
+## A static model
+
+We begin with a simple static/contemporaneous model (using our transformed variables):
+
+$$
+  \text{(Change in unemployment)}_t = \beta_0 + \beta_1 \text{(GDPpc growth)}_t + \beta_3 \text{Inflation}_t + u_t
+$$
+
+**[09]** Estimate the regression above using OLS. Report your results.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `fixest::feols()` to estimate the regression.
+```{r, answer09}
+model_static = feols(d_unemp ~ g_gdp + infl, data = ps_df)
+etable(model_static)
+```
+::::
+:::
+
+**[10]** Interpret the intercept and the coefficients on GDP growth and inflation. Are the signs economically reasonable?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} There are a few ways to interpret the coefficients on GDP growth and inflation.
+
+The intercept, $\beta_0$, represents the expected change in the unemployment rate when both GDP growth and inflation are zero. In this context, it may not have a meaningful economic interpretation, as one may think it is unlikely that both real GDPpc growth and inflation would be exactly zero. However, the estimate says we would expect the unemployment rate to increase by `r coeftable(model_static)[1,1] |> round(3)` percentage points when both GDP growth and inflation are zero.
+
+In the most literal interpretation, the coefficient on GDP growth suggests that a one-percent increase in the (real) GPD per capita growth rate reduces the change in the unemployment rate by `r coeftable(model_static)[2,1] |> round(3) |> abs()` percentage points. You could also say that a one-percent increase in GDP growth is associated with a `r coeftable(model_static)[2,1] |> round(3) |> abs()` percentage point decrease in the unemployment rate. The coefficient is significantly different from zero at the five-percent level. Both interpretations suggest that higher GDP growth is associated with a decrease in the unemployment rate, which is economically reasonable.
+
+For the coefficient on inflation, the interpretation is similar: a one-percentage point increase in inflation is associated with a `r coeftable(model_static)[3,1] |> round(3) |> abs()` percentage point decrease in the unemployment rate. This result is less economically reasonable (but also not significantly different from zero).
+::::
+:::
+
+**[11]** Why might OLS standard errors be unreliable in this time-series setting?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} If factors that affect unemployment changes persist over time, then the error term may be autocorrelated. If the errors are autocorrelated, then the OLS standard errors will be biased and inconsistent, leading to incorrect inference. 
+::::
+:::
+
+## Newey–West standard errors
+
+Time-series disturbances are often autocorrelated.
+
+**[12]** Re-estimate the regression in **[09]** using `fixest` and Newey–West standard errors. Report the results.
+
+**Hint:** You will want to set `vcov = 'NW'` and `panel.id = ~ country + time` in `feols()`. The `panel.id` argument is required to use Newey-West standard errors (even though we do not really have a panel dataset). The panel ID tells `fixest` which variable defines a unit (here: `country`) and time (here: `time`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `fixest::feols()` with Newey-West standard errors to re-estimate the regression.
+```{r, answer12}
+model_static_nw =
+  feols(
+    d_unemp ~ g_gdp + infl,
+    data = ps_df,
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_static, model_static_nw)
+```
+::::
+:::
+
+**[13]** Do the standard errors meaningfully change? What does this suggest?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The Newey-West standard errors are substantially larger than the OLS standard errors; for GPD growth, the standard error is approximately five-times larger (though the coefficient is still statistically significant at the five-percent level).
+
+This results suggests that that autocorrelation's impact on (biasing) the standard errors is quite large in this setting. 
+::::
+:::
+
+**[14]** Formally test for autocorrelation using the residuals from the OLS regression. What do you find? (I'm find with you testing whichever order autocorrelation you think is reasonable.)
+
+**Note:** If you are going to add the residuals to the dataset, you will need to do one of the following to make sure you get the right number of observations:
+
+- use the `na.rm = FALSE` argument in `residuals()` function, *e.g.*, `residuals(model_static, na.rm = FALSE)`, which will return `NA` for the first observation (since the first observation of the dependent variable is a difference, it cannot be calculated for the first quarter);
+- directly add the `NA` to the residuals vector on your own, *e.g.*, `c(NA, residuals(model_static))`. 
+
+**Another note/hint:** To regress a variable on its own lag, you can do one of the following:
+
+- Create a new variable that is the lag of the residuals, *e.g.*, `lag_e = lag(e)`, and then regress `e` on `lag_e`.
+
+- Use the `l()` function in `fixest` to create the lag directly in the regression, *e.g.*, `feols(e ~ l(e, 1), data = ps_df, panel.id = ~ country + time)`, which will regress the residuals on their own first lag. Notice that you need to define the `panel.id` argument in this case.
+
+- Use the `lag` function (from `tidyverse`) within `lm`, *e.g.*, `lm(e ~ lag(e, 1), data = ps_df)`.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Let's test for first-order autocorrelation and then third-order autocorrelation.
+```{r, answer14}
+# Get the residuals from the OLS regression
+ps_df$e = residuals(model_static, na.rm = FALSE)
+# Test for first-order autocorrelation
+test_ar1 = feols(e ~ l(e, 1), data = ps_df, vcov = 'NW', panel.id = ~ country + time)
+# Test for third-order autocorrelation
+test_ar3 = feols(e ~ l(e, 1) + l(e, 2) + l(e, 3), data = ps_df, vcov = 'NW', panel.id = ~ country + time)
+# p-values for the joint tests
+pchisq(test_ar1$sq.cor * nrow(ps_df), df = 1, lower.tail = FALSE)
+pchisq(test_ar3$sq.cor * nrow(ps_df), df = 3, lower.tail = FALSE)
+```
+Neither of these tests finds statistically significant evidence of autocorrelation in the residuals at the five-percent level—though the third-order test is marginally significant (significant at the ten-percent level).
+::::
+:::
+
+## A dynamic model
+
+Macroeconomic relationships rarely occur instantaneously.
+
+**[15]** Estimate a dynamic model that includes one lag of GDP growth and inflation, *i.e.*,
+
+\begin{align*}
+  \text{(Change in unemployment)}_t =
+  \beta_0 &+ \beta_1 \text{(GDPpc growth)}_t + \beta_2 \text{Inflation}_t \\
+  &+ \beta_3 \text{(GDPpc growth)}_{t-1} + \beta_4 \text{Inflation}_{t-1} + u_t
+\end{align*}
+
+Report your results using Newey-West standard errors. (You do not need to interpret the coefficients.)
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer15}
+model_dynamic =
+  feols(
+    d_unemp ~ g_gdp + l(g_gdp, 1) + infl + l(infl, 1),
+    data = ps_df,
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_static_nw, model_dynamic)
+```
+::::
+:::
+
+**[16]** Are lagged terms statistically significant? What is the *total effect* of GDP growth? Is it meaningfully different from the contemporaneous effect alone?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The lagged term for GDP growth is statistically significant at the five-percent level, while the lagged term for inflation is not statistically significant at the five-percent level.
+
+The total effect of GDP growth is the sum of the contemporaneous and lagged effects: $\beta_1 + \beta_2$. The estimated total effect is `r (coeftable(model_dynamic)[2,1] + coeftable(model_dynamic)[3,1]) |> round(3)`, which is meaningfully larger than the contemporaneous effect alone.
+::::
+:::
+
+**[17]** Compare the static model and distributed lag model. Which seems more appropriate? Why?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The distributed lag model seems more appropriate, as it allows for the possibility that changes in GDP growth and inflation may affect unemployment changes with a lag. The static model assumes that the effects of GDP growth and inflation on unemployment changes occur instantaneously, which may not be realistic in a macroeconomic context. The statistical significance of the lagged GDP growth term in the distributed lag model also suggests that including lags provides additional explanatory power.
+::::
+:::
+
+## ADL model
+
+Now we'll consider the potential for unemployment changes to affect themselves over time (persistence). In other words, we will include a lagged dependent variable in the regression—an ADL(1,1) model:
+
+\begin{align*}
+  \text{(Change in unemployment)}_t =
+  \beta_0 &+ \beta_1 \text{(GDPpc growth)}_t + \beta_2 \text{Inflation}_t \\
+  &+ \beta_3 \text{(GDPpc growth)}_{t-1} + \beta_4 \text{Inflation}_{t-1} \\
+  &+ \beta_5 \text{(Change in GDPpc)}_{t-1} + u_t
+\end{align*}
+
+**[18]** Estimate this model (and use Newey-West standard errors).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer18}
+model_adl =
+  feols(
+    d_unemp ~ g_gdp + infl + l(d_unemp, 1) + l(g_gdp, 1) + l(infl, 1),
+    data = ps_df,
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_static_nw, model_dynamic, model_adl)
+```
+::::
+:::
+
+**[19]** Is the lagged dependent variable statistically significant? What does this result suggest about the nature of quarterly changes in the unemployment rate?
+
+**[20]** How do the GDP and inflation coefficients change when including the lagged dependent variable? Why might that occur?
+
+**[21]** How does OLS perform in this setting—*i.e.*, for ADL(1,1) models? Make sure you explain how the presence of autocorrelation in the disturbance affects OLS here.
+
+## Back to levels?
+
+**[22]** Suppose we had not transformed the data and instead estimated the following regression:
+
+$$
+  \text{(Unemployment rate)}_t = \beta_0 + \beta_1 \text{(Real GDP per capita)}_t + \beta_2 \text{(CPI)}_t +
+$$
+
+Would this regression be appropriate? Why or why not? Be explicit about non-stationarity and spurious regression.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} This regression would likely be inappropriate due to the non-stationarity of the levels of real GDP per capita and the CPI. Non-stationary variables can lead to spurious regression results, where the estimated relationships between the variables may appear statistically significant even when there is no true underlying relationship.
+::::
+:::
+
+**[23]** Run the regression above (using levels). How do the results compare to the regression using transformed variables? Do the results make economic sense?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer23}
+model_levels =
+  feols(
+    unemp_rate ~ gdppc + cpi,
+    data = ps_df,
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_static_nw, model_levels)
+```
+The regression using levels shows a strong negative relationship between real GDP per capita and the unemployment rate, which is consistent with economic theory. The relationship between CPI and the unemployment rate is positive—implying that higher prices (a weaker dollar) are associated with higher unemployment.
+::::
+:::
+
+**[24]** One approach to deal with *trending* variables (mean non-stationary variables) is to directly control for time (similar to trying to bring in the omitted variable). What happense to the regression above if we add a time trend? *I.e.*, estimate
+$$
+  \text{(Unemployment rate)}_t = \beta_0 + \beta_1 \text{(Real GDP per capita)}_t + \beta_2 \text{(CPI)}_t + \beta_3 t + u_t
+$$
+
+**Hint:** We already have a time variable in the dataset (`time`), so you can just include that variable in the regression.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer24}
+model_levels_trend =
+  feols(
+    unemp_rate ~ gdppc + cpi + time,
+    data = ps_df,
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_static_nw, model_levels, model_levels_trend)
+```
+Adding a time trend to the regression changes the estimated coefficients on real GDP per capita and CPI. The coefficient on real GDP per capita increases substantially. The coefficient on CPI becomes smaller and is no longer significantly different from zero. This suggests that the time trend is capturing some of the variation in the unemployment rate that was previously attributed to real GDP per capita and CPI, which is consistent with the idea that the original regression was picking up spurious relationships due to non-stationarity.
+::::
+:::
+
+## Reflection
+
+**[25]** If your goal were forecasting unemployment changes, which model would you choose and why? On the other hand, if your goal were causal inference about the effect of GDP growth on unemployment, which model would you choose and why?
+
+## Bonus
+
+This is a bonus question. You do not have to answer it.
+
+**[26]** Split the sample into two parts: (1) before the year 2000, and (2) from 2000 onward. Estimate the dynamic model from **[15]** separately for each subsample.
+
+- How do the results differ across the two subsamples? Does the relationship between GDP growth, inflation, and unemployment changes appear to have changed over time? Explain your findings.
+  
+- Does the model fit better in one subsample than the other?
+
+- How could you incorporate such changes over time into a single regression model without splitting the sample (and test for such changes)?
+
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer26}
+# Subsample 1: before 2000
+model_dynamic_pre2000 =
+  feols(
+    d_unemp ~ g_gdp + l(g_gdp, 1) + infl + l(infl, 1),
+    data = ps_df %>% filter(year(date) < 2000),
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+# Subsample 2: from 2000 onward
+model_dynamic_post2000 =
+  feols(
+    d_unemp ~ g_gdp + l(g_gdp, 1) + infl + l(infl, 1),
+    data = ps_df %>% filter(year(date) >= 2000),
+    vcov = 'NW',
+    panel.id = ~ country + time
+  )
+etable(model_dynamic_pre2000, model_dynamic_post2000)
+```
+The results differ across the two subsamples. The contemporaneous effect of GDP growth on unemployment changes is larger in the pre-2000 subsample than in the post-2000 subsample. The lagged effect of GDP growth is also larger in the pre-2000 subsample.
+::::
+:::
