@@ -1,3 +1,4 @@
+@import url(https://fonts.googleapis.com/css?family=Zilla+Slab:300,300i,400,400i,500,500i,700,700i);
 
 /* Create a highlighted class called 'hi'  */
 .hi {
@@ -80,9 +81,13 @@
   color: #fb6107 !important;
 }
 
+
 /* Grey text */
 .grey-mid {
   color: #7f7f7f !important;
+}
+.grey-light {
+  color: #d2d2d2 !important;
 }
 /* Grey text */
 .grey-vlight {
@@ -94,6 +99,15 @@
 }
 .black {
   color: #000000 !important;
+}
+
+/* Italic */
+.it {
+  font-style: italic;
+}
+/* Bold */
+.b {
+  font-weight: bold;
 }
 
 /* Mono-spaced font */
@@ -113,12 +127,23 @@
 }
 /* Fraction */
 .top{
-  display:inline-block;
+  display: inline-block;
 }
 .bottom{
-  border-top:solid black 1px;
-  display:inline-block;
-  clear:left;
+  border-top: solid black 1px;
+  display: inline-block;
+  clear: left;
+}
+
+.attn {
+  font-weight: 500;
+  color: #e64173 !important;
+  font-family: 'Zilla Slab' !important;
+}
+.qa {
+  font-weight: 500;
+  color: #e64173 !important;
+  font-family: 'Zilla Slab' !important;
 }
 
 .remark-code-line-highlighted {
@@ -265,4 +290,11 @@ hr, .title-slide h2::after, .mline h1::after {
   .has-continuation {
     display: block !important;
   }
+}
+
+.note {
+  font-weight: 300;
+  font-style: italic;
+  color: #314f4f !important;
+  font-family: 'Zilla Slab' !important;
 }

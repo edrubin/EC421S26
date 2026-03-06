@@ -39,288 +39,314 @@ name: schedule
 
 # Schedule
 
-## Last Time
+## Last time
 
 Instrumental variables
 
 ## Today
 
-- What panel data buy us
-- Fixed effects
-- Difference-in-differences
-- Brief extension: synthetic controls
+**Panel estimation**
+
+- what panel data buy us,
+- fixed effects,
+- the difference-in-differences estimator,
+- *brief extension:* the synthetic-controls estimator.
 
 ---
 layout: false
 class: inverse, middle
 
-# Panel Estimation
+# Panel estimation
 
 ---
 layout: true
-# Panel Estimation
-## Introduction
+
+# Panel estimation
 
 ---
 name: panel_intro
+
+## Introduction
 
 Until now, we mostly used one of two data structures:
 
 --
 
-- .hi-slate[Cross section:] many units, one period
-
+1. .hi-orange[Cross section:] many units, one period,
 --
 
-- .hi-purple[Time series:] one unit, many periods
+2. .hi-purple[Time series:] one unit, many periods.
 
 --
 
 A .hi[panel] gives us both:
 
-- units indexed by `\(i\)`
-- periods indexed by `\(t\)`
-- outcomes and regressors like `\(\color{#e64173}{y_{it}}\)` and `\(\color{#e64173}{x_{it}}\)`
+- .orange[units] indexed by `\(\color{#FFA500}{i}\)`,
+- .purple[(time) periods] indexed by `\(\color{#6A5ACD}{t}\)`,
+- outcomes and regressors like `\(\color{#e64173}{y_{\color{#FFA500}{i}\color{#6A5ACD}{t}}}\)` and `\(\color{#e64173}{x_{\color{#FFA500}{i}\color{#6A5ACD}{t}}}\)`.
+
+---
+## Example
+
+Consider the following panel of six observations:
+
+.pull-left[
+
+```
+#&gt;      Unit  Year  y_it  x_it
+#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+#&gt; 1:      A     1    10     2
+#&gt; 2:      A     2    11     3
+#&gt; 3:      A     3    13     4
+#&gt; 4:      B     1     7     1
+#&gt; 5:      B     2     8     1
+#&gt; 6:      B     3     9     2
+```
+]
+
+---
+## Example
+
+Consider the following panel of six observations:
+
+.pull-left[
+
+```
+#&gt;      Unit  Year  y_it  x_it
+#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+*#&gt; 1:      A     1    10     2
+*#&gt; 2:      A     2    11     3
+*#&gt; 3:      A     3    13     4
+#&gt; 4:      B     1     7     1
+#&gt; 5:      B     2     8     1
+#&gt; 6:      B     3     9     2
+```
+]
+.pull-right[
+We observe the .orange[same unit] repeatedly.
+]
+
+We can compare unit A to itself .hi-purple[over time], not just A to B&lt;br&gt;(potentially helping with *selection bias*).
+
+---
+## Example
+
+Consider the following panel of six observations:
+
+.pull-left[
+
+```
+#&gt;      Unit  Year  y_it  x_it
+#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;
+*#&gt; 1:      A     1    10     2
+#&gt; 2:      A     2    11     3
+#&gt; 3:      A     3    13     4
+*#&gt; 4:      B     1     7     1
+#&gt; 5:      B     2     8     1
+#&gt; 6:      B     3     9     2
+```
+]
+.pull-right[
+Similarly, we observe the .purple[period] across .orange[units].
+]
+
+This feature lets us control for shocks shared across .orange[units] at a given .purple[time].
 
 ---
 
-## Example: A tiny panel
+## The benefits of panels
 
-&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; Unit &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Year &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; y_it &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; x_it &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; A &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; B &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+Panels help solve (some) econometric problems because they allow us to
 
 --
 
-We observe the .hi[same unit repeatedly].
+- control for .b.orange[time-invariant differences] across units&lt;br&gt;.grey-light.it[removes selection bias from cross-sectional differences across units]
+  
+--
+
+- implicitly study .b.purple[changes]&lt;br&gt;.grey-light.it[not just levels]
 
 --
 
-That means we can compare .hi-purple[unit A to itself over time], not just A to B.
+- .note[related:] evaluate policies using their .b.purple[timing]&lt;br&gt;.grey-light.it[policy-timing is often more plausibly exogeneous than policy existence]
+
+--
+
+Panel methods are workhorses of economics and public policy.
 
 ---
 
-## Why economists like panels
+## Panels are helpful—not magical
 
-Panels can help because they let us
-
---
-
-- control for .hi[time-invariant differences] across units
+Panel data *can* be helpful for estimating causal effects,
+&lt;br&gt;but they can still cause problems without careful use.
 
 --
 
-- study .hi-purple[changes], not just levels
+- We need (sufficient) .it.orange[within variation] in `\(\color{#FFA500}{x_{it}}\)`.&lt;br&gt;.it[I.e.,] `\(x_{it}\)` must change meaningfully through time for some units.
 
---
+- .purple[Time-varying] omitted variables can cause bias.
 
-- evaluate policies that start at a known time
+- A .orange[unit]'s disturbances `\(u_{\color{#FFA500}{i}\color{#6A5ACD}{t}}\)` are often correlated over .purple[time].
 
---
+- Attrition and missing periods can matter—as can measurement error.
 
-- use the same logic for workers, firms, counties, states, or countries
-
----
-
-## Panels are helpful, not magical
-
-Panels still have several traps:
-
---
-
-- We need .hi-orange[within variation] in `\(\color{#FFA500}{x_{it}}\)`.
-
---
-
-- Time-varying omitted variables can still bias us.
-
---
-
-- Errors within a unit are often correlated over time.
-
---
-
-- Attrition and missing periods can matter.
-
----
-layout: true
-# Panel Estimation
-## Fixed Effects
+.grey-light.it[(Any tool can be misused.)]
 
 ---
 name: pooled_problem
+## The problem with pooled OLS
 
-Start with the familiar panel regression
+Suppose you're interested in a simple linear regression model
+`$$y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}$$`
+and have .b.slate[panel data] (with individual `\(i\)` and time `\(t\)`).
 
+--
+
+Let the disturbance combine (1) .orange[unit]-specific factor `\(\color{#FFA500}{\alpha_i}\)` and (2) error `\(\color{#e64173}{v_{it}}\)`
 $$
 `\begin{align}
-  y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}
+  u_{it} = \color{#FFA500}{\alpha_i} + \color{#e64173}{v_{it}}
 \end{align}`
 $$
 
 --
 
-Now suppose the error term contains a unit-specific factor:
+If `\(\mathop{\text{Cov}}\left( x_{it}, \color{#FFA500}{\alpha_i} \right) \neq 0\)`, then OLS may be biased. .grey-vlight.it[(Think OVB.)]
 
-$$
-`\begin{align}
-  u_{it} = \alpha_i + v_{it}
-\end{align}`
-$$
+OLS's estimates of `\(\beta_1\)` will reflect both
+
+- .it[between-unit differences] `\(\color{#FFA500}{\alpha_i}\)`,
+- .it[actual changes] in `\(x_{it}\)`. .note[(We want to isolate this last part.)]
+  
+---
+
+## Introducing *fixed effects*
+
+.note[The solution:] Let each .orange[unit] have its own intercept `\(\color{#FFA500}{\alpha_i}\)`,&lt;br&gt; and each .purple[time period] have its own intercept `\(\color{#6A5ACD}{\lambda_t}\)`:
+`$$y_{it} = \beta_1 x_{it} + \color{#FFA500}{\alpha_i} + \color{#6A5ACD}{\lambda_t} + u_{it}$$`
+
+These .orange[unit]- and .purple[period]-specific intercepts are called .attn[fixed effects].
 
 --
 
-If `\(\mathop{\text{Cov}}\left( x_{it}, \alpha_i \right) \neq 0\)`, then pooled OLS mixes
 
-- .hi-slate[between-unit differences] and
-- .hi-purple[within-unit changes].
+```
+#&gt;      Unit  Year  y_it  x_it Unit_A Unit_B Year_1 Year_2 Year_3
+#&gt;    &lt;char&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;  &lt;num&gt;  &lt;num&gt;  &lt;num&gt;  &lt;num&gt;  &lt;num&gt;
+#&gt; 1:      A     1    10     2      1      0      1      0      0
+#&gt; 2:      A     2    11     3      1      0      0      1      0
+#&gt; 3:      A     3    13     4      1      0      0      0      1
+#&gt; 4:      B     1     7     1      0      1      1      0      0
+#&gt; 5:      B     2     8     1      0      1      0      1      0
+#&gt; 6:      B     3     9     2      0      1      0      0      1
+```
+
+---
+## Fixed effects in action
+
+.qa[Q] So what are these fixed effects (FE) doing?
+
+--
+
+Remember the old interpretation of coefficients on binary variables?
+
+--
+
+.qa[A] These fixed effects *absorb*
+
+- `\(\color{#FFA500}{\alpha_i}\)`: all time-invariant .orange[differences across units],&lt;br&gt;.grey-light.it[(including selection bias from cross-sectional differences)]
+
+- `\(\color{#6A5ACD}{\lambda_t}\)`: all common shocks at a given .purple[time].
+
+--
+
+The .attn[(two-way) fixed-effects estimator] (OLS that includes unit and time FEs)
+&lt;br&gt;estimates effects using .pink.it[within-unit variation]—net of common time shocks.
 
 ---
 
-## Fixed effects idea
+## The *within* transformation
 
-Let each unit have its own intercept:
-
-$$
-`\begin{align}
-  y_{it} = \beta_1 x_{it} + \alpha_i + \lambda_t + u_{it}
-\end{align}`
-$$
+For intuition, focus on unit-level fixed effects.
+`$$y_{it} = \beta_0 + \beta_1 x_{it} + \alpha_i + u_{it}$$`
 
 --
 
-- `\(\color{#314f4f}{\alpha_i}\)`: unit fixed effects
+Take the average of this equation for unit `\(i\)` across all periods...
+`$$\overline{y}_i = \beta_0 + \beta_1 \overline{x}_i + \alpha_i + \overline{u}_i$$`
 
 --
 
-- `\(\color{#6A5ACD}{\lambda_t}\)`: time fixed effects
+Finally, subtract the unit mean from both sides of the original equation.
+&lt;br&gt;(This step is what our unit-level fixed effects are doing.)
+`$$y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \left( u_{it} - \overline{u}_i \right)$$`
 
 --
 
-- `\(\beta_1\)`: effect of `\(x_{it}\)` using .hi[within-unit variation], net of common time shocks
+.hi[So what?] Unit-specific FEs identify `\(\beta_1\)` using .attn[within-unit variation] in `\(x_{it}\)`.
+&lt;br&gt;.grey-vlight.it[(The same logic applies to time FEs.)]
 
 ---
+## Fixed-effects questions
 
-## The within transformation
-
-For intuition, focus on unit fixed effects:
-
-$$
-`\begin{align}
-  y_{it} &amp;= \beta_0 + \beta_1 x_{it} + \alpha_i + u_{it}
-\end{align}`
-$$
-
-Subtract the unit mean from both sides:
-
-$$
-`\begin{align}
-  y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \left( u_{it} - \overline{u}_i \right)
-\end{align}`
-$$
+Fixed effects .b[do not] ask questions like
+&lt;br&gt;.note[Why is unit A different from unit B?]
+&lt;br&gt;.grey-light.it[In fact, they try to absorb cross-unit differences.]
 
 --
 
-.hi[Why this matters:] `\(\alpha_i\)` disappears because it is constant within unit `\(i\)`.
+Fixed effects .b[do] ask questions like
+&lt;br&gt;.note[When unit A changed its value of] `\(x_{it}\)`, .note[, how did its] `\(y_{it}\)` .note[change?]
+&lt;br&gt;.grey-light.it[This is the "within" variation.]
 
 ---
+## Example: State minimum wage laws
 
-## What fixed effects use
-
-Fixed effects do .hi[not] ask:
-
-- Why is unit A different from unit B?
-
---
-
-Fixed effects ask:
-
-- When unit A changes `\(\color{#e64173}{x_{it}}\)`, how does `\(\color{#e64173}{y_{it}}\)` change?
+Suppose we want to estimate the effect of min. wage laws on employment
+`$$\text{Employment}_{it} = \beta_1 \text{(Min. Wage)}_{it} + \alpha_i + \lambda_t + u_{it}$$`
+with a .orange[state] (`\(\color{#FFA500}{i}\)`) by .purple[year] (`\(\color{#6A5ACD}{t}\)`) panel of employment and min. wage data.
 
 --
 
-So FE uses .hi-purple[within variation].
+- `\(\alpha_i\)` absorbs time-invariant, cross-state differences;
+- `\(\lambda_t\)` absorbs national shocks in year `\(t\)`.
 
 --
 
-Time-invariant regressors are dropped because
-
-$$
-`\begin{align}
-  z_i - \overline{z}_i = 0
-\end{align}`
-$$
-
-for every period.
+.qa[Q] Should we worry that some states have higher min. wage than others?
+--
+&lt;br&gt;.qa[A] No. `\(\alpha_i\)` absorbs those differences. The FE estimator estimates using within-state variation in min. wage.
 
 ---
+## Example: State minimum wage laws
 
-## Applied example: state minimum wages
+Suppose we want to estimate the effect of min. wage laws on employment
+`$$\text{Employment}_{it} = \beta_1 \text{(Min. Wage)}_{it} + \alpha_i + \lambda_t + u_{it}$$`
+with a .orange[state] (`\(\color{#FFA500}{i}\)`) by .purple[year] (`\(\color{#6A5ACD}{t}\)`) panel of employment and min. wage data.
 
-Suppose we want to estimate the effect of the minimum wage on employment.
+- `\(\alpha_i\)` absorbs time-invariant, cross-state differences;
+- `\(\lambda_t\)` absorbs national shocks in year `\(t\)`.
 
-$$
-`\begin{align}
-  \text{Emp}_{it} = \beta_1 \text{MinWage}_{it} + \alpha_i + \lambda_t + u_{it}
-\end{align}`
-$$
 
+.qa[Q] What if some *years* have lower emp. than others (recessions)?
 --
+&lt;br&gt;.qa[A] Still not worried! `\(\lambda_t\)` absorbs *shared* shocks.
 
-Here,
+---
+## Example: State minimum wage laws
 
-- `\(i\)` is a .hi-purple[state]
-- `\(t\)` is a .hi-slate[year or quarter]
+Suppose we want to estimate the effect of min. wage laws on employment
+`$$\text{Employment}_{it} = \beta_1 \text{(Min. Wage)}_{it} + \alpha_i + \lambda_t + u_{it}$$`
+with a .orange[state] (`\(\color{#FFA500}{i}\)`) by .purple[year] (`\(\color{#6A5ACD}{t}\)`) panel of employment and min. wage data.
 
+- `\(\alpha_i\)` absorbs time-invariant, cross-state differences;
+- `\(\lambda_t\)` absorbs national shocks in year `\(t\)`.
+
+
+.qa[Q] So what should we worry about?
 --
-
-- `\(\alpha_i\)` absorbs time-invariant state differences
-- `\(\lambda_t\)` absorbs national shocks
+&lt;br&gt;.qa[A] We should worry about .b[time-varying differences between states].&lt;br&gt;*E.g.*, if some states have faster-growing economies and also raise their minimum wages.
 
 ---
 
@@ -340,14 +366,12 @@ In the minimum-wage panel, fixed effects net out factors like
 So `\(\beta_1\)` comes from .hi[states that change their minimum wage], relative to their own histories and common national trends.
 
 ---
-
-## Example: pooled OLS vs. fixed effects
+layout: false
+class: clear, middle
 
 &lt;img src="slides_files/figure-html/fe-raw-plot-1.svg" style="display: block; margin: auto;" /&gt;
 
 The dark line is .hi-orange[pooled OLS].
-
---
 
 It slopes .hi-orange[up] because high-wage states also have stronger labor markets for other reasons.
 
@@ -709,8 +733,8 @@ DiD is especially useful when
 
 ---
 layout: true
-# Panel Estimation
-## What Comes Next
+# Panel estimation
+## What comes next
 
 ---
 name: scm
