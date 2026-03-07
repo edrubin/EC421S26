@@ -25,12 +25,12 @@ Below are the tentatively planning topics for the problem sets.
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/001/data-ps1.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-solutions.html)
 
 **Problem Set 2: Time series data, analyses, and nonstationarity**
-<br>Due: TBA
+<br>Due: Tuesday, 03 March 2026 by 11:59 PM
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/002/002-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/002/data-ps2.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/002/002-solutions.html)
 
 **Problem Set 3: Problem Set 3: Causality, Instrumental Variables, and Review**
-<br>Due: TBA
-<br>Files: assignment | data | solutions 
+<br>Due: Wednesday, 11 March 2026 by 11:59 PM
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/003/data-ps3.csv) | solutions
 
 ## Midterm exam
 
