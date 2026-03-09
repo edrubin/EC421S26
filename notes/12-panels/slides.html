@@ -198,15 +198,15 @@ name: pooled_problem
 ## The problem with pooled OLS
 
 Suppose you're interested in a simple linear regression model
-`$$y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}$$`
+`$$y_{it} = \beta_0 + \color{#e64173}{\beta_1} x_{it} + u_{it}$$`
 and have .b.slate[panel data] (with individual `\(i\)` and time `\(t\)`).
 
 --
 
-Let the disturbance combine (1) .orange[unit]-specific factor `\(\color{#FFA500}{\alpha_i}\)` and (2) error `\(\color{#e64173}{v_{it}}\)`
+Let the disturbance combine (1) .orange[unit]-specific factor `\(\color{#FFA500}{\alpha_i}\)` and (2) error `\(\color{#2b59c3}{v_{it}}\)`
 $$
 `\begin{align}
-  u_{it} = \color{#FFA500}{\alpha_i} + \color{#e64173}{v_{it}}
+  u_{it} = \color{#FFA500}{\alpha_i} + \color{#2b59c3}{v_{it}}
 \end{align}`
 $$
 
@@ -214,7 +214,7 @@ $$
 
 If `\(\mathop{\text{Cov}}\left( x_{it}, \color{#FFA500}{\alpha_i} \right) \neq 0\)`, then OLS may be biased. .grey-vlight.it[(Think OVB.)]
 
-OLS's estimates of `\(\beta_1\)` will reflect both
+.attn[Standard OLS estimates] of `\(\color{#e64173}{\beta_1}\)` (*i.e.*, without FEs) will reflect both
 
 - .it[between-unit differences] `\(\color{#FFA500}{\alpha_i}\)`,
 - .it[actual changes] in `\(x_{it}\)`. .note[(We want to isolate this last part.)]
@@ -346,116 +346,83 @@ with a .orange[state] (`\(\color{#FFA500}{i}\)`) by .purple[year] (`\(\color{#6A
 
 .qa[Q] So what should we worry about?
 --
-&lt;br&gt;.qa[A] We should worry about .b[time-varying differences between states].&lt;br&gt;*E.g.*, if some states have faster-growing economies and also raise their minimum wages.
+&lt;br&gt;.qa[A] We should worry about .attn[time-varying differences between states].
+
+*E.g.*, if some states have faster-growing economies and also raise their minimum wages.
 
 ---
 
 ## What FE means in that example
 
-In the minimum-wage panel, fixed effects net out factors like
+In the minimum-wage panel, fixed effects (FEs) net out factors like
+
+- state geography,
+- long-run industry mix,
+- baseline labor-market conditions,
+- permanent political differences.
 
 --
 
-- state geography
-- long-run industry mix
-- baseline labor-market conditions
-- permanent political differences
+`$$\text{Employment}_{it} = \color{#e64173}{\beta_1} \text{(Min. Wage)}_{it} + \alpha_i + \lambda_t + u_{it}$$`
 
---
-
-So `\(\beta_1\)` comes from .hi[states that change their minimum wage], relative to their own histories and common national trends.
+With FEs, `\(\color{#e64173}{\hat{\beta}_1}\)` comes from .b.pink[states that change their minimum wage], relative to their own histories and common national trends.
 
 ---
 layout: false
 class: clear, middle
 
-&lt;img src="slides_files/figure-html/fe-raw-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
-The dark line is .hi-orange[pooled OLS].
-
-It slopes .hi-orange[up] because high-wage states also have stronger labor markets for other reasons.
-
---
-
-That is .hi[cross-sectional selection bias]: states with high minimum wages are not directly comparable to states with low minimum wages.
+Let's see a graphical example.&lt;br&gt;.grey-vlight[(Simulated data but real FE issues.)]
 
 ---
+layout: false
+class: clear, middle
 
-## Minimum-wage example results
+&lt;img src="slides_files/figure-html/fe-raw-plot1-1.svg" style="display: block; margin: auto;" /&gt;
 
-&lt;table class="table" style="font-size: 24px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; Model &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Slope on MinWage_it &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Std. error &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Within R^2 &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; Truth &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.600 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; Pooled OLS &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.926 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.171 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; State + year FE &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.441 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.196 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.131 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
---
-
-.hi[Truth:] Raising the minimum wage lowers teen employment in this example.
-
---
-
-.hi-purple[Fixed effects] flip the sign because they compare each state to itself over time.
+The dark line is .b.slate[pooled OLS]—a regression without fixed effects.
+&lt;br&gt;
+Here, states with higher min. wage laws have higher employment rates.
 
 ---
+layout: false
+class: clear, middle
 
-## After partialling out unit and year effects
+&lt;img src="slides_files/figure-html/fe-raw-plot2-1.svg" style="display: block; margin: auto;" /&gt;
 
-&lt;img src="slides_files/figure-html/fe-resid-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
---
-
-This is the .hi[within relationship] after removing state and year averages.
+However, the .b.purple[within-state relationships] tell another story.
+&lt;br&gt;
+The FE estimator focuses on this var.—.it[absorbing] cross-state differences.
 
 ---
+layout: false
+class: clear, middle
 
+&lt;img src="slides_files/figure-html/fe-raw-plot3-1.svg" style="display: block; margin: auto;" /&gt;
+
+Integrating .b.purple[fixed effects], the relationship flips.&lt;br&gt;States that raise their minimum wage see lower teen employment.
+
+---
+# Panel estimation
 ## `fixest` syntax
+
+Now you nkow the intution, logic, and mechanics of fixed effects.
+
+You also now understand the `fix` part of the `fixest` package.
+
+To specify FEs: use `lm` syntax along with `|` followed by the FEs.
 
 
 ``` r
-fe_mod &lt;- feols(
-  teen_emp ~ min_wage | state + year,
-  cluster = "state",
+feols(
+* teen_emp ~ min_wage | state + year, 
+  cluster = ~ state,
   data = mw_df
 )
 ```
+Here we have fixed effects for .orange[state] and .purple[year].
 
---
+---
 
-- Left of `|`: regressors of interest
-
---
-
-- Right of `|`: fixed effects
-
---
-
-- `cluster = "state"`: allow correlation within a state over time
 
 ---
 
@@ -678,7 +645,7 @@ did_mod &lt;- feols(
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; post x treat &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; post × treat &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 4.993 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.521 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.065 &lt;/td&gt;
