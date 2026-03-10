@@ -18,7 +18,7 @@ class: inverse, middle
 options(htmltools.dir.version = FALSE)
 library(pacman)
 p_load(
-  broom, dplyr, fixest, ggplot2, kableExtra, knitr,
+  data.table, broom, dplyr, fixest, ggplot2, kableExtra, knitr,
   magrittr, scales, tidyr
 )
 
@@ -26,6 +26,7 @@ p_load(
 red_pink = '#e64173'
 turquoise = '#20B2AA'
 orange = '#FFA500'
+orange_l = '#f8d194'
 red = '#fb6107'
 blue = '#2b59c3'
 green = '#8bb174'
@@ -33,6 +34,7 @@ grey_light = 'grey70'
 grey_mid = 'grey50'
 grey_dark = 'grey20'
 purple = '#6A5ACD'
+purple_l = '#c5bee9'
 slate = '#314f4f'
 
 # Knitr options
@@ -124,6 +126,12 @@ model_compare <- tibble(
 
 # DiD example from fixest
 data(base_did)
+# Ammend base_did to add separtion between trt and control
+base_did = base_did %>%
+  mutate(
+    y = y + (post == 0) * (treat == 1) * 1.2,
+    y = y + (period == 1) * (treat == 1) * 1.5
+  )
 
 did_cells <- base_did %>%
   group_by(treat, post) %>%
@@ -408,14 +416,20 @@ $$y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \le
 ## Fixed-effects questions
 
 Fixed effects .b[do not] ask questions like
-<br>.note[Why is unit A different from unit B?]
-<br>.grey-light.it[In fact, they try to absorb cross-unit differences.]
+<br>.white[FE] .note[Why is unit A different from unit B?]
+<br>.grey-light.it.slab[In fact, they try to absorb cross-unit differences.]
+
+--
+
+Fixed effects also .b[do not] ask questions like
+<br>.white[FE] .note[When period 1 had a shock, how did all units' outcomes change?]
+<br>.grey-light.it.slab[They try to absorb common (shared) time shocks.]
 
 --
 
 Fixed effects .b[do] ask questions like
-<br>.note[When unit A changed its value of] $x_{it}$, .note[, how did its] $y_{it}$ .note[change?]
-<br>.grey-light.it[This is the "within" variation.]
+<br>.white[FE] .note[When unit A changed its value of] $x_{it}$, .note[how did its] $y_{it}$ .note[change?]
+<br>.grey-light.it.slab[This is the "within" variation.]
 
 ---
 ## Example: State minimum wage laws
@@ -600,10 +614,45 @@ ggplot(mw_fe_dt, aes(x = min_wage_fe, y = teen_emp_fe, color = state)) +
 Integrating .b.purple[fixed effects], the relationship flips.<br>States that raise their minimum wage see lower teen employment.
 
 ---
+layout: false
+class: clear, middle
+
+```{r, fe-raw-plot4, echo = FALSE}
+ggplot(mw_plot_df, aes(x = min_wage, y = teen_emp, color = state)) +
+  geom_line(
+    stat = 'smooth', method = 'lm', formula = y ~ x, se = FALSE,
+    linewidth = 1.2, color = slate, alpha = 0.3
+  ) +
+  geom_point(size = 2.4, alpha = 0.9) +
+  geom_smooth(
+    data = mw_plot_df,
+    aes(x = min_wage, y = teen_emp, color = state),
+    inherit.aes = FALSE,
+    method = 'lm',
+    formula = y ~ x,
+    se = FALSE,
+    linewidth = 1.4
+  ) +
+  scale_color_viridis_d(option = 'magma', begin = .2, end = .85) +
+  labs(
+    x = 'State minimum wage',
+    y = 'Teen employment rate',
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21, base_family = 'Fira Sans Condensed') +
+  theme(
+    panel.grid.minor = element_blank(),
+    # legend.position = 'bottom'
+  )
+```
+
+This *flipped* relationship is an example of .attn[Simpson's paradox]—when a relationship reverses after controlling for *"group"*.
+
+---
 # Panel estimation
 ## `fixest` syntax
 
-Now you nkow the intution, logic, and mechanics of fixed effects.
+Now you know the intution, logic, and mechanics of fixed effects.
 
 You also now understand the `fix` part of the `fixest` package.
 
@@ -619,300 +668,556 @@ feols(
 Here we have fixed effects for .orange[state] and .purple[year].
 
 ---
+layout: false
+class: clear
 
+.b.mono.pink[Output] `feols` output for the *plain* OLS model .it[vs.] the FE model.
 
----
-
-## Within $R^2$
-
-For the FE model above:
-
-```{r, fe-wr2, echo = FALSE}
-table_style(
-  tibble(
-    Statistic = c("Slope on min_wage", "Within R^2"),
-    Value = c(fmt3(coef(fe_mod)[["min_wage"]]), fmt3(fe_wr2))
-  ),
-  digits = 3,
-  font_size = 25
-)
+```{r, fe-reg-table1, echo = FALSE, highlight.output = 1}
+# Compare pooled OLS and FE estimates
+est_ols =
+  feols(
+    teen_emp ~ min_wage,
+    cluster = ~ state,
+    data = mw_df
+  )
+est_fe =
+  feols(
+    teen_emp ~ min_wage | state + year,
+    cluster = ~ state,
+    data = mw_df
+  )
+etable(est_ols, est_fe, digits = 3)
 ```
-
---
-
-.hi[Within $R^2$] asks:
-
-> After removing the fixed effects, how much of the remaining variation in teen employment do changes in the minimum wage explain?
-
---
-
-It is the right fit measure when FE identification comes from .hi-purple[within variation].
-
----
-
-## What FE does not fix
-
-Fixed effects solve one important problem:
-
-- .hi[time-invariant omitted variables]
-
---
-
-But FE does .hi-orange[not] solve
-
-- time-varying confounders
-- reverse causality
-- bad measurement of treatment timing
-- weak within variation
 
 ---
 layout: false
-class: inverse, middle
+class: clear
 
-# Difference-in-Differences
+.b.mono.pink[Output] `feols` output for the *plain* OLS model .it[vs.] the FE model.
+
+```{r, fe-reg-table2, echo = FALSE, highlight.output = 5}
+etable(est_ols, est_fe, digits = 3)
+```
+
+Both $\color{#e64173}{\hat{\beta}_1}$ are stat. significant, but they tell .pink[very different stories].
+
+---
+layout: false
+class: clear
+
+.b.mono.pink[Output] `feols` output for the *plain* OLS model .it[vs.] the FE model.
+
+```{r, fe-reg-table3, echo = FALSE, highlight.output = 4}
+etable(est_ols, est_fe, digits = 3)
+```
+
+.qa[Q] Why is there .pink[no intercept] $(\beta_0)$ in the FE model?
+--
+<br>
+.qa[A] The .pink[fixed effects are collinear] with the intercept—they each provide a separate intercept for each unit and time period.
+
+---
+layout: false
+class: clear
+
+.b.mono.pink[Output] `feols` output for the *plain* OLS model .it[vs.] the FE model.
+
+```{r, fe-reg-table4, echo = FALSE, highlight.output = 13}
+etable(est_ols, est_fe, digits = 3)
+```
+
+.qa[Q] What is .pink.b[*within* R.super[2]]?
+--
+<br>
+.qa[A] It is the $R^2$ of the regression .pink[after accouting for the FEs]: how much of the outcome's variation regressors explain, *after controlling for FEs*.
+
+---
+layout: false
+class: clear
+
+.b.mono.pink[Output] `feols` output for the *plain* OLS model .it[vs.] the FE model.
+
+```{r, fe-reg-table5, echo = FALSE, highlight.output = 12}
+etable(est_ols, est_fe, digits = 3)
+```
+
+The FE model has as high $\color{#e64173}{R^2}$ because fixed effects explain a lot of variation (in essence, means of states and years).
+
+---
+layout: false
+
+# Panel estimation
+## Summary
+
+Fixed effects help one key problem: .hi[time-invariant omitted variables].
+
+--
+
+But FEs .b.slate[do not] solve *all* causal problems, *e.g.*,
+
+- time-varying confounders,
+- reverse causality
+- measurement error,
+- poor measurement of treatment timing,
+- weak within variation.
+  
+As with *all* econometric tools, careful use is required.
 
 ---
 layout: true
-# Difference-in-Differences
-## Core Idea
+# Difference-in-differences
+
+---
+class: inverse, middle
 
 ---
 name: did_intuition
 
-Difference-in-differences (DiD) is a .hi[panel-data design].
+## Core idea
 
---
+.attn[Difference-in-differences] (DiD).super.pink[†] is a popular panel-data approach for estimating causal effects of policies/events.
 
-We compare
+.footnote[.pink[†] Also called .it[double-differences] or .it[diff-in-diff]. Increasingly combined with .it[two-way fixed effects (TWFE)].]
 
-- a .hi-purple[treated group] and
-- a .hi-slate[control group]
+DiD compares observations across two dimensions:
 
---
-
-before and after treatment begins.
-
---
-
-It is fixed effects plus a very specific source of within variation:
-
-.hi-orange[a policy shock that turns on for some units and not others.]
+1. .b.purple[Group:] comparing
+  - .purple.it[treated] individuals (potentially affected by the policy)
+  - .purple.it[control] individuals (unaffected by the policy)
+2. .b.orange[Time:] comparing
+  - .orange.it[before] the policy takes effect .grey-vlight.it[(pre-treatment)]
+  - .orange.it[after] the policy takes effect .grey-vlight.it[(post-treatment)]
 
 ---
+## Intuition
 
-## The basic DiD formula
-
-$$
-\begin{align}
-  \widehat{\delta}_{DiD} =
-  \left( \overline{y}_{T,post} - \overline{y}_{T,pre} \right) -
-  \left( \overline{y}_{C,post} - \overline{y}_{C,pre} \right)
-\end{align}
-$$
+DiD functions by taking the difference between two differences:
 
 --
 
-The first difference removes permanent treated-control differences.
+1. Δ.b[Y̅.sub.orange.tran50[Pre]] $=$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) <br> the average difference between .purple[trt.] and .purple.tran50[control] .b.orange.tran50[before] the policy, <br> accounting for pre-existing differences between the groups;
 
 --
 
-The second difference removes common time shocks.
+2. Δ.b[Y̅.sub.orange[Post]] $=$ .b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) <br> the average difference between .purple[trt.] and .purple.tran50[control] .b.orange[after] the policy, <br> which includes pre-existing differences *and* the .pink[treatment effect].
+
+--
+
+The .attn[DiD estimate] is the difference between these differences
+<br>
+   .pink[τ̂] $=$ Δ.b[Y̅.sub.orange[Post]] $-$ Δ.b[Y̅.sub.orange.tran50[Pre]]
+<br>
+.note[I.e.,] how much did the .purple[trt]-.purple.tran50[control] difference change from .orange.tran50[pre] to .orange[post]?
 
 ---
+layout: false
+class: clear
 
-## A 2 x 2 DiD table
+.mono.b.slate[Ex.] Two .purple[groups (trt/ctrl)] and two .orange[time periods (pre/post policy)].
 
-```{r, did-cell-table, echo = FALSE}
-table_style(did_table, digits = 3, font_size = 24)
+```{r, did-cell-table1, echo = FALSE}
+# Copy the did_cells to data.table
+did_dt = copy(did_cells)
+setDT(did_dt)
+# Arrange by period and group
+setorder(did_dt, -Period, -Group)
+# Set column order
+setcolorder(
+  did_dt,
+  c('Group', 'Period', 'mean_y')
+)
+# Set names
+setnames(did_dt, c('Group', 'Period', 'Mean', 'trt', 'post'))
+# Simplify means
+did_dt[, Mean := Mean |> round(3)]
+# Show the table
+did_dt[, 1:3]
 ```
 
---
+---
+layout: false
+class: clear
 
-- Treated change: `r fmt3(treated_change)`
-- Control change: `r fmt3(control_change)`
-- DiD estimate: `r fmt3(did_est)`
+.mono.b.slate[Ex.] Two .purple[groups (trt/ctrl)] and two .orange[time periods (pre/post policy)].
+
+```{r, did-cell-table2, echo = FALSE, highlight.output = 3:4}
+did_dt[, 1:3]
+```
+
+1. Δ.b[Y̅.sub.orange.tran50[Pre]] $=$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) $=$ `r did_dt$Mean[2:1] |> diff()`.
 
 ---
+layout: false
+class: clear
 
-## Classic DiD example: Card and Krueger
+.mono.b.slate[Ex.] Two .purple[groups (trt/ctrl)] and two .orange[time periods (pre/post policy)].
 
-One famous application compares .hi[fast-food employment]
+```{r, did-cell-table3, echo = FALSE, highlight.output = 5:6}
+did_dt[, 1:3]
+```
+
+1. Δ.b[Y̅.sub.orange.tran50[Pre]] $=$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) $=$ `r did_dt$Mean[2:1] |> diff()`.
+
+2. Δ.b[Y̅.sub.orange[Post]] $=$ .b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) $=$ `r did_dt$Mean[4:3] |> diff()`
+
+---
+layout: false
+class: clear
+
+.mono.b.slate[Ex.] Two .purple[groups (trt/ctrl)] and two .orange[time periods (pre/post policy)].
+
+```{r, did-cell-table4, echo = FALSE}
+did_dt[, 1:3]
+```
+
+1. Δ.b[Y̅.sub.orange.tran50[Pre]] $=$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) $=$ `r did_dt$Mean[2:1] |> diff()`.
+
+2. Δ.b[Y̅.sub.orange[Post]] $=$ .b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) $=$ `r did_dt$Mean[4:3] |> diff()`
+
+The .attn[DiD estimate]—the difference between these differences
+<br>
+   .pink[τ̂] $=$ Δ.b[Y̅.sub.orange[Post]] $-$ Δ.b[Y̅.sub.orange.tran50[Pre]] $=$ `r (did_dt$Mean[4:3] |> diff()) - (did_dt$Mean[2:1] |> diff())`
+
+---
+layout: false
+class: clear
+
+.note[Note] You can also write the DiD estimator as two other differences,
+
+
+   .pink[τ̂] $=$ Δ.b[Y̅.sub.orange[Post]] $-$ Δ.b[Y̅.sub.orange.tran50[Pre]] 
 
 --
 
-- in .hi-purple[New Jersey], where the minimum wage rose
-- to .hi-slate[Pennsylvania], where it did not
+   .white[τ̂] $=$ $\big[$ .b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) $\big]$
+$-$
+$\big[$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) $\big]$
 
 --
 
-before and after the policy change.
+   .white[τ̂] $=$.b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) $-$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $+$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre])
 
 --
 
-DiD asks whether employment in New Jersey changed .hi-orange[more or less than the counterfactual trend] suggested by Pennsylvania.
+   .white[τ̂] $=$ $\big[$ .b[Y̅](.purple[Trt]; .orange[Post]) $-$ .b[Y̅](.purple[Trt]; .orange.tran50[Pre]) $\big]$ $-$ $\big[$ .b[Y̅](.purple.tran50[Ctrl]; .orange[Post]) $-$ .b[Y̅](.purple.tran50[Ctrl]; .orange.tran50[Pre]) $\big]$
+
+--
+
+   .white[τ̂] $=$ Δ.b[Y̅].sub.purple[Trt] $-$ Δ.b[Y̅].sub.purple.tran50[Ctrl]
+
+.note[I.e.,] the change in the .purple[treated group] (.orange[post] $-$ .orange.tran50[pre]) relative to <br> the change in the .purple.tran50[control group].
+
+We're using the .purple.tran50[control group's .b[change]] as a .b[counterfactual] for <br> the .purple[treated group's .b[change]] had it not received treatment.
+
+---
+layout: true
+# Difference-in-differences
+
+---
+## Classic example: Card and Krueger (1994)
+
+One famous DiD [application](https://davidcard.berkeley.edu/papers/njmin-aer.pdf) estimates the .b.slate[impact of increasing the minimum wage on fast-food employment].
+
+- .note[Who:] .purple[New Jersey (trt)] *vs.* .purple.tran50[Pennsylvania (ctrl)]
+- .note[When:] .orange.tran50[before 01 April 1992 (pre)] *vs.* .orange[after 01 April 1992 (post)]
+
+DiD estimates .grey-vlight.it[(both questions = same answer)]
+
+1. How did NJ-PA empl. diff. change after the policy, relative to before?
+2. How did NJ's empl. change after the policy relative to PA's change?
+
+--
+
+.note[Key assumption:] PA needs to be a good counterfactual for NJ. In the absence of the policy, NJ and PA would have followed the same empl. trends.
 
 ---
 
 ## DiD as a regression
 
-With two groups and two periods:
+With two groups and two periods
+$$y_{it} = \beta_0 + \beta_1 \color{#6A5ACD}{\text{Trt}_i} + \beta_2 \color{#FFA500}{\text{Post}_t} + \delta \left( \color{#6A5ACD}{\text{Trt}_i} \times \color{#FFA500}{\text{Post}_t} \right) + u_{it}$$
+where $\color{#6A5ACD}{\text{Trt}_i}$ and $\color{#FFA500}{\text{Post}_t}$ are binary indicators for the .purple[treated group] and .orange[post-treatment period]. 
 
-$$
-\begin{align}
-  y_{it} = \beta_0 + \beta_1 \text{Treat}_i + \beta_2 \text{Post}_t + \delta \left( \text{Treat}_i \times \text{Post}_t \right) + u_{it}
-\end{align}
-$$
+The interaction asks if if the .orange[post] change in the .purple[treated group] differs from the .orange[post] change in the .purple.tran50[control group]: the .attn[treatment effect].
 
 --
 
 With panel data, we often write
 
-$$
-\begin{align}
-  y_{it} = \alpha_i + \lambda_t + \delta D_{it} + u_{it}
-\end{align}
-$$
-
---
+$$y_{it} = \alpha_i + \lambda_t + \delta D_{it} + u_{it}$$
 
 where $D_{it}=1$ only for treated units after treatment starts.
 
 ---
+layout: false
+class: clear
 
-## DiD in pictures
-
-```{r, did-plot, echo = FALSE}
-ggplot(did_plot_df, aes(x = period, y = mean_y, color = Group)) +
-  geom_vline(xintercept = 5.5, linetype = "dashed", color = grey_mid) +
+```{r, did-plot1, echo = FALSE}
+# Add post indicator
+did_plot_dt = copy(did_plot_df)
+setDT(did_plot_dt)
+did_plot_dt[, post := 1 * (period > 5)]
+# Add factor var for interaction
+did_plot_dt[, int := interaction(treat, post)]
+# The first plot
+ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
+  geom_vline(xintercept = 5.5, linetype = 'dashed', color = grey_mid) +
   geom_line(linewidth = 1.3) +
   geom_point(size = 2.7) +
-  scale_color_manual(values = c("Control" = purple, "Treated" = red_pink)) +
+  scale_color_manual(values = c('Control' = purple_l, 'Treated' = purple)) +
   scale_x_continuous(breaks = 1:10) +
   labs(
-    x = "Period",
-    y = "Average y",
+    x = 'Time period',
+    y = 'Average Y',
     color = NULL
   ) +
-  theme_minimal(base_size = 21) +
+  theme_minimal(base_size = 21, base_family = 'Fira Sans Condensed') +
   theme(
     panel.grid.minor = element_blank(),
-    legend.position = "bottom"
+    legend.position = 'bottom'
+  )
+```
+
+.b.slate[DiD in pictures] Starting with time series for each unit.
+<br>
+.grey-vlight.it[(Treatment starts between periods 5 and 6.)]
+
+---
+class: clear
+
+```{r, did-plot2, echo = FALSE}
+ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
+  geom_vline(xintercept = 5.5, linetype = 'dashed', color = grey_mid) +
+  geom_line(linewidth = 1.3, alpha = .15) +
+  geom_point(size = 2.7, alpha = .15) +
+  geom_line(
+    aes(group = int),
+    stat = 'smooth', method = 'lm', formula = y ~ 1, se = FALSE,
+    linewidth = 1.3
+  ) +
+  scale_color_manual(values = c('Control' = purple_l, 'Treated' = purple)) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(
+    x = 'Time period',
+    y = 'Average Y',
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21, base_family = 'Fira Sans Condensed') +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = 'bottom'
+  )
+```
+
+Here we have .b.purple[group]-by-.b.orange[time] means.
+
+---
+class: clear
+
+```{r, did-plot3, echo = FALSE}
+ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
+  geom_vline(xintercept = 5.5, linetype = 'dashed', color = grey_mid) +
+  geom_line(linewidth = 1.3, alpha = .15) +
+  geom_point(size = 2.7, alpha = .15) +
+  geom_line(
+    aes(group = int),
+    stat = 'smooth', method = 'lm', formula = y ~ 1, se = FALSE,
+    linewidth = 1.3
+  ) +
+  annotate(
+    'segment',
+    x = 3, xend = 3,
+    y = did_plot_dt[post == 0 & treat == 0, mean(mean_y)],
+    yend = did_plot_dt[post == 0 & treat == 1, mean(mean_y)],
+    color = orange_l, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  annotate(
+    'segment',
+    x = 8, xend = 8,
+    y = did_plot_dt[post == 1 & treat == 0, mean(mean_y)],
+    yend = did_plot_dt[post == 1 & treat == 1, mean(mean_y)],
+    color = orange, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  scale_color_manual(values = c('Control' = purple_l, 'Treated' = purple)) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(
+    x = 'Time period',
+    y = 'Average Y',
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21, base_family = 'Fira Sans Condensed') +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = 'bottom'
+  )
+```
+
+The .attn[DiD estimate] compares the .b.orange.tran50[pre-trt] difference to the .b.orange[post-trt] diff.
+
+---
+class: clear
+
+```{r, did-plot4, echo = FALSE}
+# Calculate pre- and post-trt diffs
+pre_diff =
+  did_plot_dt[post == 0 & treat == 1, mean(mean_y)] -
+  did_plot_dt[post == 0 & treat == 0, mean(mean_y)]
+post_diff =
+  did_plot_dt[post == 1 & treat == 1, mean(mean_y)] -
+  did_plot_dt[post == 1 & treat == 0, mean(mean_y)]
+# The plot
+ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
+  geom_vline(xintercept = 5.5, linetype = 'dashed', color = grey_mid) +
+  geom_line(linewidth = 1.3, alpha = .15) +
+  geom_point(size = 2.7, alpha = .15) +
+  geom_line(
+    aes(group = int),
+    stat = 'smooth', method = 'lm', formula = y ~ 1, se = FALSE,
+    linewidth = 1.3
+  ) +
+  annotate(
+    'segment',
+    x = 3, xend = 3,
+    y = did_plot_dt[post == 0 & treat == 0, mean(mean_y)],
+    yend = did_plot_dt[post == 0 & treat == 1, mean(mean_y)],
+    color = orange_l, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  annotate(
+    'segment',
+    x = 7.5, xend = 7.5,
+    y = did_plot_dt[post == 1 & treat == 0, mean(mean_y)],
+    yend = did_plot_dt[post == 1 & treat == 0, mean(mean_y)] + pre_diff,
+    color = orange_l, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  annotate(
+    'segment',
+    x = 8, xend = 8,
+    y = did_plot_dt[post == 1 & treat == 0, mean(mean_y)],
+    yend = did_plot_dt[post == 1 & treat == 1, mean(mean_y)],
+    color = orange, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  annotate(
+    'segment',
+    x = 7.5, xend = 7.5,
+    y = did_plot_dt[post == 1 & treat == 0, mean(mean_y)] + pre_diff,
+    yend = did_plot_dt[post == 1 & treat == 1, mean(mean_y)],
+    color = red_pink, linewidth = 1.9,
+    arrow = arrow(length = unit(.2, 'inches'), ends = 'both'),
+    lineend = 'butt', linejoin = 'mitre'
+  ) +
+  scale_color_manual(values = c('Control' = purple_l, 'Treated' = purple)) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(
+    x = 'Time period',
+    y = 'Average Y',
+    color = NULL
+  ) +
+  theme_minimal(base_size = 21, base_family = 'Fira Sans Condensed') +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = 'bottom'
+  )
+```
+
+The difference in the .b.orange.tran50[pre-trt] and .b.orange[post-trt] diffs is the .attn[DiD estimate].
+
+---
+class: clear
+
+.b[DiD in `fixest`]
+
+```{r, did-code}
+did_mod =
+  feols(
+    y ~ i(post, treat, ref = 0) | id + period,
+    cluster = 'id',
+    data = base_did
   )
 ```
 
 --
 
-Treatment begins between periods 5 and 6.
-
----
-
-## `fixest` DiD code
-
-```{r, did-code, eval = FALSE}
-did_mod <- feols(
-  y ~ i(post, treat, ref = 0) | id + period,
-  cluster = "id",
-  data = base_did
-)
+```{r, did-reg-table, echo = FALSE, highlight.output = 6}
+did_mod
 ```
 
---
-
-```{r, did-reg-table, echo = FALSE}
-table_style(did_reg_table, digits = 3, font_size = 24)
-```
-
---
-
-The interaction term is the .hi[DiD estimate].
-
----
-
-## The key DiD assumption
-
-.hi[Parallel trends:]
-
-In the absence of treatment, treated and control units would have followed the same average trend.
-
---
-
-What threatens DiD?
-
---
-
-- treated units were already on a different trend
-- anticipation changes behavior before treatment
-- another shock hits treated units at the same time
-- standard errors ignore within-unit dependence
-
----
-
-## Where DiD fits
-
-DiD is especially useful when
-
---
-
-- treatment timing is clear
-
---
-
-- you have good pre-treatment data
-
---
-
-- untreated units provide a plausible counterfactual
-
---
-
-- the treatment effect is tied to a policy or event
+The interaction btn .orange[post] and .purple[treat] is the .attn[DiD estimate] of the trt effect.
 
 ---
 layout: true
-# Panel estimation
-## What comes next
+# Difference-in-differences
 
 ---
-name: scm
+## The key DiD assumption
 
-## Synthetic control and friends
+DiD relies upon a critical assumption often called .attn[parallel trends]:
 
-If one unit gets treated and many do not, .hi[synthetic control methods] can help.
+> In the absence of treatment, treated and control units would have followed the .pink[same average trend].
+
+Again, we're assuming that the trend of the control units provide <br> a .b.slate[good counterfactual] for the treated group.
+
+---
+## What threatens DiD?
+
+So what violates this .note[parallel trends] assumption?
 
 --
 
-Idea:
-
-- build a weighted average of control units
-- match the treated unit's pre-treatment path
-- compare treated vs. synthetic control after treatment
+- treated units were already on a different trend,
+- anticipation changes behavior before treatment,
+- other shocks hit treated units at the same time as treatment.
 
 --
 
-There are many related panel methods, but for us the core ideas today are still
+What else can *mess up* DiD estimates?
 
-- .hi[within variation]
-- .hi-purple[fixed effects]
-- .hi-orange[treated vs. untreated changes over time]
+- standard errors ignore within-unit dependence,
+- measurement error,
+- spillovers from trt to control,
+- dynamic treatment effects,
+- het trt effects *and* het trt timing...
 
 ---
 
+## DiD's place in the toolbox
+
+DiD is especially useful when
+
+- treatment .orange[timing] is clear,
+- .purple[treatment definition] is clear,
+- you have good .orange[pre-treatment] data
+- .purple.tran50[ctrl group] provide a plausible counterfactual for .purple[trt group],
+- the .pink[treatment effect] is tied to a discrete policy or event.
+  
+--
+
+.qa[Q] What are the other options?
+--
+<br>
+.qa[A] Synthetic control and friends—build a weighted average of control units to better match the treated unit's pre-treatment path.
+
+---
 ## Takeaways
 
-- Panel data let us compare a unit .hi[to itself over time].
+Key concepts from panel estimation, FEs, and DiD:
 
---
+- .b.slate[Panel data] let us compare a unit to itself .b.purple[over time].
 
-- Fixed effects remove .hi-purple[time-invariant omitted variables].
+- .b.slate[Fixed effects] remove .b.orange[time-invariant omitted variables].
 
---
+- $\implies$ .b.slate[Identifying variation] is .b.purple[within variation].
 
-- The identifying variation is .hi-orange[within variation], so within $R^2$ matters.
+- .b.slate[DiD] focuses on how trt-ctrl .b.slate[differences] change over time.
 
---
-
-- DiD is a panel-data strategy built around a treated-control change over time.
-
---
-
-- Panels help a lot, but they still depend on strong assumptions.
+Panels can certainly help, but they still depend on strong assumptions.

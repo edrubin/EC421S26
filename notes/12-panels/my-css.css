@@ -65,9 +65,11 @@
 .orange {
   color: #FFA500 !important;
 }
+/* Yellow ("yellow") text */
 .yellow{
   color: #D8BD44 !important;
 }
+/* Green ("green") text */
 .green {
   color: #7CAE96 !important;
 }
@@ -80,7 +82,6 @@
 .red {
   color: #fb6107 !important;
 }
-
 
 /* Grey text */
 .grey-mid {
@@ -100,6 +101,20 @@
 .black {
   color: #000000 !important;
 }
+
+/* Fully transparent */
+.tran {
+  opacity: 0 !important;
+}
+/* Semi-transparent */
+.tran50 {
+  opacity: .50 !important;
+}
+/* Semi-transparent */
+.tran25 {
+  opacity: .25 !important;
+}
+
 
 /* Italic */
 .it {
@@ -135,6 +150,11 @@
   clear: left;
 }
 
+/* Zilla Slab */
+.slab {
+  /* font-weight: 400; */
+  font-family: 'Zilla Slab' !important;
+}
 .attn {
   font-weight: 500;
   color: #e64173 !important;
@@ -143,6 +163,12 @@
 .qa {
   font-weight: 500;
   color: #e64173 !important;
+  font-family: 'Zilla Slab' !important;
+}
+.note {
+  font-weight: 300;
+  font-style: italic;
+  color: #314f4f !important;
   font-family: 'Zilla Slab' !important;
 }
 
@@ -290,11 +316,4 @@ hr, .title-slide h2::after, .mline h1::after {
   .has-continuation {
     display: block !important;
   }
-}
-
-.note {
-  font-weight: 300;
-  font-style: italic;
-  color: #314f4f !important;
-  font-family: 'Zilla Slab' !important;
 }

@@ -16,7 +16,7 @@ lec08 : notes/08-autocorrelation/slides.html notes/08-autocorrelation/slides.pdf
 lec09 : notes/09-nonstationarity/slides.html notes/09-nonstationarity/slides.pdf
 lec10 : notes/10-causality/slides.html notes/10-causality/slides.pdf
 lec11 : notes/11-iv/slides.html notes/11-iv/slides.pdf
-lec12 : notes/12-ml/slides.html notes/12-ml/slides.pdf
+lec12 : notes/12-panels/slides.html notes/12-panels/slides.pdf
 midterm-topics : midterm/prep/midterm-topics.html
 midterm-review : midterm/prep/midterm-review.html
 midterm-exam : midterm/exam/exam-inclass.pdf
@@ -88,9 +88,9 @@ notes/11-iv/slides.html : notes/11-iv/slides.rmd notes/11-iv/my-css.css
 notes/11-iv/slides.pdf : notes/11-iv/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 12
-notes/12-ml/slides.html : notes/12-ml/slides.rmd notes/12-ml/my-css.css
+notes/12-panels/slides.html : notes/12-panels/slides.rmd notes/12-panels/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-notes/12-ml/slides.pdf : notes/12-ml/slides.html
+notes/12-panels/slides.pdf : notes/12-panels/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 
 # Define links: Exam material --------------------------------------------------

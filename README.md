@@ -86,6 +86,8 @@ In case you're interested, I created the slides with [`xaringan`](https://github
 
 11. [Instrumental Variables](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.html)<br>Review the Neymam-Rubin causal model; introduction to instrumental variables (IV) and two-stage least squares (2SLS). Applications to causal inference and measurement error. Venn diagrams. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/11-iv/slides.Rmd)
 
+12. [Panel data, fixed effects, and DiD](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.html)<br>Introduction to panel data, fixed effects, *within* variation, and difference-in-differences estimation. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/12-panels/slides.Rmd)
+
 ## Exams
 
 See the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf) for specific information on the exams and grades.
