@@ -2,6 +2,30 @@
 
 Welcome to **Economics 421: Introduction to Econometrics** (Winter 2026) at the University of Oregon (taught by [Edward Rubin](https://edrub.in) and [Eric Wilken](https://ericwilken.com/)).
 
+## Final exam
+
+Materials to prepare for the in-class final exam (8am on Thursday, 19 March 2026):
+
+- [in-class review](final/prep/inclass-review.pdf);
+- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
+- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-review.html) (no solutions)
+
+The problem sets should also help you review.
+
+## Midterm exam
+
+Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf).
+
+Materials to prepare for the in-class midterm exam:
+
+- [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
+- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
+- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-review.html) (no solutions)
+
+The problem sets should also help you review.
+
 ## Syllabus
 
 For information on the course specifics, please see the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf).
@@ -32,28 +56,6 @@ Below are the tentatively planning topics for the problem sets.
 <br>Due: Wednesday, 11 March 2026 by 11:59 PM
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/003/data-ps3.csv) | solutions
 
-## Midterm exam
-
-Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf).
-
-Materials to prepare for the in-class midterm exam:
-
-- [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
-- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-review.html) (no solutions)
-
-The problem sets should also help you review.
-
-## Final exam
-
-Materials to prepare for the in-class final exam (8am on Thursday, 19 March 2026):
-
-- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-review.html) (no solutions)
-
-The problem sets should also help you review.
 
 ## Lecture slides
 

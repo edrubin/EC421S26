@@ -80,3 +80,23 @@ As with the midterm, you do not need to memorize proofs. Understand the steps/re
     -   First stage
     -   Second stage
 -   Interpretation
+
+## Slide Set 12: Panels
+
+-   Why panel data can help
+    -   Within-unit vs. between-unit variation
+    -   Time-invariant omitted variables
+-   Pooled OLS vs. fixed effects (FE)
+-   Unit and time fixed effects
+-   Within transformation intuition
+-   FE interpretation
+    -   Identification from within variation
+    -   Limits of FE (time-varying confounders, reverse causality, measurement error, weak within variation)
+-   Difference-in-differences (DiD)
+    -   Core idea: difference between two differences
+    -   DiD regression setup and interaction term interpretation
+    -   Two-way fixed effects (TWFE) framing
+-   Parallel trends assumption
+    -   Meaning
+    -   Common threats/violations
+-   When DiD is most useful

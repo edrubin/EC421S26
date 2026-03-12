@@ -87,3 +87,13 @@ Use this equation to show how the two requirements of a valid instrument give us
 29\. Under which circumstances can we trust OLS to be unbiased and/or consistent? When is it efficient?
 
 30\. Under which circumstances is OLS to be biased and/or inconsistent?
+
+31\. Compare and contrast cross-sectional data, time series data, and panel data. Write down an example model for each of these data settings.
+
+32\. How does the OLS estimator perform on panel data? 
+
+33\. How does adding *fixed effects* change the OLS estimator's estimates in a panel data setting? 
+
+34\. Which types of variation do fixed effects absorb, and which types of variation still give them trouble? 
+
+35\. What is the *gist* of the *difference-in-differences* method?
