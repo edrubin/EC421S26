@@ -1,0 +1,504 @@
+---
+title: "Problem Set 3: Causality, IV, and Final Review"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+showanswers: true
+---
+
+## Instructions
+
+[**Optional!!!**]{style="text-decoration: underline;"} This problem set is entirely **optional**. If you submit it, it will replace your lowest problem set grade (unless it is lower than your lowest grade). If you do not submit this assignment, your grade will be unchanged. Either way, I encourage you to work through the problems to prepare for the final exam.
+
+[**Due**]{style="text-decoration: underline;"} Upload your answer on Canvas *before* 11:59PM on Wednesday, 11 March 2026.
+
+[**Important**]{style="text-decoration: underline;"} You must submit your answers as an HTML or PDF file, built from an RMarkdown (`.Rmd`) or Quarto (`.qmd`) file. **Do not submit the `.Rmd` or `.qmd` file.** You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or regression results should be in the document that you submit (not just the code---we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero---for the assignment and possibly for the course.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set are stored in `data-ps3.csv`. They build on the county-level life-expectancy dataset from Problem Set 1 and add two new tax-related variables from the original county-characteristics source:
+
+| Variable name       | Variable type | Variable description |
+|:--------------------|:--------------|:---------------------|
+| `county_name`       | character     | County name |
+| `county_code`       | integer       | County FIPS code |
+| `state_abb`         | character     | State abbreviation |
+| `income_quartile`   | character     | Income quartile (1 or 4) |
+| `life_exp`          | numeric       | Life expectancy (years) |
+| `pct_uninsured`     | numeric       | Percent uninsured |
+| `poverty_rate`      | numeric       | Share below poverty line |
+| `pct_religious`     | numeric       | Percent religious |
+| `pct_black`         | numeric       | Percent Black |
+| `pct_hispanic`      | numeric       | Percent Hispanic |
+| `unemployment_rate` | numeric       | Unemployment rate |
+| `median_hh_inc`     | numeric       | Median household income |
+| `is_urban`          | integer       | Urban county indicator (1 or 0) |
+| `pop`               | integer       | County population |
+| `pop_density`       | numeric       | Population density |
+| `pct_smoke`         | numeric       | Percent who smoke |
+| `pct_obese`         | numeric       | Percent obese (BMI) |
+| `pct_exercise`      | numeric       | Percent who exercise |
+| `tax_rate`          | numeric       | Local tax rate |
+| `tax_prog`          | numeric       | Tax progressivity |
+
+: Variable names and descriptions
+
+Recall that the data came from a study titled *The Association Between Income and Life Expectancy in the United States, 2001-2014* (by Raj Chetty, Augustin Bergeron, David Cutler, Benjamin Scuderi, Michael Stepner, and Nicholas Turner). 
+
+You can find more information about the life-expectancy variables [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_11_readme.pdf) and the county characteristics [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_12_readme.pdf).
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has three goals:
+
+1. Practice reasoning carefully about causality in observational data.
+2. Implement and interpret instrumental-variables and two-stage least squares estimators in `R`.
+3. Review the main ideas from lecture to prepare for the final exam.
+
+## Setup
+
+**[00]** Load your `R` packages and the dataset (`data-ps3.csv`). You will likely want `tidyverse`, `scales`, `fixest`, and `here`.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r, answer00}
+# Load packages
+library(pacman)
+p_load(tidyverse, scales, fixest, here)
+
+# Load data
+ps3_df = read_csv(here('problem-sets', '003', 'data-ps3.csv'))
+```
+::::
+:::
+
+## Section 1: Causality and IV
+
+In this section, we will study the relationship between smoking and life expectancy. A natural starting point is the regression
+
+$$
+  \text{(Life expectancy)}_i = \beta_0 + \beta_1 \text{(Smoking share)}_i + u_i,
+$$
+
+but there are obvious reasons to worry that smoking is endogenous—even at the county level. We will therefore compare OLS and IV estimates.
+
+**[01]** Explain why smoking is likely endogenous in this regression. Give specific reasons and discuss the direction of bias if you can.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Smoking is likely endogenous because of many omitted factors that could affect life expectancy and correlate with smoking. For example, if counties with more smoking also have worse healthcare access, then the OLS estimate of the effect of smoking on life expectancy would be biased upward. If counties with more smoking also have higher poverty rates, then the OLS estimate would be biased downward. There are many such factors, and they could bias the OLS estimate in either direction.
+::::
+:::
+
+**[02]** Use `R` to report
+
+- the total number of observations,
+- the number of counties,
+- the means of `tax_rate` and `tax_prog`,
+- for each of the two income quartiles (`1` and `4`): the means of `life_exp`, `pct_smoke`.
+  
+*Hint:* You can use `group_by` and `summarise` to get summary statistics *grouped* by another variable.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer02}
+# The overall summary statistics
+summary_stats =
+  ps3_df |>
+  summarise(
+    observations = n(),
+    counties = n_distinct(county_code),
+    states = n_distinct(state_abb),
+    mean_tax_rate = mean(tax_rate),
+    mean_tax_prog = mean(tax_prog)
+  )
+summary_stats
+
+# The grouped means
+grouped_means =
+  ps3_df |>
+  group_by(income_quartile) |>
+  summarise(
+    mean_life_exp = mean(life_exp),
+    mean_pct_smoke = mean(pct_smoke)
+  )
+grouped_means
+```
+
+The sample contains `r summary_stats$observations |> scales::comma()` observations, `r summary_stats$counties |> scales::comma()` counties, and `r summary_stats$states` state abbreviations.
+
+The mean tax rate is `r summary_stats$mean_tax_rate |> scales::percent(3)`, and the mean tax progressivity is `r summary_stats$mean_tax_prog |> round(3)`.
+
+Finally, for the lowest income quartile, the mean life expectancy is `r grouped_means$mean_life_exp[1] |> round(2)` years; the mean smoking share is `r grouped_means$mean_pct_smoke[1] |> scales::percent()`. For the highest income quartile, the mean life expectancy is `r grouped_means$mean_life_exp[2] |> round(2)` years; the mean smoking share is `r grouped_means$mean_pct_smoke[2] |> scales::percent()`.
+::::
+:::
+
+**[03]** Create a figure that helps you visualize the raw relationship between smoking and life expectancy. Make the figure informative. At a minimum, it should
+
+- put `pct_smoke` on the horizontal axis,
+- put `life_exp` on the vertical axis,
+- distinguish the two income quartiles somehow (*e.g.*, make two separate plots or color by quartile),
+
+**Bonus:** Include fitted regression lines in your plot.
+
+*Hint:* In `ggplot2`, you can use `geom_smooth(method = 'lm')` to add a fitted regression line to a scatter plot.
+
+Briefly describe what you see.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using a scatter plot with separate colors for the two income quartiles.
+
+```{r, answer03}
+#| fig-height: 6
+
+ggplot(
+  ps3_df,
+  aes(x = pct_smoke, y = life_exp, color = factor(income_quartile))
+) +
+  geom_point(alpha = 0.25, size = 1.4) +
+  geom_smooth(method = 'lm', se = FALSE, linewidth = 0.7) +
+  scale_x_continuous('Smoking share', labels = percent) +
+  scale_y_continuous('Life expectancy (years)') +
+  scale_color_viridis_d(
+    name = 'Income quartile',
+    labels = c('1 (lower income)', '4 (higher income)'),
+    option = 'rocket',
+    begin = .15,
+    end = .75
+  ) +
+  theme_minimal(base_family = 'Fira Sans Condensed', base_size = 14) +
+  theme(legend.position = 'bottom')
+```
+
+The raw relationship is negative: counties/quartiles with higher rates of smoking tend to have lower life expectancy. The higher-income quartile also lies above the lower-income quartile, suggesting a large income-related gap in life expectancy. There are also a few outliers with very high smoking rates (100%).
+::::
+:::
+
+**[04]** Estimate the following model by OLS using heteroskedasticity-robust standard errors:
+
+\begin{aligned}
+  \text{(Life expectancy)}_i = \beta_0
+  &+ \beta_1 \text{(Smoking share)}_i + \beta_2 \text{(Poverty rate)}_i \\
+  &+ \beta_3 \text{(Black share)}_i + \beta_4 \text{(Hispanic share)}_i \\
+  &+ \beta_5 \text{(Urban indicator)}_i + \beta_6 1\{ \text{(Income quartile)}_i = 4 \} \\
+  &+ u_i
+\end{aligned}
+where $1\{ \text{(Income quartile)}_i = 1 \}$ is an indicator for being in the lowest income quartile (with the lowest quartile as the reference group).
+
+a) Report the results (*e.g.*, in a table).
+b) Then interpret the coefficient on `pct_smoke`.
+
+*Hint:* You have a few options for how to implement this regression's indicator variable:
+
+- create a new variable in the dataset that is `1` when `income_quartile == 1` and `0` otherwise, and then include that variable in the regression (*e.g.*, using `mutate(income_quartile == 1)`),
+
+- use `fixest`'s built-in `i` function inside of the regression where you define the reference level (the level to be dropped, here: 4) *e.g.*, `y ~ x + i(income_quartile, ref = 4)`.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using `feols()` with `vcov = 'hetero'`.
+
+```{r, answer04}
+ols_mod =
+  feols(
+    life_exp ~ pct_smoke + poverty_rate + pct_black + pct_hispanic +
+      is_urban + i(income_quartile, ref = 4),
+    data = ps3_df,
+    vcov = 'hetero'
+  )
+
+etable(ols_mod)
+```
+
+The estimated coefficient on `pct_smoke` is `r coef(ols_mod)['pct_smoke'] |> round(3)`: moving from no smoking to 100-percent smoking is associated with a `r abs(coef(ols_mod)['pct_smoke']) |> round(3) |> abs()`-year decrease in life expectancy, holding all else fixed.
+::::
+:::
+
+**[05]** Suppose we want to use the local tax rate `tax_rate` and local tax progressivity `tax_prog` as instruments.
+
+Estimate the first-stage regression using `tax_rate` and `tax_prog` as instruments for `pct_smoke`—keeping the same controls as in **[04]**. Use heteroskedasticity-robust standard errors.
+
+Do the two tax variables appear relevant? Report the results of the regression and explain your answer about the relevance of your instruments.
+
+**Bonus:** Use the `wald` function from `fixest` to jointly test the significance of the two variables.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+```{r, answer05}
+# First-stage regression
+fs_mod =
+  feols(
+    pct_smoke ~ tax_rate + tax_prog + poverty_rate + pct_black +
+      pct_hispanic + is_urban + i(income_quartile, ref = 4),
+    data = ps3_df,
+    vcov = 'het'
+  )
+# Report results
+etable(fs_mod)
+# Joint test
+wald(fs_mod, 'tax_rate|tax_prog')
+```
+
+Both tax variables have negative coefficients, which is consistent with the idea that higher taxes reduce smoking. Hypothesis tests for each of the variables reject zero at conventional levels; the joint test also reject zero.
+
+Thus, we have statistically significant evidence that our tax instruments are *relevant* for smoking incidence at the county level.
+::::
+:::
+
+**[06]** Estimate the reduced-form regression by replacing `pct_smoke` in **[04]** with the two tax variables.
+
++ Report your results.
++ Do we need *exogeneity* to interpret the reduced-form coefficients as causal effects of the tax variables on life expectancy?
++ How do you interpret the reduced-form coefficients? 
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer06}
+# Reduced-form regression
+rf_mod =
+  feols(
+    life_exp ~ tax_rate + tax_prog + poverty_rate + pct_black +
+      pct_hispanic + is_urban + i(income_quartile, ref = 4),
+    data = ps3_df,
+    vcov = 'het'
+  )
+# Report results
+etable(rf_mod)
+```
+
+The reduced-form coefficients on `tax_rate` and `tax_prog` tell us that higher tax rates and high tax progressivity are both associated with higher levels of life expectancy—holding the listed controls fixed.
+
+Under the IV logic, this reduced-form effect works through smoking.
+
+In practice, we need the exogeneity assumption to interpret the reduced-form coefficients as causal effects of the tax variables on life expectancy. If local tax policy affects life expectancy through channels other than smoking (or even correlates with other variables that affect life expectancy), then the reduced-form coefficients are not causal effects of the tax variables.
+::::
+:::
+
+**[07]** Estimate the causal effect of smoking on life expectancy using two-stage least squares (2SLS), instrumenting `pct_smoke` with `taxrate` and `tax_st_diff_top20`. Keep the same controls as in **[04]** and use heteroskedasticity-robust standard errors.
+
+Report your 2SLS results.
+
+You may use `feols` from `fixest`, `iv_robust` from `estimatr`, or any other package you like.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using `feols()`.
+
+```{r, answer07}
+# 2SLS regression
+iv_mod =
+  feols(
+    life_exp ~ poverty_rate + pct_black + pct_hispanic + is_urban +
+      i(income_quartile, ref = 4) | pct_smoke ~ tax_rate + tax_prog,
+    data = ps3_df,
+    vcov = 'het'
+  )
+# Report results
+etable(ols_mod, iv_mod)
+```
+::::
+:::
+
+**[08]** Compare your OLS and 2SLS (IV) estimates for smoking. Which one would you trust more for causal inference here, and why? Be explicit about 2SLS's assumptions.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} OLS and IV give very different estimates. While both suggest a negative association between smoking and life expectancy, the 2SLS estimates suggest a *much* larger negative effect—the 2SLS estimate for smoking is `r coef(iv_mod)['fit_pct_smoke'] |> round(3)`, which is more than 7 times the size of the OLS estimate.
+
+If I had to choose, I would only treat the 2SLS estimate as *potentially* closer to a causal effect, because 2SLS is designed to isolate exogenous variation in smoking. But I would still be cautious. Exogeneity is the key issue: if local tax policy affects life expectancy through channels other than smoking---for example, through public spending, income, migration, or other health-related behaviors---then the 2SLS estimate is not causal. So I would say 2SLS is more credible than OLS only if I can defend exogeneity. That defense is not obvious here.
+::::
+:::
+
+**[09]** Beyond exogeneity issues, the *relevance* of your instrument(s) is a huge concern when using instrumental variables or two-stage least squares. Use the probability limit of the instrumental variables estimator to discuss how a weak instrument could substantially bias the estimator.
+$$\text{plim} \hat{\beta}^\text{IV} = \beta + \dfrac{\text{Cov}(z,\, u)}{\text{Cov}(z,\, x)}$$
+for instrument $z$, endogenous regressor $x$, and disturbance $u$.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The probability limit of the IV estimator shows that it equals the true parameter `\beta` plus a bias term that depends on the covariance between the instrument and the error term, divided by the covariance between the instrument and the endogenous regressor. If the instrument is weak, meaning that $\text{Cov}(z,\, x)$ is close to zero, then the bias term can become very large in magnitude, even if $\text{Cov}(z, u)$ is small—we would be dividing a small number by a very small number, which can create a very large  Thus, weak instruments can lead to severely biased and unreliable estimates for the IV and 2SLS estimators.
+::::
+:::
+
+**[10]** *On the topic of weak instruments:* We should probably account for the fact that our disturbance likely correlates within state.
+
+Re-run the first-stage regression but with standard errors that are robust to the disturbance to correlate (cluster) at the state level (*e.g.*, `cluster = ~state.abb`). 
+
+Do the tax variables still appear relevant? Report your results and explain your answer.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using `feols()` with `cluster = ~state.abb`.
+```{r, answer10}
+# First-stage regression with clustered SEs
+fs_mod_clustered =
+  feols(
+    pct_smoke ~ tax_rate + tax_prog + poverty_rate + pct_black +
+      pct_hispanic + is_urban + i(income_quartile, ref = 4),
+    data = ps3_df,
+    vcov = ~state_abb
+  )
+# Report results
+etable(fs_mod_clustered)
+# Joint test
+wald(fs_mod_clustered, 'tax_rate|tax_prog')
+```
+Allowing for within-state correlation changes the standard errors rather substantially. The tax rate is now only significant at the 10% level. Tax progressivity is still significant at the 5% level. 
+
+The optional joint test still rejects zero at the 5% level, so we still have evidence that the tax variables are relevant, but the evidence is weaker than before.
+::::
+:::
+
+## Section 2: Final Review
+
+This section is mostly conceptual. Keep your answers concise but precise.
+
+**[11]** Define the concept of **exogeneity** in the context of regression analysis. Why is it important for causal inference?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Exogeneity means that the regressors are uncorrelated with the error term in the regression. More formally, exogeneity says $E[u | x] = 0$. Exogeneity is crucial for causal inference because it ensures that the estimated coefficients reflect the causal effect of the regressors on the outcome, rather than being biased by omitted variables, reverse causality, or other confounding factors.
+::::
+:::
+
+**[12]** In one or two sentences each, define
+
+- a population model,
+- a sample model,
+- a parameter,
+- an estimator,
+- an estimate,
+- a standard error.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+- A population model describes the true data-generating process in the population.
+- A sample model is the model we estimate using observed sample data.
+- A parameter is a numerical characteristic of the population model that we want to learn about.
+- An estimator is a rule or formula that turns sample data into an estimate.
+- An estimate is the realized numerical value produced by an estimator in one sample.
+- A standard error measures the sampling uncertainty of an estimate.
+::::
+:::
+
+**[13]** Explain the two conditions required for omitted-variable bias. If the omitted variable increases $y$ and is positively correlated with an included regressor $x_j$, what direction is the bias in the OLS estimate of $\beta_j$?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Omitted-variable bias requires two things: (1) the omitted variable must affect the outcome, and (2) it must be correlated with an included explanatory variable. If the omitted variable increases $y$ and is positively correlated with $x_j$, then the bias in the OLS estimate of $\beta_j$ is upward.
+::::
+:::
+
+**[14]** Consider the regression
+
+$$\text{Wage}_i = \beta_0 + \beta_1 \text{Female}_i + \beta_2 \text{Education}_i + \beta_3 (\text{Female}_i \times \text{Education}_i) + u_i$$
+
+Interpret $\beta_1$, $\beta_2$, and $\beta_3$.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+- $\beta_1$ is the difference in expected wage between women and men when $school = 0$.
+- $\beta_2$ is the return to one more year of schooling for men, the omitted group.
+- $\beta_3$ is the difference in the return to schooling between women and men.
+::::
+:::
+
+**[15]** Suppose heteroskedasticity is present, but the exogeneity assumption still holds. What happens to
+
+- the OLS coefficient estimates,
+- the usual OLS standard errors,
+- OLS efficiency?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+- The OLS coefficient estimates remain unbiased and consistent.
+- The usual OLS standard errors become biased, so the usual `t` tests and confidence intervals are unreliable.
+- OLS is no longer the most efficient linear unbiased estimator.
+::::
+:::
+
+**[16]** Give the best econometric tool for each setting below and explain why in one sentence.
+
+1. You believe OLS coefficients are fine, but you do not know the form of the heteroskedasticity.
+2. Observations may be correlated within states, classrooms, or firms.
+3. You want to correct your standard errors because the distrubance correlates with itself through time.
+4. You want a heteroskedasticity test that is less tied to a specific functional-form assumption.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+1. Use heteroskedasticity-robust standard errors because they fix inference without requiring you to know the exact variance function.
+2. Use clustered standard errors because the problem is within-group correlation, not just heteroskedasticity.
+3. Use Newey-West standard errors because they allow for autocorrelation in the disturbance.
+4. Use the White test because it is more flexible about the form of heteroskedasticity than a more structured test such as Goldfeld-Quandt.
+::::
+:::
+
+**[17]** What does it mean for an estimator to be consistent? Can an estimator be biased but consistent? Can an estimator be unbiased but inconsistent?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} An estimator is consistent if it converges in probability to the true parameter as the sample size grows. Yes, an estimator can be biased but consistent if the bias vanishes as the sample gets large. Yes, an estimator can be unbiased but inconsistent if it is centered correctly in every sample but does not converge to the true value as the sample size grows.
+::::
+:::
+
+**[18]** What happens to the OLS slope estimate when an explanatory variable is measured with classical measurement error? Why is this often called attenuation bias?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Classical measurement error in an explanatory variable biases the OLS slope toward zero. It is called attenuation bias because the noise weakens the observed relationship between `x` and `y`, shrinking the estimated effect in magnitude.
+::::
+:::
+
+**[19]** How does autocorrelation affect OLS in
+
++ a static time-series model, and
++ a dynamic model with a lagged dependent variable?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
++ In a static time-series model, autocorrelation typically leaves the coefficients unbiased and consistent if the relevant exogeneity assumption holds, but it biases the usual standard errors.
++ In a dynamic model with a lagged dependent variable, autocorrelation can violate exogeneity and make OLS biased and inconsistent.
+::::
+:::
+
+**[20]** Define stationarity. Why can non-stationary series generate spurious regressions? Give
+
+- one case where differencing is appropriate,
+- the null hypothesis in a Dickey-Fuller or augmented Dickey-Fuller test.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+- A stationary process has a stable mean, variance, and autocovariance structure over time.
+- Non-stationary series can drift together over time even when they are unrelated, which can create misleadingly significant regression results.
+- Differencing is appropriate when the series is difference-stationary, such as a random walk.
+- In a Dickey-Fuller or augmented Dickey-Fuller test, the null is that the series has a unit root, meaning it is non-stationary.
+::::
+:::

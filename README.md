@@ -2,6 +2,7 @@
 
 Welcome to **Economics 421: Introduction to Econometrics** (Winter 2026) at the University of Oregon (taught by [Edward Rubin](https://edrub.in) and [Eric Wilken](https://ericwilken.com/)).
 
+
 ## Final exam
 
 Materials to prepare for the in-class final exam (8am on Thursday, 19 March 2026):
@@ -12,6 +13,7 @@ Materials to prepare for the in-class final exam (8am on Thursday, 19 March 2026
 - [practice problems](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-review.html) (no solutions)
 
 The problem sets should also help you review.
+
 
 ## Midterm exam
 
@@ -26,15 +28,18 @@ Materials to prepare for the in-class midterm exam:
 
 The problem sets should also help you review.
 
+
 ## Syllabus
 
 For information on the course specifics, please see the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf).
+
 
 ## Office hours
 
 __Edward Rubin:__ Thursdays: 2:00p–3:30p ([PLC 530](https://map.uoregon.edu/b83e556a1))
 
 __Eric Wilken:__ Tuesdays: 3:00p–4:00p (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or [PLC 407](https://map.uoregon.edu/988d3f8a5))
+
 
 ## Assignments
 
@@ -54,7 +59,7 @@ Below are the tentatively planning topics for the problem sets.
 
 **Problem Set 3: Problem Set 3: Causality, Instrumental Variables, and Review**
 <br>Due: Wednesday, 11 March 2026 by 11:59 PM
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/003/data-ps3.csv) | solutions
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/003/data-ps3.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-solutions.html)
 
 
 ## Lecture slides
@@ -90,6 +95,7 @@ In case you're interested, I created the slides with [`xaringan`](https://github
 
 12. [Panel data, fixed effects, and DiD](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.html)<br>Introduction to panel data, fixed effects, *within* variation, and difference-in-differences estimation. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/12-panels/slides.Rmd)
 
+
 ## Exams
 
 See the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf) for specific information on the exams and grades.
@@ -112,6 +118,7 @@ Here are some exams from previous years:
 
 **Note:** If there is no key posted, then I do not have it and will not distribute it.
 
+
 ## Previous years
 
 Here are links to previous years' course materials as well:
@@ -125,6 +132,7 @@ Here are links to previous years' course materials as well:
 - [Winter 2020](https://github.com/edrubin/EC421W20)
 - [Spring 2019](https://github.com/edrubin/EC421S19)
 - [Winter 2019](https://github.com/edrubin/EC421W19)
+
 
 ## Homework
 
