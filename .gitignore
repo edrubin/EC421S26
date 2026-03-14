@@ -3,8 +3,6 @@
 *INST
 
 # Temporary holds: Assignments
-problem-sets/002/data-raw*
-problem-sets/003/data-raw*
 
 # Notes cache
 notes/*/slides_cache/*
