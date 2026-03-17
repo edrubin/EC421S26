@@ -28,72 +28,72 @@ syllabus/syllabus.pdf : syllabus/syllabus.tex
 
 # Define links: Lecture --------------------------------------------------------
 # Lecture 01
-notes/01-intro/slides.html : notes/01-intro/slides.rmd notes/01-intro/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/01-intro/slides.html : notes/01-intro/slides.rmd notes/my-css.css
+	rig run -e "rmarkdown::render('$<')"
 notes/01-intro/slides.pdf : notes/01-intro/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	rig run -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 01(r)
-notes/01-intro-r/slides.html : notes/01-intro-r/slides.rmd notes/01-intro-r/my-css.css
+notes/01-intro-r/slides.html : notes/01-intro-r/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/01-intro-r/slides.pdf : notes/01-intro-r/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 02
-notes/02-review/slides.html : notes/02-review/slides.rmd notes/02-review/my-css.css
+notes/02-review/slides.html : notes/02-review/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/02-review/slides.pdf : notes/02-review/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 03
-notes/03-review/slides.html : notes/03-review/slides.rmd notes/03-review/my-css.css
+notes/03-review/slides.html : notes/03-review/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/03-review/slides.pdf : notes/03-review/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 04
-notes/04-heteroskedasticity/slides.html : notes/04-heteroskedasticity/slides.rmd notes/04-heteroskedasticity/my-css.css
+notes/04-heteroskedasticity/slides.html : notes/04-heteroskedasticity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/04-heteroskedasticity/slides.pdf : notes/04-heteroskedasticity/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 05
-notes/05-heteroskedasticity/slides.html : notes/05-heteroskedasticity/slides.rmd notes/05-heteroskedasticity/my-css.css
+notes/05-heteroskedasticity/slides.html : notes/05-heteroskedasticity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/05-heteroskedasticity/slides.pdf : notes/05-heteroskedasticity/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 06
-notes/06-consistency/slides.html : notes/06-consistency/slides.rmd notes/06-consistency/my-css.css
+notes/06-consistency/slides.html : notes/06-consistency/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/06-consistency/slides.pdf : notes/06-consistency/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 07
-notes/07-time-series/slides.html : notes/07-time-series/slides.rmd notes/07-time-series/my-css.css
+notes/07-time-series/slides.html : notes/07-time-series/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/07-time-series/slides.pdf : notes/07-time-series/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 08
-notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.rmd notes/08-autocorrelation/my-css.css
+notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/08-autocorrelation/slides.pdf : notes/08-autocorrelation/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 09
-notes/09-nonstationarity/slides.html : notes/09-nonstationarity/slides.rmd notes/09-nonstationarity/my-css.css
+notes/09-nonstationarity/slides.html : notes/09-nonstationarity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/09-nonstationarity/slides.pdf : notes/09-nonstationarity/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 10
-notes/10-causality/slides.html : notes/10-causality/slides.rmd notes/10-causality/my-css.css
+notes/10-causality/slides.html : notes/10-causality/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/10-causality/slides.pdf : notes/10-causality/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 11
-notes/11-iv/slides.html : notes/11-iv/slides.rmd notes/11-iv/my-css.css
+notes/11-iv/slides.html : notes/11-iv/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/11-iv/slides.pdf : notes/11-iv/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 12
-notes/12-panels/slides.html : notes/12-panels/slides.rmd notes/12-panels/my-css.css
+notes/12-panels/slides.html : notes/12-panels/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 notes/12-panels/slides.pdf : notes/12-panels/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 
-# Define links: Exam material --------------------------------------------------
+# Define links: Midterm material -----------------------------------------------
 midterm/prep/midterm-topics.html : midterm/prep/midterm-topics.qmd
 	quarto render $< --to html
 midterm/prep/midterm-review.html : midterm/prep/midterm-review.qmd
@@ -103,10 +103,21 @@ midterm/exam/exam-inclass.pdf : midterm/exam/exam-inclass.qmd \
 																midterm/exam/my-macros.tex
 	quarto render $@ --to pdf
 
+# Define links: Final material -------------------------------------------------
+final/prep/final-topics.html : final/prep/final-topics.qmd
+	quarto render $< --to html
+final/prep/final-review.html : final/prep/final-review.qmd
+	quarto render $< --to html
+final/exam/exam-inclass.pdf : final/exam/exam-inclass.qmd \
+															  final/exam/my-header.tex \
+																final/exam/my-macros.tex
+	quarto render $@ --to pdf
+
 # Global targets ---------------------------------------------------------------
 lec-all: lec01 lec01r lec02 lec03 lec04 lec05 lec06 lec07 lec08 lec09 lec10 lec11 lec12
 midterm-all: midterm-topics midterm-review midterm-exam
-all: lec-all syllabus midterm-all
+final-all: final-topics final-review final-exam
+all: lec-all syllabus midterm-all final-all
 # Define clean
 clean:
 	rm -f lec-all

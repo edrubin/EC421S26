@@ -5,8 +5,8 @@ author: "Edward Rubin"
 date: ""
 output:
   xaringan::moon_reader:
-    css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
-    # self_contained: true
+    css: ['default', 'metropolis', 'metropolis-fonts', '../my-css.css']
+    self_contained: true
     nature:
       highlightStyle: github
       highlightLines: true
@@ -14,14 +14,12 @@ output:
 ---
 class: inverse, middle
 
-```{r Setup, include = F}
+```{r Setup, include = FALSE}
 options(htmltools.dir.version = FALSE)
 library(pacman)
 p_load(leaflet, ggplot2, ggthemes, viridis, dplyr, magrittr, knitr)
 # Define pink color
-red_pink <- "#e64173"
-# Notes directory
-dir_slides <- "~/Dropbox/UO/Teaching/EC421W22/notes/01-intro/"
+red_pink = "#e64173"
 # Knitr options
 opts_chunk$set(
   comment = "#>",
@@ -29,9 +27,9 @@ opts_chunk$set(
   fig.height = 7,
   fig.width = 10.5,
   # dpi = 300,
-  # cache = T,
-  warning = F,
-  message = F
+  # cache = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
 # A few extras
 xaringanExtra::use_xaringan_extra(c("tile_view", "fit_screen"))
