@@ -1,4 +1,4 @@
-# EC 421, Winter 2026
+# EC 421, Spring 2026
 
 Welcome to **Economics 421: Introduction to Econometrics** (Spring 2026) at the University of Oregon (taught by [Edward Rubin](https://edrub.in) and [Connor Mulholland](https://cas.uoregon.edu/directory/social-sciences/all/cmulhol2)).
 
@@ -123,6 +123,7 @@ Here are some exams from previous years:
 
 Here are links to previous years' course materials as well:
 
+- [Winter 2026](https://github.com/edrubin/EC421W26)
 - [Spring 2025](https://github.com/edrubin/EC421S25)
 - [Winter 2025](https://github.com/edrubin/EC421W25)
 - [Winter 2022](https://github.com/edrubin/EC421W22)
