@@ -28,10 +28,10 @@ syllabus/syllabus.pdf : syllabus/syllabus.tex
 
 # Define links: Lecture --------------------------------------------------------
 # Lecture 01
-notes/01-intro/slides.html : notes/01-intro/slides.rmd notes/my-css.css
-	rig run -e "rmarkdown::render('$<')"
+notes/01-intro/slides.html : notes/01-intro/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/01-intro/slides.pdf : notes/01-intro/slides.html
-	rig run -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 01(r)
 notes/01-intro-r/slides.html : notes/01-intro-r/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"

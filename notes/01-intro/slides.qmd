@@ -1,0 +1,340 @@
+---
+title: Introduction and overview
+subtitle: EC421, Set 01
+author:
+  - name: Ed Rubin
+    email: edwardr@uoregon.edu
+editor:
+  render-on-save: true
+format:
+  clean-revealjs:
+    slide-level: 2
+    theme: [../my.scss, default]
+    highlight-style: dracula
+    embed-resources: true
+    slide-number: c/t
+    incremental: false
+    controls-layout: edges
+    transition: none
+    preview-links: auto
+    html-math-method: mathjax
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+options(htmltools.dir.version = FALSE)
+library(ggplot2)
+library(ggthemes)
+red_pink = "#e64173"
+```
+
+## {.center}
+
+[Prologue]{.bigger .it .slab}
+
+---
+
+## Why?
+
+### Motivation
+
+Let's start with a few __basic, general questions:__
+
+::: {.fragment}
+1. What is the goal of econometrics?
+
+2. Why do economists (or other people) study or use econometrics?
+:::
+
+::: {.fragment}
+__One simple answer:__ Learn about the world using data.
+:::
+
+::: {.fragment}
+- _Learn about the world_ = Raise, answer, and challenge questions, theories, assumptions.
+
+- _data_ = Plural of datum.
+:::
+
+---
+
+## Why?
+
+### Example
+
+One might (reasonably) guess a company's [sales]{.purple} are a function of its [advertising spending, price, and intesity of competitors]{.pink}.
+
+::: {.fragment}
+So, one might hypothesize a model $\textcolor{#6A5ACD}{\text{Sales}} = f(\textcolor{#e64173}{\text{Ad}, \text{Price}, \text{Comp}})$
+
+where
+
+- $\textcolor{#e64173}{\text{Ad}}$ represents dollars spent on advertising,
+- $\textcolor{#e64173}{\text{Price}}$ is the product's price,
+- $\textcolor{#e64173}{\text{Comp}}$ gives the product's competition.
+:::
+
+::: {.fragment}
+We _expect_ that [sales]{.purple} $\uparrow$ with [advertising]{.pink} and $\downarrow$ with [price]{.pink} and [competition]{.pink}.
+:::
+
+---
+
+##
+
+But who needs to [expect]{.grey .it}?
+
+We can [test]{.orange .it} these hypotheses __using regression__.
+
+::: {.fragment}
+
+[More importantly:]{.grey-vlight .it} Regression estimates the [size]{.orange .it} of these effects
+
+- *How much* does an additional dollar of [advertising]{.pink} increase [sales]{.purple}?
+- *How much* does a one-dollar increase in [price]{.pink} decrease [sales]{.purple}?
+- *How much* does an additional [competitor]{.pink} reduce [sales]{.purple}?
+
+These (causal) questions are central to efficient decision-making<br>and are the bread and butter of econometrics.
+:::
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+
+With this basic regression model, we can test/estimate/quantify the (linear) relationship between sales and advertising, price, and competition.
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+#### (Review) Questions
+
+::: {.fragment}
+- __Q:__ How do we interpret $\beta_1$?
+:::
+
+::: {.fragment}
+- __A:__ An additional dollar of [advertising]{.pink} corresponds with a $\beta_1$-unit change in [sales]{.purple} (holding [price]{.pink} and [competition]{.pink} fixed).
+:::
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+#### (Review) Questions
+
+- __Q:__ Are the $\beta_k$ terms population parameters or sample statistics?
+
+::: {.fragment}
+- __A:__ Greek letters denote __population parameters__. Their estimates get hats, _e.g._, $\hat{\beta}_k$. Population parameters represent the __average__ behavior across the population.
+:::
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+
+#### (Review) Questions
+
+- __Q:__ Can we interpret the estimates for $\beta_2$ as causal?
+
+::: {.fragment}
+- __A:__ Not without making more assumptions and/or knowing more about the data-generating process.
+:::
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+#### (Review) Questions
+
+- __Q:__ What is $\varepsilon_i$?
+
+::: {.fragment}
+- __A:__ An individual's random deviation/disturbance from the population parameters.
+
+Population parameters are averages; individuals are rarely average.
+:::
+
+---
+
+__Regression model:__
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \beta_0 + \beta_1 \textcolor{#e64173}{\text{Ad}}_i + \beta_2 \textcolor{#e64173}{\text{Price}}_i + \beta_3 \textcolor{#e64173}{\text{Comp}}_i + \varepsilon_i $$
+
+#### (Review) Questions
+
+- __Q:__ Which assumptions do we impose when estimating with OLS?
+
+::: {.fragment}
+- __A:__
+  - The relationship between the sales and the [explanatory variables]{.pink} is linear in parameters, and $\varepsilon$ enters additively.
+  - The [explanatory variables]{.pink} are __exogenous__, _i.e._, $E[\varepsilon|X] = 0$.
+  - You've also typically assumed something along the lines of:<br> $E[\varepsilon_i] = 0$, $E[\varepsilon_i^2] = \sigma^2$, $E[\varepsilon_i \varepsilon_j] = 0$ for $i \neq j$.
+  - And (maybe) $\varepsilon_i$ is distributed normally.
+:::
+
+---
+
+## Assumptions
+
+### How important can they be?
+
+You've learned how **powerful and flexible** ordinary least squares (**OLS**) regression can be.
+
+::: {.fragment}
+However, the results you learned required assumptions.
+:::
+
+::: {.fragment}
+**Real life often violates these assumptions.**
+:::
+
+---
+
+## Assumptions
+
+### How important can they be?
+
+EC421 asks "**What happens when we violate these assumptions?**"
+
+- Can we find a fix? (Especially: How/when is $\beta$ *causal*?)
+- What happens if we don't (or can't) apply a fix?
+
+OLS still does some amazing things, but you need to know when to be **cautious, confident, or dubious**.
+
+---
+
+## Not everything is causal {visibility="hidden"}
+
+```{r}
+#| label: spurious
+#| echo: false
+#| fig-align: center
+#| fig-width: 10.5
+#| fig-height: 7
+
+tmp <- data.frame(
+  year = 1999:2009,
+  count = c(
+    9, 8, 11, 12, 11, 13, 12, 9, 9, 7, 9,
+    6, 5, 5, 10, 8, 14, 10, 4, 8, 5, 6
+  ),
+  type = rep(c("letters", "deaths"), each = 11)
+)
+ggplot(data = tmp, aes(x = year, y = count, color = type)) +
+  geom_path() +
+  geom_point(size = 4) +
+  xlab("Year") +
+  ylab("Count") +
+  scale_color_manual(
+    "",
+    labels = c("Deaths from spiders", "Letters in the winning spelling bee word"),
+    values = c(red_pink, "darkslategray")
+  ) +
+  theme_pander(base_size = 17) +
+  theme(legend.position = "bottom")
+```
+
+---
+
+## Not everything is causal
+
+### But what _is_?
+
+Suppose you estimate our sales model for your boss.
+
+$$ \textcolor{#6A5ACD}{\text{Sales}}_i = \hat{\beta}_0 + \hat{\beta}_1 \textcolor{#e64173}{\text{Ad}}_i + \hat{\beta}_2 \textcolor{#e64173}{\text{Price}}_i + \hat{\beta}_3 \textcolor{#e64173}{\text{Comp}}_i + e_i $$
+
+Can you trust that $\hat{\beta}_2$ gives you the actual effect of [price]{.pink} on [sales]{.purple}?
+
+::: {.fragment}
+You should be asking several questions...
+:::
+
+::: {.fragment}
+1. [Where]{.it} does the [variation in price]{.it .pink} come from?
+   - Is it [random]{.it .pink} ([exogenous]{.it})?
+   - [Why]{.it .pink} are some products (or times) [more]{.it .pink} expensive than others?
+2. [Whom]{.it .orange} do the data represent? Are they [relevant]{.it .orange} to your setting?
+3. How [confident]{.it .orange} are you in your answer?
+:::
+
+---
+
+## Econometrics
+
+Applied econometrics, data science, analytics require:
+
+1. Intuition for the __theory__ behind statistics/econometrics<br>(assumptions, results, strengths, weaknesses).
+
+2. Practical knowledge of how to __apply theoretical methods__ to data.
+
+3. Efficient methods for __working with data__<br>(cleaning, aggregating, joining, visualizing).
+
+::: {.fragment}
+__This course__ aims to deepen your knowledge in each of these three areas.
+:::
+
+::: {.fragment}
+- 1: As before.
+- 2-3: __R__
+:::
+
+---
+
+My "[big-picture takeaways]{.b}" (the [intuition]{.it .slab} that I hope you form)
+
+::: {.columns .small}
+::: {.column width="50%"}
+::: {.fragment}
+- [most]{.it} interesting questions are [causal]{.slab .pink};
+- [selection into treatment]{.slab .pink} dominates correlation (esp. cross-sectional);
+- [measurement error]{.slab .pink} can too;
+- causality comes from [design]{.slab .pink}, not from models/assumptions;
+- ask about the [counterfactual]{.slab .pink};
+- [non-stationary]{.slab .pink} time series will lead you to bad conclusions;
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment}
+- quantifying [uncertainty]{.slab .purple} is just as important as the effect estimate;
+- consider the [which population]{.slab .purple .it} your data represent;
+- the [mean]{.slab .purple} is only one of many ways to summarize a population;
+- don't mistake [mean reversion]{.slab .purple} for treatment effects/heterogeneity;
+:::
+::: {.fragment}
+- many [maps]{.slab .orange} are just [population]{.it};
+- [graphs]{.slab .orange} should clearly communicate a [message]{.it}... beautifully.
+:::
+:::
+:::
+
+---
+
+## {.center}
+
+[Next:]{.it .slab} [R]{.mono} basics + (More) Metrics review(s)
