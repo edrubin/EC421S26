@@ -5,7 +5,7 @@ Welcome to **Economics 421: Introduction to Econometrics** (Spring 2026) at the 
 
 ## Syllabus
 
-For information on the course specifics, please see the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf).
+For information on the course specifics, please see the [syllabus](https://raw.githack.com/edrubin/EC421S26/master/syllabus/syllabus.pdf).
 
 
 ## Office hours
