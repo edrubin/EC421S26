@@ -3,32 +3,6 @@
 Welcome to **Economics 421: Introduction to Econometrics** (Spring 2026) at the University of Oregon (taught by [Edward Rubin](https://edrub.in) and [Connor Mulholland](https://cas.uoregon.edu/directory/social-sciences/all/cmulhol2)).
 
 
-## Final exam
-
-Materials to prepare for the in-class final exam (8am on Thursday, 19 March 2026):
-
-- [in-class review](final/prep/inclass-review.pdf);
-- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/final/prep/final-review.html) (no solutions)
-
-The problem sets should also help you review.
-
-
-## Midterm exam
-
-Midterm [exam](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam.pdf) and [key](https://github.com/edrubin/EC421W26/blob/master/midterm/exam/exam-key.pdf).
-
-Materials to prepare for the in-class midterm exam:
-
-- [notes from in-class review](https://github.com/edrubin/EC421W26/blob/master/midterm/prep/inclass-review.pdf);
-- [past exams](https://github.com/edrubin/EC421W26?tab=readme-ov-file#exams);
-- [list of topics to know](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-topics.html);
-- [practice problems](https://raw.githack.com/edrubin/EC421W26/master/midterm/prep/midterm-review.html) (no solutions)
-
-The problem sets should also help you review.
-
-
 ## Syllabus
 
 For information on the course specifics, please see the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf).
@@ -38,7 +12,7 @@ For information on the course specifics, please see the [syllabus](https://raw.g
 
 __Edward Rubin:__ Thursdays: 2:00p–3:30p ([PLC 530](https://map.uoregon.edu/b83e556a1))
 
-__Eric Wilken:__ Tuesdays: 3:00p–4:00p (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or [PLC 407](https://map.uoregon.edu/988d3f8a5))
+__Connor Mulholland:__ TBD (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or [PLC 506](https://map.uoregon.edu/0669fd239))
 
 
 ## Assignments
@@ -46,20 +20,24 @@ __Eric Wilken:__ Tuesdays: 3:00p–4:00p (_See [Canvas](https://canvas.uoregon.e
 Below are the tentatively planning topics for the problem sets.
 
 **Problem Set 0: Review**
-<br>Due: Tuesday, 20 January 2026 by 11:59 PM
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/000/data-ps0.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/000/000-solutions.html)
+<br>Due: TBD
+<br>Files: assignment | data | solutions
 
-**Problem Set 1: Heteroskedasticity, Clustering, and OLS Assumptions**
-<br>Due: Monday, 02 February 2026 by 11:59 PM
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/001/data-ps1.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/001/001-solutions.html)
+**Problem Set 1: Heteroskedasticity, clustering, and OLS assumptions**
+<br>Due: TBD
+<br>Files: assignment | data | solutions
 
 **Problem Set 2: Time series data, analyses, and nonstationarity**
-<br>Due: Tuesday, 03 March 2026 by 11:59 PM
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/002/002-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/002/data-ps2.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/002/002-solutions.html)
+<br>Due: TBD
+<br>Files: assignment | data | solutions
 
-**Problem Set 3: Problem Set 3: Causality, Instrumental Variables, and Review**
-<br>Due: Wednesday, 11 March 2026 by 11:59 PM
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421W26/tree/master/problem-sets/003/data-ps3.csv) | [solutions](https://raw.githack.com/edrubin/EC421W26/master/problem-sets/003/003-solutions.html)
+**Problem Set 3: Causality, instrumental variables, and 2SLS**
+<br>Due: TBD
+<br>Files: assignment | data | solutions
+
+**Problem Set 4: Panel data, DiD, and course review**
+<br>Due: TBD
+<br>Files: assignment | data | solutions
 
 
 ## Lecture slides
@@ -68,14 +46,14 @@ The slides below (linked by their topic) are .html files that will only work pro
 
 **Note:** Links to topics that we have not yet covered lead to older slides. I will update links to the new slides as we work our way through the term/slides.
 
-In case you're interested, I created the slides with [`xaringan`](https://github.com/yihui/xaringan/wiki) in [R](cran.r-project.org). If you are thinking of making your own slides/documents, I would suggest [quarto](https://quarto.org/).
+In case you're interested, I originally created the slides with [`xaringan`](https://github.com/yihui/xaringan/wiki) in [R](cran.r-project.org). If you are thinking of making your own slides/documents, I would suggest [quarto](https://quarto.org/). I'm in the process of migrating to quarto now.
 
-1. [Introduction to "Introduction to Econometrics"](https://raw.githack.com/edrubin/EC421W26/master/notes/01-intro/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/01-intro/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/01-intro/slides.rmd)
-<br><br>[R Introduction and (R)eview](https://raw.githack.com/edrubin/EC421W26/master/notes/01-intro-r/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/01-intro-r/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/01-intro-r/slides.rmd)
+1. [Introduction to "Introduction to Econometrics"](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/01-intro/slides.qmd)
+<br><br>[R Introduction and (R)eview](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421S26/blob/master/notes/01-intro-r/slides.rmd)
 
-2. [Review of key math/stat/metrics topics](https://raw.githack.com/edrubin/EC421W26/master/notes/02-review/slides.html)<br>Density functions, deriving the OLS estimators, properties of estimators, statistical inference (standard errors, confidence intervals, hypothesis testing), simulation <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/02-review/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/02-review/slides.rmd)
+2. [Review of key math/stat/metrics topics](https://raw.githack.com/edrubin/EC421S26/master/notes/02-review/slides.html)<br>Density functions, deriving the OLS estimators, properties of estimators, statistical inference (standard errors, confidence intervals, hypothesis testing), simulation <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/02-review/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/02-review/slides.qmd)
 
-3. [Review of key topics from EC320](https://raw.githack.com/edrubin/EC421W26/master/notes/03-review/slides.html)<br>(the first course in our intro-to-metrics sequence) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/03-review/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/03-review/slides.rmd)
+3. [Review of key topics from EC320](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.html)<br>(the first course in our intro-to-metrics sequence) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421S26/blob/master/notes/03-review/slides.rmd)
 
 4. [Heteroskedasticity: Tests and implications](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/04-heteroskedasticity/slides.rmd)
 
@@ -115,8 +93,33 @@ Here are some exams from previous years:
 | Spring 2023 | [home exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-home.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2023s-inclass.pdf) | [home exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s.html) [in-class exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2023s-inclass.pdf) |
 | Winter 2025 | [exam](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/midterm/past/midterm-2025w-key.pdf) | [exam](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w.pdf) [key](https://raw.githack.com/edrubin/EC421S25/master/final/past/final-2025w-key.pdf) |
 | Spring 2025 | [exam](https://raw.githack.com/edrubin/EC421W26/master/midterm/past/midterm-2025s.pdf) | [exam](https://raw.githack.com/edrubin/EC421W26/master/final/past/final-2025s.pdf) |
+| Winter 2026 | [exam](https://raw.githack.com/edrubin/EC421W26/master/midterm/past/midterm-2026w.pdf) [key](https://raw.githack.com/edrubin/EC421W26/master/midterm/past/midterm-2026w-key.pdf) | [exam](https://raw.githack.com/edrubin/EC421W26/master/final/past/final-2026w.pdf) [key](https://raw.githack.com/edrubin/EC421W26/master/final/past/final-2026w-key.pdf) |
 
 **Note:** If there is no key posted, then I do not have it and will not distribute it.
+
+
+## Midterm exam
+
+Materials to prepare for the in-class midterm exam:
+
+- [notes from in-class review](https://github.com/edrubin/EC421S26/blob/master/midterm/prep/inclass-review.pdf);
+- [past exams](https://github.com/edrubin/EC421S26?tab=readme-ov-file#exams);
+- [list of topics to know](https://raw.githack.com/edrubin/EC421S26/master/midterm/prep/midterm-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421S26/master/midterm/prep/midterm-review.html) (no solutions)
+
+The problem sets should also help you review.
+
+
+## Final exam
+
+Materials to prepare for the in-class final exam (8am on Monday, 08 March 2026):
+
+- [in-class review](final/prep/inclass-review.pdf);
+- [past exams](https://github.com/edrubin/EC421S26?tab=readme-ov-file#exams);
+- [list of topics to know](https://raw.githack.com/edrubin/EC421S26/master/final/prep/final-topics.html);
+- [practice problems](https://raw.githack.com/edrubin/EC421S26/master/final/prep/final-review.html) (no solutions)
+
+The problem sets should also help you review.
 
 
 ## Previous years
@@ -137,7 +140,7 @@ Here are links to previous years' course materials as well:
 
 ## Homework
 
-Please also see the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf) for specific information on the homework and grade policies.
+Please also see the [syllabus](https://raw.githack.com/edrubin/EC421S26/master/syllabus/syllabus.pdf) for specific information on the homework and grade policies.
 
 
 ## Resources
