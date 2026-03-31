@@ -140,19 +140,38 @@ $new-arrow: "\21B3";
   }
 }
 
-// Override default code block styles
+code {
+  font-size: 0.95em;
+  font-weight: 300;
+  color: $co-slate !important;
+
+}
+
+// Override default inline code styles
 .reveal code {
   font-family: $font-family-monospace;
-  font-size: 130% !important;
+  font-weight: 300 !important;
+  // padding: 0.9em 0em !important;
+  border: none !important;
+}
+
+// Override default code block styles
+.reveal div.sourceCode,
+.reveal div.sourceCode pre,
+.reveal div.sourceCode pre code,
+.reveal .cell-output pre,
+.reveal .cell-output pre code {
+  font-size: .9em !important;
   font-weight: 400;
-  padding: 0.9em 0em !important;
-  padding-left: .8em !important;
+  // padding-left: .8em !important;
+  padding-bottom: .5em !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 // Create a light background for source code blocks
-.reveal .sourceCode {
-  border: none !important;
-  background-color: mix($co-black, white, 2%);
+.reveal code.sourceCode  {
+  background-color: mix($co-black, white, 5%);
 }
 
 // Hide code block line numbers
@@ -168,11 +187,6 @@ $new-arrow: "\21B3";
   display: none !important;
 }
 
-// Override default math styles
-.reveal mjx-container {
-  font-size: 103% !important;
-}
-
 // Override default fragment styles
 .reveal .fragment {
   transition-duration: 0.28s;
@@ -181,7 +195,7 @@ $new-arrow: "\21B3";
 .reveal .progress {
   background: $co-white;
   color: $co-pink;
-  height: 0.32rem;
+  height: 0.12rem;
 }
 
 .reveal .slide-number {
@@ -270,6 +284,10 @@ $new-arrow: "\21B3";
 .hi-red {
   font-weight: 600;
   color: $co-red !important;
+}
+
+.centered {
+  text-align: center !important;
 }
 
 .b { font-weight: bold; }
@@ -365,6 +383,7 @@ $new-arrow: "\21B3";
   font-size: 0.82em;
 }
 
+// Footnotes
 .footnote {
   position: absolute;
   bottom: 1em;
@@ -416,6 +435,10 @@ $new-arrow: "\21B3";
   display: none;
 }
 
+// Override default math styles
+.reveal mjx-container {
+  font-size: 100% !important;
+}
 .mjx-chtml{
-  font-size: 103% !important;
+  font-size: 100% !important;
 }

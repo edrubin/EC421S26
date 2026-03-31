@@ -1,6 +1,6 @@
 ---
-title: Introduction and overview
-subtitle: EC421, Set 01
+title: 'Introduction and overview'
+subtitle: 'EC421, Set 01'
 author:
   - name: Ed Rubin
     email: edwardr@uoregon.edu
@@ -10,7 +10,7 @@ format:
   clean-revealjs:
     slide-level: 2
     theme: [../my.scss, default]
-    highlight-style: dracula
+    highlight-style: gruvbox 
     embed-resources: true
     slide-number: c/t
     incremental: false
@@ -18,6 +18,8 @@ format:
     transition: none
     preview-links: auto
     html-math-method: mathjax
+    code-line-numbers: false
+    auto-animate-unmatched: true
 execute:
   warning: false
   message: false

@@ -17,7 +17,7 @@ __Connor Mulholland:__ TBD (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or
 
 ## Assignments
 
-Below are the tentatively planning topics for the problem sets.
+Below are the tentatively planned topics for the problem sets.
 
 **Problem Set 0: Review**
 <br>Due: TBD
@@ -46,14 +46,14 @@ The slides below (linked by their topic) are .html files that will only work pro
 
 **Note:** Links to topics that we have not yet covered lead to older slides. I will update links to the new slides as we work our way through the term/slides.
 
-In case you're interested, I originally created the slides with [`xaringan`](https://github.com/yihui/xaringan/wiki) in [R](cran.r-project.org). If you are thinking of making your own slides/documents, I would suggest [quarto](https://quarto.org/). I'm in the process of migrating to quarto now.
+In case you're interested, I originally created the slides with [`xaringan`](https://github.com/yihui/xaringan/wiki) in [R](https://cran.r-project.org). If you are thinking of making your own slides/documents, I would suggest [Quarto](https://quarto.org/). I'm in the process of migrating to Quarto now.
 
 1. [Introduction to "Introduction to Econometrics"](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/01-intro/slides.qmd)
-<br><br>[R Introduction and (R)eview](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421S26/blob/master/notes/01-intro-r/slides.rmd)
+<br><br>[R Introduction and (R)eview](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/01-intro-r/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/01-intro-r/slides.qmd)
 
 2. [Review of key math/stat/metrics topics](https://raw.githack.com/edrubin/EC421S26/master/notes/02-review/slides.html)<br>Density functions, deriving the OLS estimators, properties of estimators, statistical inference (standard errors, confidence intervals, hypothesis testing), simulation <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/02-review/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/02-review/slides.qmd)
 
-3. [Review of key topics from EC320](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.html)<br>(the first course in our intro-to-metrics sequence) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421S26/blob/master/notes/03-review/slides.rmd)
+3. [Review of key topics from EC320](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.html)<br>(the first course in our intro-to-metrics sequence) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/03-review/slides.rmd)
 
 4. [Heteroskedasticity: Tests and implications](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/04-heteroskedasticity/slides.rmd)
 
@@ -65,18 +65,18 @@ In case you're interested, I originally created the slides with [`xaringan`](htt
 
 8. [Autocorrelated disturbances](https://raw.githack.com/edrubin/EC421W26/master/notes/08-autocorrelation/slides.html)<br>Implications, testing, and estimation. Also: introduction `ggplot2` and user-defined functions. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/08-autocorrelation/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/08-autocorrelation/slides.Rmd)
 
-9. [Nonstationarity](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.html)<br>Introduciton, implications for OLS, testing, and estimation. Also: in-class exercise for model selection. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/09-nonstationarity/slides.Rmd)
+9. [Nonstationarity](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.html)<br>Introduction, implications for OLS, testing, and estimation. Also: in-class exercise for model selection. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/09-nonstationarity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/09-nonstationarity/slides.Rmd)
 
-10. [Causality](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.html)<br>Introduction to causality and the Neymam-Rubin causal model. Also: Recap of in-class model-selection exercise. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/10-causality/slides.Rmd)
+10. [Causality](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.html)<br>Introduction to causality and the Neyman-Rubin causal model. Also: Recap of in-class model-selection exercise. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/10-causality/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/10-causality/slides.Rmd)
 
-11. [Instrumental Variables](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.html)<br>Review the Neymam-Rubin causal model; introduction to instrumental variables (IV) and two-stage least squares (2SLS). Applications to causal inference and measurement error. Venn diagrams. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/11-iv/slides.Rmd)
+11. [Instrumental Variables](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.html)<br>Review the Neyman-Rubin causal model; introduction to instrumental variables (IV) and two-stage least squares (2SLS). Applications to causal inference and measurement error. Venn diagrams. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/11-iv/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/11-iv/slides.Rmd)
 
 12. [Panel data, fixed effects, and DiD](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.html)<br>Introduction to panel data, fixed effects, *within* variation, and difference-in-differences estimation. <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/12-panels/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/12-panels/slides.Rmd)
 
 
 ## Exams
 
-See the [syllabus](https://raw.githack.com/edrubin/EC421W26/master/syllabus/syllabus.pdf) for specific information on the exams and grades.
+See the [syllabus](https://raw.githack.com/edrubin/EC421S26/master/syllabus/syllabus.pdf) for specific information on the exams and grades.
 
 Here are some exams from previous years:
 
@@ -112,7 +112,7 @@ The problem sets should also help you review.
 
 ## Final exam
 
-Materials to prepare for the in-class final exam (8am on Monday, 08 March 2026):
+Materials to prepare for the in-class final exam (8am on Monday, 08 June 2026):
 
 - [in-class review](final/prep/inclass-review.pdf);
 - [past exams](https://github.com/edrubin/EC421S26?tab=readme-ov-file#exams);
@@ -129,7 +129,6 @@ Here are links to previous years' course materials as well:
 - [Winter 2026](https://github.com/edrubin/EC421W26)
 - [Spring 2025](https://github.com/edrubin/EC421S25)
 - [Winter 2025](https://github.com/edrubin/EC421W25)
-- [Winter 2022](https://github.com/edrubin/EC421W22)
 - [Winter 2022](https://github.com/edrubin/EC421W22)
 - [Winter 2021](https://github.com/edrubin/EC421W21)
 - [Spring 2020](https://github.com/edrubin/EC421S20)

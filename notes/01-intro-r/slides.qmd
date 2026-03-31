@@ -1,8 +1,9 @@
 ---
-title: 'R: Introduction and Review'
-subtitle: 'EC 421, Set 1(r)'
-author: 'Edward Rubin'
-date: ''
+title: 'R: Introduction and review'
+subtitle: 'EC421, Set 01(R)'
+author:
+  - name: Ed Rubin
+    email: edwardr@uoregon.edu
 editor:
   render-on-save: true
 format:
@@ -18,6 +19,7 @@ format:
     preview-links: auto
     html-math-method: mathjax
     code-line-numbers: false
+    auto-animate-unmatched: true
 execute:
   warning: false
   message: false
