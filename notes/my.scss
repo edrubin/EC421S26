@@ -286,8 +286,14 @@ code {
   color: $co-red !important;
 }
 
+// Vertical centering
 .centered {
   text-align: center !important;
+}
+// Horizontal centering
+.center-text {
+  display: flex;
+  justify-content: center !important;
 }
 
 .b { font-weight: bold; }

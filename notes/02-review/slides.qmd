@@ -104,10 +104,8 @@ Because part of this course is about learning and implementing [R]{.mono }, I'm 
 
 ---
 
-::: {.center}
 <img src="https://raw.githack.com/tylermorganwall/rayshader/master/tools/readme/smallhobart.gif" width="500">
 The [[rayshader](https://github.com/tylermorganwall/rayshader)]{.mono} package.
-:::
 
 ---
 
@@ -193,7 +191,7 @@ sim_df <- mclapply(mc.cores = 10, X = 1:1e4, FUN = function(x, size = n_s) {
 
 :::: {.columns}
 
-::: {.fragment .column width = '45%'}
+::: {.fragment .column width = '48%'}
 ```{r}
 #| label: "pop1"
 #| echo: false
@@ -211,7 +209,7 @@ theme_empty
 
 :::
 
-::: {.fragment .column width = '45%'}
+::: {.fragment .column width = '48%'}
 ```{r}
 #| label: "scatter1"
 #| echo: false
@@ -249,7 +247,7 @@ $$
 
 :::: {.columns}
 
-::: {.column width = '45%'}
+::: {.column width = '48%'}
 ```{r}
 #| label: "sample1"
 #| echo: false
@@ -267,7 +265,7 @@ theme_empty
 :::
 :::
 
-::: {.fragment .column width = '45%'}
+::: {.fragment .column width = '48%'}
 ```{r}
 #| label: "sample1-scatter"
 #| echo: false
@@ -308,7 +306,7 @@ $\hat{y}_i = `r round(lm1$coefficients[1], 2)` + `r round(lm1$coefficients[2], 2
 **Question:** Why do we care about *[population]{.pink} vs. [sample]{.purple}*?
 
 :::: {.columns}
-::: {.column width = '45%'}
+::: {.column width = '48%'}
 ```{r}
 #| label: "sample2"
 #| echo: false
@@ -326,7 +324,7 @@ theme_empty
 :::
 :::
 
-::: {.column width = '45%'}
+::: {.column width = '48%'}
 ```{r}
 #| label: "sample2-scatter"
 #| echo: false
@@ -371,7 +369,7 @@ $\hat{y}_i = `r round(lm2$coefficients[1], 2)` + `r round(lm2$coefficients[2], 2
 
 :::: {.columns}
 
-::: {.column width = '45%'}
+::: {.column width = '48%'}
 ```{r}
 #| label: "sample3"
 #| echo: false
@@ -389,7 +387,7 @@ theme_empty
 :::
 :::
 
-::: {.column width = '45%'}
+::: {.column width = '48%'}
 ```{r}
 #| label: "sample3-scatter"
 #| echo: false
@@ -516,7 +514,12 @@ theme_empty
 ::: {.fragment}
 **Answer:** Uncertainty matters.
 
-$\hat{\beta}$ itself is a random variable—dependent upon the random sample. When we take a sample and run a regression, we don't know if it's a 'good' sample ( $\hat{\beta}$ is close to $\beta$) or a 'bad sample' (our sample differs greatly from the population).
+$\hat{\beta}$ itself is a random variable—dependent upon the random sample.
+
+When we take a sample and run a regression, we don't know whether it's a
+
+- "good" sample ($\hat{\beta}$ close to $\beta$), or
+- "bad" sample (our sample differs greatly from the population).
 :::
 
 ---
@@ -525,7 +528,7 @@ $\hat{\beta}$ itself is a random variable—dependent upon the random sample. Wh
 
 ### Uncertainty
 
-Keeping track of this uncertainty will be a key concept throughout our class.
+Keeping track of this [uncertainty]{.b.slate} will be a key concept throughout our class.
 
 - Estimating standard errors for our estimates.
 
@@ -543,9 +546,9 @@ First, let's refresh on how we get these (uncertain) regression estimates.
 
 ### The estimator
 
-We can estimate a regression line in [R]{.mono } (`lm(y ~ x, my_data)`).
+We can estimate a regression line in [R]{.mono }, _e.g._, `lm(y ~ x, my_data)`.
 
-But where do these estimates come from?
+[Q]{.qa} Where do these *estimates* come from?
 
 A few slides back:
 
@@ -564,10 +567,8 @@ What do we mean by "best-fit line"?
 
 - In general (econometrics), *best-fit line* means the line that minimizes the sum of squared errors (SSE):
 
-::: {.center}
-
+::: {.center-text}
 $\text{SSE} = \sum_{i = 1}^{n} e_i^2\quad$ where $\quad e_i = y_i - \hat{y}_i$
-
 :::
 
 - Ordinary **least squares** (**OLS**) minimizes the sum of the squared errors.
@@ -1018,7 +1019,8 @@ theme(axis.text.x = element_text(size = 20))
 **Answer one: Bias.**
 
 On average (after *many* samples), does the estimator return the correct value?
-
+:::
+::: {.fragment}
 **More formally:** Does the mean of estimator's distribution equal the parameter it estimates?
 
 $$ \mathop{\text{Bias}}_\beta \left( \hat{\beta} \right) = \mathop{\boldsymbol{E}}\left[ \hat{\beta} \right] - \beta $$
@@ -1028,9 +1030,7 @@ $$ \mathop{\text{Bias}}_\beta \left( \hat{\beta} \right) = \mathop{\boldsymbol{E
 
 ## OLS: Assumptions and properties
 
-### Properties
-
-**Answer one: Bias.**
+### Properties: Bias
 
 :::: {.columns}
 ::: {.column width = '49%'}
@@ -1087,9 +1087,8 @@ Low-variance estimators mean estimates stay close to the mean.
 
 ## OLS: Assumptions and properties
 
-### Properties
+### Properties: Variance
 
-**Answer two: Variance.**
 ```{r}
 #| label: "variance-pdf"
 #| echo: false
@@ -1120,11 +1119,15 @@ theme(axis.text.x = element_text(size = 20))
 
 **Answer two: Variance.**
 
-**Subtlety:** The bias-variance tradeoff.
+**Subtlety:** [The bias-variance _tradeoff_.]{.b.slate}
 
 Should we be willing to take a bit of bias to reduce the variance?
 
-In econometrics, we generally stick with unbiased (or consistent) estimators. But other disciplines (especially computer science) think a bit more about this tradeoff.
+In econometrics, we generally stick with unbiased (or consistent) estimators.
+<br>[Causal inference focus.]{.grey-vlight}
+
+Other disciplines/settings think a bit more about this tradeoff.
+<br>[Prediction focus.]{.grey-vlight}
 
 ---
 
@@ -1168,7 +1171,7 @@ As you might have guessed by now,
 
 But... these (very nice) properties depend upon a set of assumptions:
 
-1. The population relationship is linear in parameters with an additive disturbance.
+1. The pop. relationship is linear in parameters w/ additive disturbance.
 
 2. Our $X$ variable is **exogenous**, _i.e._, $\mathop{\boldsymbol{E}}\left[ u \mid X \right] = 0$.
 
@@ -1184,14 +1187,15 @@ But... these (very nice) properties depend upon a set of assumptions:
 
 Different assumptions guarantee different properties:
 
-- Assumptions (1), (2), and (3) make OLS unbiased.
-- Assumption (4) gives us an unbiased estimator for the variance of our OLS estimator.
+- 1 says we're alright with a [linear approximation]{.orange},
+- 2--3 provide OLS's [unbiased-ness]{.pink},
+- 4 lets us estimate OLS's [uncertainty]{.purple}.
 
-During our course, we will discuss the many ways real life may **violate these assumptions**. For instance:
+[Our course]{.note} Consider the ways real life **violates assumptions**, *e.g.*,
 
-- Non-linear relationships in our parameters/disturbances (or misspecification).
 - Disturbances that are not identically distributed and/or not independent.
 - Violations of exogeneity (especially omitted-variable bias).
+- Noisly measured variables.
 
 ---
 
@@ -1360,7 +1364,7 @@ But how do we actually **learn** something from this exercise?
 
 But how do we actually **learn** something from this exercise?
 
-- Based upon our value of $\hat{\beta}_1$, can we rule out previously hypothesized values?
+- Does our value of $\hat{\beta}_1$ rule out previously hypothesized values?
 - How confident should we be in the precision of our estimates?
 - How well does our model explain the variation we observe in $y$?
 
@@ -1446,17 +1450,11 @@ tidy(lm(y ~ x, pop_df))
 
 We use the standard error of $\hat{\beta}_1$, along with $\hat{\beta}_1$ itself, to learn about the parameter $\beta_1$.
 
-After deriving the distribution of $\hat{\beta}_1$,<sup>[†]{.pink }</sup> we have two (related) options for formal statistical inference (learning) about our unknown parameter $\beta_1$:
+After deriving the distribution of $\hat{\beta}_1$, we have two (related) options for formal statistical inference (learning) about our unknown parameter $\beta_1$:
 
-- **Confidence intervals:** Use the estimate and its standard error to create an interval that, when repeated, will generally<sup>[††]{.pink }</sup> contain the true parameter.
+- **Confidence intervals:** Use the estimate and its standard error to create an interval that, when repeated, will generally contain the true parameter.
 
 - **Hypothesis tests:** Determine whether there is statistically significant evidence to reject a hypothesized value or range of values.
-
-::: {.footnote}
-[†]{.pink }: *Hint:* it's normal with the mean and variance we've derived/discussed above)
-<br>
-[††]{.pink }: _E.g._, Similarly constructed 95% confidence intervals will contain the true parameter 95% of the time.
-:::
 
 ---
 
@@ -1601,17 +1599,17 @@ theme(
 
 ### Hypothesis testing
 
-In many applications, we want to know more than a point estimate or a range of values. We want to know what our statistical evidence says about existing theories.
+Sometimes we want to know what data/evidence says about existing theories.
 
-We want to test hypotheses posed by officials, politicians, economists, scientists, friends, weird neighbors, *etc.*
+_I.e._, we want to test hypotheses posed by officials, politicians, economists, scientists, friends, weird neighbors, *etc.*
 
 [Examples]{.hi-slate }
 
-- Does increasing police presence **reduce crime**?
-- Does building a giant wall **reduce crime**?
-- Does shutting down a government **adversely affect the economy**?
-- Does legal cannabis **reduce drunk driving** or **reduce opiod use**?
-- Do air quality standards **increase health** and/or **reduce jobs**?
+- Does [increasing police presence]{.b.purple} **reduce crime**?
+- Does [reducing immigation]{.b.purple} **slow economic growth**?
+- Does [shutting down a government]{.b.purple} **affect students' test scores**?
+- Does [legal cannabis]{.b.purple} **reduce drunk driving** or **reduce opiod use**?
+- Do [air quality standards]{.b.purple} **increase health** and/or **reduce jobs**?
 
 ---
 
@@ -1619,16 +1617,14 @@ We want to test hypotheses posed by officials, politicians, economists, scientis
 
 ### Hypothesis testing
 
-Hypothesis testing relies upon very similar results and intuition.
-
-While uncertainty certainly exists, we can still build *reliable* statistical tests (rejecting or failing to reject a posited hypothesis).
+We build statistical tests that account for the uncertainty in our estimates.
 
 ::: {.fragment}
-[OLS *t* test]{.hi-slate } Our (null) hypothesis states that $\beta_1$ equals a value $c$, _i.e._, $H_o:\: \beta_1 = c$
+[OLS *t* test]{.hi-slate } Our (null) hypothesis states that $\beta_1$ equals a value $c$, _e.g._, $H_o:\: \beta_1 = c$
 
 From OLS's properties, we can show that the test statistic
 
-$$ t_\text{stat} = \dfrac{\hat{\beta}_1 - c}{\mathop{\hat{\text{SE}}} \left( \hat{\beta}_1 \right)} $$
+$$ t_\text{stat} = \dfrac{\hat{\beta}_1 - c}{\mathop{\widehat{\text{SE}}} \left( \hat{\beta}_1 \right)} $$
 
 follows the $t$ distribution with $n-k$ degrees of freedom.
 :::
@@ -1645,9 +1641,13 @@ $$ \left|t_\text{stat}\right| > \left|t_{1-\alpha/2,\,df}\right| $$
 
 meaning that our **test statistic is more extreme than the critical value**.
 
+::: {.fragment}
 Alternatively, we can calculate the **p-value** that accompanies our test statistic, which effectively gives us the probability of seeing our test statistic *or a more extreme test statistic* if the null hypothesis were true.
+:::
 
+::: {.fragment}
 Very small p-values (generally < 0.05) mean that it would be unlikely to see our results if the null hyopthesis were really true—we tend to reject the null for p-values below 0.05.
+:::
 
 ---
 
@@ -1872,24 +1872,6 @@ $$
 \end{align}
 $$
 :::
-
----
-
-## Uncertainty and inference {visibility="hidden"}
-
-### *F* tests
-
-```{r}
-#| label: "print-pdfs"
-#| echo: false
-#| eval: false
-
-pagedown::chrome_print(
-  input = "02-review.html",
-  wait = 4,
-  timeout = 120
-)
-```
 
 ---
 
