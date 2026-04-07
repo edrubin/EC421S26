@@ -19,12 +19,10 @@ format:
     preview-links: auto
     html-math-method: mathjax
     code-line-numbers: false
-    auto-animate-unmatched: true
 execute:
   warning: false
   message: false
 ---
-## {visibility="hidden"}
 
 ```{r}
 #| label: "setup"
@@ -69,8 +67,8 @@ theme_simple <- theme_bw() + theme(
   # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
   legend.position = "none"
 )
-# A few extras
 ```
+
 ---
 
 ## {.center}
@@ -98,11 +96,15 @@ Because part of this course is about learning and implementing [R]{.mono }, I'm 
 
 ---
 
+## {.dark-slide}
+
 <center>
 <img src="location_mapper.gif" width="800">
 </center>
 
 ---
+
+## {.white-slide}
 
 <img src="https://raw.githack.com/tylermorganwall/rayshader/master/tools/readme/smallhobart.gif" width="500">
 The [[rayshader](https://github.com/tylermorganwall/rayshader)]{.mono} package.
@@ -241,7 +243,7 @@ $$
 
 ---
 
-## Population *vs.* sample {auto-animate=true}
+## Population *vs.* sample
 
 **Question:** Why do we care about *[population]{.pink} vs. [sample]{.purple}*?
 
@@ -301,7 +303,7 @@ $\hat{y}_i = `r round(lm1$coefficients[1], 2)` + `r round(lm1$coefficients[2], 2
 
 ---
 
-## Population *vs.* sample {auto-animate=true}
+## Population *vs.* sample
 
 **Question:** Why do we care about *[population]{.pink} vs. [sample]{.purple}*?
 
@@ -363,7 +365,7 @@ $\hat{y}_i = `r round(lm2$coefficients[1], 2)` + `r round(lm2$coefficients[2], 2
 
 ---
 
-## Population *vs.* sample {auto-animate=true}
+## Population *vs.* sample
 
 **Question:** Why do we care about *[population]{.pink} vs. [sample]{.purple}*?
 
@@ -464,7 +466,7 @@ theme_empty
 
 ---
 
-## Population *vs.* sample {auto-animate=true}
+## Population *vs.* sample
 
 **Question:** Why do we care about *[population]{.pink} vs. [sample]{.purple}*?
 
@@ -1225,11 +1227,11 @@ One way to think about this definition:
 
 ---
 
-## {visibility="hidden"}
-
-Graphically...
+## {.clear}
 
 ::: {.fragment}
+Graphically...
+:::
 
 ```{r}
 #| label: "conditional-expectation-setup"
@@ -1305,7 +1307,6 @@ Graphically...
       axis.title.x = element_text(family = "MathJax_Math", size = 22)
     )
 ```
-:::
 
 ---
 

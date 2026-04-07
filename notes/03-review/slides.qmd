@@ -1,15 +1,16 @@
 ---
-title: 'Metrics Review, Part 2'
-subtitle: 'EC 421, Set 3'
-author: 'Edward Rubin'
-date: ''
+title: 'Metrics review, part 2'
+subtitle: 'EC421, Set 03'
+author:
+  - name: Ed Rubin
+    email: edwardr@uoregon.edu
 editor:
   render-on-save: true
 format:
   clean-revealjs:
     slide-level: 2
     theme: [../my.scss, default]
-    highlight-style: github
+    highlight-style: gruvbox
     embed-resources: true
     slide-number: c/t
     incremental: false
@@ -22,6 +23,10 @@ execute:
   warning: false
   message: false
 ---
+
+## {.center}
+
+[Prologue]{.bigger .it .slab}
 
 ```{r}
 #| label: "setup"
@@ -40,51 +45,58 @@ opts_chunk$set(
   message = F
 )
 # A blank theme for ggplot
-theme_empty <- theme_bw() + theme(
-  line = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_simple <- theme_bw() + theme(
-  line = element_blank(),
-  panel.grid = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text.x = element_text(size = 14),
-  axis.text.y = element_blank(),
-  axis.ticks = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes <- theme_empty + theme(
-  axis.title = element_text(size = 18),
-  plot.margin = structure(c(0, 0, 0.1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-)
-# A few extras
+theme_empty =
+  theme_bw(base_family = 'Fira Sans Condensed') +
+  theme(
+    line = element_blank(),
+    rect = element_blank(),
+    strip.text = element_blank(),
+    axis.text = element_blank(),
+    plot.title = element_blank(),
+    axis.title = element_blank(),
+    plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
+    legend.position = "none"
+  )
+theme_simple =
+  theme_bw(base_family = 'Fira Sans Condensed') +
+  theme(
+    line = element_blank(),
+    panel.grid = element_blank(),
+    rect = element_blank(),
+    strip.text = element_blank(),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_blank(),
+    axis.title = element_blank(),
+    # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
+    legend.position = "none"
+  )
+theme_axes =
+  theme_empty +
+  theme(
+    axis.title = element_text(size = 18),
+    plot.margin = structure(c(0, 0, 0.1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
+  )
 ```
+
 ```{r}
 #| label: "colors"
 #| include: false
 
 # Define pink color
-red_pink <- "#e64173"
-turquoise <- "#20B2AA"
-orange <- "#FFA500"
-red <- "#fb6107"
-blue <- "#2b59c3"
-green <- "#8bb174"
-grey_light <- "grey70"
-grey_mid <- "grey50"
-grey_dark <- "grey20"
-purple <- "#6A5ACD"
+red_pink = "#e64173"
+turquoise = "#20B2AA"
+orange = "#FFA500"
+red = "#fb6107"
+blue = "#2b59c3"
+green = "#8bb174"
+grey_light = "grey70"
+grey_mid = "grey50"
+grey_dark = "grey20"
+purple = "#6A5ACD"
 ```
+
 ```{css}
 #| echo: false
 
@@ -95,28 +107,23 @@ purple <- "#6A5ACD"
 }
 ```
 
-## {.center}
-
-[Prologue]{.bigger .it .slab}
-
 ---
 
-## [R]{.mono } showcase
+## R showcase
 
 **[[ggplot2]{.mono }](https://ggplot2.tidyverse.org/reference/index.html)**
 
-- Incredibly powerful graphing and mapping package for [R]{.mono }.
-- Written in a way that helps you build your figures layer by layer.
-- Exportable to many applications.
-- Party of the `tidyverse`.
+- Powerful graphing and mapping package for [R]{.mono }.
+- [Idea:]{.note} Build your figures layer by layer.
+- Exportable to many applications; part of the `tidyverse`.
 
 **[[shiny]{.mono }](https://shiny.rstudio.com)**
 
 - Export your figures and code to interactive web apps.
 - Enormous range of applications
+  - [SuperZips](https://shiny.posit.co/r/gallery/interactive-visualizations/superzip-example/)
+  - [Retirement simulation](https://shiny.posit.co/r/gallery/application-layout/retirement-simulation/)
   - [Distribution calculator](https://gallery.shinyapps.io/dist_calc/)
-  - [Tabsets](https://shiny.rstudio.com/gallery/tabsets.html)
-  - [Traveling salesman](https://gallery.shinyapps.io/shiny-salesman/)
 
 ---
 
@@ -147,20 +154,20 @@ We will post the **first assignment** (focused on *review*) soon.
 
 ### More explanatory variables
 
-We're moving from **simple linear regression** (one [outcome variable]{.pink } and one [explanatory variable]{.purple })
+We're moving from **simple linear regression**<br>(one [outcome variable]{.pink } and one [explanatory variable]{.purple })
 
 $$ \textcolor{#e64173}{y_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{x_i} + u_i $$
 
-to the land of **multiple linear regression** (one [outcome variable]{.pink } and multiple [explanatory variables]{.purple })
+to the land of **multiple linear regression**<br>(one [outcome variable]{.pink } and multiple [explanatory variables]{.purple })
 
-$$ \textcolor{#e64173}{y\_i} = \beta\_0 + \beta\_1 \textcolor{#6A5ACD}{x\_{1i}} + \beta\_2 \textcolor{#6A5ACD}{x\_{2i}} + \cdots + \beta\_k \textcolor{#6A5ACD}{x\_{ki}} + u\_i $$
+$$ \textcolor{#e64173}{y_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{x_{1i}} + \beta_2 \textcolor{#6A5ACD}{x_{2i}} + \cdots + \beta_k \textcolor{#6A5ACD}{x_{ki}} + u_i $$
 
 ::: {.fragment}
 **Why?**
 :::
 
 ::: {.fragment}
- We can better explain the variation in $y$, improve predictions, avoid omitted-variable bias, ...
+We can better explain variation in $y$, improve predictions, avoid OV Bias, ...
 :::
 
 ---
@@ -195,8 +202,8 @@ $y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + u_i \quad$ $x_1$ is continuou
 ggplot(data = gen_df, aes(y = y, x = x1, color = x2, shape = x2)) +
 geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
-annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8) +
-annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8) +
+annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8, family = 'Fira Sans Condensed') +
+annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8, family = 'Fira Sans Condensed') +
 geom_point(size = 3) +
 ylim(c(-4.5, 8)) +
 theme_empty +
@@ -228,12 +235,12 @@ The intercept and categorical variable $x_2$ control for the groups' means.
 #| fig-height: 6.25
 
 ggplot(data = gen_df, aes(y = y, x = x1, color = x2, shape = x2)) +
-geom_hline(yintercept = mean_a, color = "darkslategrey", alpha = 0.5) +
-geom_hline(yintercept = mean_b, color = red_pink, alpha = 0.5) +
+geom_hline(yintercept = mean_a, color = "darkslategrey", alpha = 0.5, linewidth = 1.2) +
+geom_hline(yintercept = mean_b, color = red_pink, alpha = 0.5, linewidth = 1.2) +
 geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
-annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8) +
-annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8) +
+annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8, family = 'Fira Sans Condensed') +
+annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8, family = 'Fira Sans Condensed') +
 geom_point(size = 3) +
 ylim(c(-4.5, 8)) +
 theme_empty +
@@ -267,8 +274,8 @@ With groups' means removed:
 ggplot(data = gen_df %>% mutate(y = y - 4 * x2), aes(y = y_dm, x = x1)) +
 geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
-annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8) +
-annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8) +
+annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8, family = 'Fira Sans Condensed') +
+annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8, family = 'Fira Sans Condensed') +
 geom_point(size = 3, aes(color = x2, shape = x2)) +
 ylim(c(-4.5, 8)) +
 theme_empty +
@@ -303,8 +310,8 @@ ggplot(data = gen_df %>% mutate(y = y - 4 * x2), aes(y = y_dm, x = x1)) +
 geom_smooth(method = lm, se = F, color = "orange") +
 geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
-annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8) +
-annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8) +
+annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8, family = 'Fira Sans Condensed') +
+annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8, family = 'Fira Sans Condensed') +
 geom_point(size = 3, aes(color = x2, shape = x2)) +
 ylim(c(-4.5, 8)) +
 theme_empty +
@@ -328,7 +335,7 @@ theme(
 
 ## Multiple regression
 
-Another way to think about it:
+Another way to think about it: We're estimating two (parallel) lines.
 ```{r}
 #| label: "mult-reg-plot-5"
 #| dev: "svg"
@@ -339,8 +346,8 @@ ggplot(data = gen_df, aes(y = y, x = x1, color = x2, shape = x2)) +
 geom_smooth(method = lm, se = F) +
 geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
-annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8) +
-annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8) +
+annotate("text", x = -0.075, y = 7.75, label = TeX("$y$"), size = 8, family = 'Fira Sans Condensed') +
+annotate("text", x = 2.95, y = 0.3, label = TeX("$x_1$"), size = 8, family = 'Fira Sans Condensed') +
 geom_point(size = 3) +
 ylim(c(-4.5, 8)) +
 theme_empty +
@@ -362,9 +369,14 @@ theme(
 
 ---
 
-## Multiple regression
+## {.center}
 
 Looking at our estimator can also help.
+
+---
+
+## Multiple regression
+
 
 For the simple linear regression $y_i = \beta_0 + \beta_1 x_i + u_i$
 
@@ -385,26 +397,28 @@ Simple linear regression estimator:
 
 $$ \hat{\beta}_1 = \dfrac{\mathop{\hat{\text{Cov}}}(x,\,y)}{\mathop{\hat{\text{Var}}} \left( x \right)} $$
 
-moving to multiple linear regression, the estimator changes slightly:
+::: {.fragment}
+Moving to multiple linear regression, the estimator changes slightly:
 
 $$ \hat{\beta}_1 = \dfrac{\mathop{\hat{\text{Cov}}}(\textcolor{#e64173}{\tilde{x}_1},\,y)}{\mathop{\hat{\text{Var}}} \left( \textcolor{#e64173}{\tilde{x}_1} \right)} $$
 
 where $\textcolor{#e64173}{\tilde{x}_1}$ is the *residualized* $x_1$ variable—the variation remaining in $x$ after controlling for the other explanatory variables.
+:::
 
 ---
 
 ## Multiple regression
 
-More formally, consider the multiple-regression model
+Consider the multiple-regression model
 
-$$ y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + u_i $$
+$$ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + u $$
 
-Our residualized $x_{1}$ (which we named $\textcolor{#e64173}{\tilde{x}_1}$) comes from regressing $x_1$ on an intercept and all of the other explanatory variables and collecting the residuals, _i.e._,
+_Residualized_ $x_{1}$ ($\textcolor{#e64173}{\tilde{x}_1}$) comes from regressing $x_1$ on an intercept and _all other explanatory variables_ (then collecting the residuals), _i.e._,
 
 $$
 \begin{aligned}
-  \hat{x}_{1i} &= \hat{\gamma}_0 + \hat{\gamma}_2 \, x_{2i} + \hat{\gamma}_3 \, x_{3i} \\
-  \textcolor{#e64173}{\tilde{x}_{1i}} &= x_{1i} - \hat{x}_{1i}
+  \hat{x}_{1} &= \hat{\gamma}_0 + \hat{\gamma}_2 \, x_{2} + \hat{\gamma}_3 \, x_{3} \\
+  \textcolor{#e64173}{\tilde{x}_{1}} &= x_{1} - \hat{x}_{1}
 \end{aligned}
 $$
 
@@ -457,7 +471,7 @@ coord_equal()
 
 ### Model fit
 
-Measures of *goodness of fit* try to analyze how well our model describes (*fits*) the data.
+Measures of *goodness of fit* quantify how well a model *describes/fits* the data.
 
 **Common measure:** $R^2$ [R-squared] (*a.k.a.* coefficient of determination)
 
@@ -466,7 +480,7 @@ $$ R^2 = \dfrac{\sum_i (\hat{y}_i - \overline{y})^2}{\sum_i \left( y_i - \overli
 Notice our old friend SSE: $\sum_i \left( y_i - \hat{y}_i \right)^2 = \sum_i e_i^2$.
 
 ::: {.fragment}
-$R^2$ literally tells us the share of the variance in $y$ our current models accounts for. Thus $0 \leq R^2 \leq 1$.
+$R^2$ literally tells us the share of the var. in $y$ our current models accounts for. <br> Thus $0 \leq R^2 \leq 1$.
 :::
 
 ---
@@ -504,15 +518,16 @@ Pseudo-code outline of the simulation:
 
 ```{r}
 #| label: "r2-data-code"
+#| echo: true
 #| eval: false
-#| cache: true
+#| code-line-numbers: '1|2-3|4|5|6|7-11'
 
 set.seed(1234)
-y <- rnorm(1e4)
-x <- matrix(data = rnorm(1e7), nrow = 1e4)
+y = rnorm(1e4)
+x = matrix(data = rnorm(1e7), nrow = 1e4)
 x %<>% cbind(matrix(data = 1, nrow = 1e4, ncol = 1), x)
-r_df <- mclapply(X = 1:(1e3-1), mc.cores = detectCores() - 1, FUN = function(i) {
-  tmp_reg <- lm(y ~ x[,1:(i+1)]) %>% summary()
+r_df = mclapply(X = 1:(1e3-1), mc.cores = detectCores() - 1, FUN = function(i) {
+  tmp_reg = lm(y ~ x[,1:(i+1)]) %>% summary()
   data.frame(
     k = i + 1,
     r2 = tmp_reg %$% r.squared,
@@ -556,9 +571,11 @@ geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
 geom_line(size = 2, alpha = 0.75, color = "darkslategrey") +
 geom_line(aes(y = r2_adj), size = 0.2, alpha = 0, color = red_pink) +
-ylab(TeX("R^2")) +
-xlab("Number of explanatory variables (k)") +
-theme_pander(base_size = 18)
+labs(
+  x = "Number of explanatory variables (k)",
+  y = TeX("R$^2$")
+) +
+theme_pander(base_size = 18, base_family = "Fira Sans Condensed")
 ```
 
 ---
@@ -577,9 +594,11 @@ geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
 geom_line(size = 2, alpha = 0.15, color = "darkslategrey") +
 geom_line(aes(y = r2_adj), size = 2, alpha = 0.85, color = red_pink) +
-ylab(TeX("R^2")) +
-xlab("Number of explanatory variables (k)") +
-theme_pander(base_size = 18)
+labs(
+  x = "Number of explanatory variables (k)",
+  y = TeX("R$^2$")
+) +
+theme_pander(base_size = 18, base_family = "Fira Sans Condensed")
 ```
 
 ---
@@ -604,19 +623,19 @@ There are tradeoffs to remember as we add/remove variables:
 
 **Fewer variables**
 
-- Generally explain less variation in $y$
-- Provide simple interpretations and visualizations (*parsimonious*)
-- May need to worry about omitted-variable bias
+- generally explain less variation in $y$,
+- provide simple interpretations and visualizations (*parsimonious*),
+- may need to worry about omitted-variable bias (OVB).
 
 **More variables**
 
-- More likely to find *spurious* relationships (statistically significant due to chance—does not reflect a true, population-level relationship)
-- More difficult to interpret the model
-- You may still miss important variabless—still omitted-variable bias
+- more likely to find *spurious* relationships (statistically significant due to chance—does not reflect a true, population-level relationship),
+- more difficult to interpret the model,
+- may still miss important variabless—still OVB.
 
 ---
 
-## Omitted-variable bias
+## Omitted-variable bias {.center}
 
 ---
 
@@ -642,20 +661,16 @@ As it's name suggests, this situation leads to bias in our estimate of $\beta_j$
 
 **Example**
 
-Let's imagine a simple model for the amount individual $i$ gets paid
-
+Let's imagine a simple model of the *returns to schooling*
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \beta_2 \text{Male}_i + u_i $$
+where $\text{School}_i$ gives $i$'s years of schooling; $\text{Male}_i$ represents an indicator variable for whether individual $i$ is male.
 
-where
-
-- $\text{School}_i$ gives $i$'s years of schooling
-- $\text{Male}_i$ denotes an indicator variable for whether individual $i$ is male.
-
-thus
+Thus
 
 - $\beta_1$: the returns to an additional year of schooling (*ceteris paribus*)
 - $\beta_2$: the "premium" for being male (*ceteris paribus*)
-<br>If $\beta_2 > 0$, then there is discrimination against women—receiving less pay based upon gender.
+
+If $\beta_2 > 0$, then males are favored in the labor market <br> (discrimination, all else equal).
 
 ---
 
@@ -668,13 +683,13 @@ From our population model
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \beta_2 \text{Male}_i + u_i $$
 
 If a study focuses on the relationship between pay and schooling, _i.e._,
-
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \left(\beta_2 \text{Male}_i + u_i\right) $$
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \varepsilon_i $$
+the "disturbance" becomes $\varepsilon_i = \beta_2 \text{Male}_i + u_i$.
 
-where $\varepsilon_i = \beta_2 \text{Male}_i + u_i$.
+OLS needs exogeneity to be unbiasedness. Likely violated here.
 
-We used our exogeneity assumption to derive OLS' unbiasedness. But even if $\mathop{\boldsymbol{E}}\left[ u | X \right] = 0$, it is not true that $\mathop{\boldsymbol{E}}\left[ \varepsilon | X \right] = 0$ so long as $\beta_2 \neq 0$.
+But even if $\mathop{\boldsymbol{E}}\left[ u | X \right] = 0$, it is not true that $\mathop{\boldsymbol{E}}\left[ \varepsilon | X \right] = 0$ so long as $\beta_2 \neq 0$.
 
 ---
 
@@ -687,14 +702,13 @@ From our population model
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \beta_2 \text{Male}_i + u_i $$
 
 If a study focuses on the relationship between pay and schooling, _i.e._,
-
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \left(\beta_2 \text{Male}_i + u_i\right) $$
 $$ \text{Pay}_i = \beta_0 + \beta_1 \text{School}_i + \varepsilon_i $$
+the "disturbance" becomes $\varepsilon_i = \beta_2 \text{Male}_i + u_i$.
 
-where $\varepsilon_i = \beta_2 \text{Male}_i + u_i$.
+OLS needs exogeneity to be unbiasedness. Likely violated here.
 
-Specifically, exogeneity requires that $\text{School}$ and $\text{Male}$ are unrelated.
-<br>**Otherwise OLS is biased.**
+Unless $\text{School}$ and $\text{Male}$ are unrelated, **OLS is biased.**
 
 ---
 
@@ -729,7 +743,7 @@ bu1 <- lm_unbias$coefficients[2] %>% round(1)
 bu2 <- lm_unbias$coefficients[3] %>% round(1)
 ```
 
-The population model:
+Population model:
 
 $$ \text{Pay}_i = `r beta0` + `r beta1` \times \text{School}_i + `r beta2` \times \text{Male}_i + u_i $$
 
@@ -1065,8 +1079,8 @@ where
 ::: {.fragment}
 **Interpretations**
 
-- $\beta_0$: the expected $\text{Pay}$ for males (_i.e._, when $\text{Female} = 0$)
-- $\beta_1$: the expected difference in $\text{Pay}$ between females and males
+- $\beta_0$: the expected $\text{Pay}$ for non-females (_i.e._, when $\text{Female} = 0$)
+- $\beta_1$: the expected difference in $\text{Pay}$ between females and non-females
 - $\beta_0 + \beta_1$: the expected $\text{Pay}$ for females
 :::
 
@@ -1080,7 +1094,7 @@ Derivations
 
 $$
 \begin{aligned}
- \mathop{\boldsymbol{E}}\left[ \text{Pay} | \text{Male} \right] &=
+ \mathop{\boldsymbol{E}}\left[ \text{Pay} | \text{Non-female} \right] &=
  \mathop{\boldsymbol{E}}\left[ \beta_0 + \beta_1\times 0 + u_i \right] \\
  &= \mathop{\boldsymbol{E}}\left[ \beta_0 + 0 + u_i \right] \\
  &= \beta_0
@@ -1099,7 +1113,7 @@ $$
 :::
 
 ::: {.fragment}
-**Note:** If there are no other variables to condition on, then $\hat{\beta}_1$ equals the difference in group means, _e.g._, $\overline{x}_\text{Female} - \overline{x}_\text{Male}$.
+**Note:** If there are no other variables to condition on, then $\hat{\beta}_1$ equals the difference in group means, _e.g._, $\overline{x}_\text{Female} - \overline{x}_\text{Non-female}$.
 :::
 
 ::: {.fragment}
@@ -1166,6 +1180,7 @@ annotate(
   x = 0.5,
   y = -1 + cat_reg$coefficients[1],
   label = TeX("$\\hat{\\beta}_0 = \\bar{{G}_0}$"),
+  family = "Charter",
   size = 7
 ) +
 annotate(
@@ -1173,6 +1188,7 @@ annotate(
   x = 0.5,
   y = 1 + cat_reg$coefficients[1] + cat_reg$coefficients[2],
   label = TeX("$\\hat{\\beta}_0 + \\hat{\\beta}_1 = \\bar{{G}_1}$"),
+  family = "Charter",
   size = 7,
   color = red_pink
 ) +
@@ -1321,9 +1337,7 @@ scale_shape_manual("", values = c(16, 1), labels = c("Female", "Male"))
 
 ### Interactions
 
-Interpreting coefficients can be a little tricky with interactions, but the key<sup>[†]{.pink }</sup> is to carefully work through the math.
-
-[[†]{.pink } As is often the case with econometrics.]{.footnote }
+Interpreting coefficients can be a little tricky with interactions, but the key is to carefully work through the math^[As is often the case with econometrics.].
 
 $$ \text{Pay}_i = \beta_0 + \beta_1 \, \text{School}_i + \beta_2 \, \text{Female}_i + \beta_3 \, \text{School}_i\times\text{Female}_i + u_i $$
 
@@ -1332,16 +1346,28 @@ Expected returns for an additional year of schooling for women:
 $$
 \begin{aligned}
  \mathop{\boldsymbol{E}}\left[ \text{Pay}_i | \text{Female} \land \text{School} = \ell + 1 \right] -
-    \mathop{\boldsymbol{E}}\left[ \text{Pay}_i | \text{Female} \land \text{School} = \ell \right] &= \\
+    \mathop{\boldsymbol{E}}\left[ \text{Pay}_i | \text{Female} \land \text{School} = \ell \right] &= \\[.5em]
  \mathop{\boldsymbol{E}}\left[ \beta_0 + \beta_1 (\ell+1) + \beta_2 + \beta_3 (\ell + 1) + u_i \right] -
-    \mathop{\boldsymbol{E}}\left[ \beta_0 + \beta_1 \ell + \beta_2 + \beta_3 \ell + u_i  \right] &= \\
+    \mathop{\boldsymbol{E}}\left[ \beta_0 + \beta_1 \ell + \beta_2 + \beta_3 \ell + u_i  \right] &= \\[.5em]
  \beta_1 + \beta_3
 \end{aligned}
 $$
 
-::: {.fragment}
-Similarly, $\beta_1$ gives the expected return to an additional year of schooling for men. Thus, $\beta_3$ gives the **difference in the returns to schooling** for women and men.
-:::
+---
+
+## Interpreting coefficients
+
+### Interactions
+
+Interpreting coefficients can be a little tricky with interactions, but the key is to carefully work through the math^[As is often the case with econometrics.].
+
+$$ \text{Pay}_i = \beta_0 + \beta_1 \, \text{School}_i + \beta_2 \, \text{Female}_i + \beta_3 \, \text{School}_i\times\text{Female}_i + u_i $$
+
+Expected returns for an additional year of schooling for women: $\beta_1 + \beta_3$
+
+- $\beta_1$: the expected return for an add. yr. of schooling for non-females;
+
+- $\beta_3$: the **difference in the returns to schooling** for females _vs._ non-females.
 
 ---
 
@@ -1353,7 +1379,7 @@ The previous slides focused on interactions where one variable was **binary**.
 
 If both variables are continuous, then the interpretation is slightly trickier.
 
-*Remember:* Interactions simply mean the effect of one variable depends on the level of another variable.
+[Key]{.note} Interactions simply mean the effect of one variable depends on the level of another variable.
 
 ---
 
@@ -1512,9 +1538,11 @@ geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
 geom_point(size = 3, color = "darkslategrey", alpha = 0.5) +
 geom_smooth(color = red_pink, se = F) +
-xlab("x") +
-ylab("y") +
-theme_axes
+labs(x = 'x', y = 'y') +
+theme_axes +
+theme(
+  axis.title.y = element_text(size = 18, angle = 0, vjust = 0.5),
+)
 ```
 
 ---
@@ -1598,9 +1626,11 @@ geom_hline(yintercept = 0) +
 geom_vline(xintercept = 0) +
 geom_point(size = 3, color = "darkslategrey", alpha = 0.5) +
 geom_smooth(color = red_pink, se = F) +
-xlab("x") +
-ylab("y") +
-theme_axes
+labs(x = 'x', y = 'y') +
+theme_axes +
+theme(
+  axis.title.y = element_text(size = 18, angle = 0, vjust = 0.5),
+)
 ```
 
 ---
@@ -1615,14 +1645,14 @@ theme_axes
 
 ### Inference *vs.* prediction
 
-So far, we've focused mainly **statistical inference**—using estimators and their distributions properties to try to learn about underlying, unknown population parameters.
+So far, we've focused mainly **statistical (causal) inference**—using estimators and their distributions properties to try to learn about underlying, unknown population parameters.
 
-$$ y\_i = \textcolor{#e64173}{\hat{\beta}\_{0}} + \textcolor{#e64173}{\hat{\beta\_1}} \, x\_{1i} + \textcolor{#e64173}{\hat{\beta\_2}} \, x\_{2i} + \cdots + \textcolor{#e64173}{\hat{\beta}\_{k}} \, x\_{ki} + e\_i $$
+$$ y_i = \textcolor{#e64173}{\hat{\beta}_{0}} + \textcolor{#e64173}{\hat{\beta_1}} \, x_{1i} + \textcolor{#e64173}{\hat{\beta_2}} \, x_{2i} + \cdots + \textcolor{#e64173}{\hat{\beta}_{k}} \, x_{ki} + e_i $$
 
 ::: {.fragment}
 **Prediction** includes a fairly different set of topics/tools within econometrics (and data science/machine learning)—creating models that accurately estimate individual observations.
 
-$$ \textcolor{#e64173}{\hat{y}\_i} = \mathop{\hat{f}}\left( x_1,\, x_2,\, \ldots x_k \right) $$
+$$ \textcolor{#e64173}{\hat{y}_i} = \mathop{\hat{f}}\left( x_1,\, x_2,\, \ldots x_k \right) $$
 :::
 
 ---
@@ -1635,11 +1665,7 @@ Succinctly
 
 - **Inference:** causality, $\hat{\beta}_k$ (consistent and efficient), standard errors/hypothesis tests for $\hat{\beta}_k$, generally OLS
 
-- **Prediction:**<sup>[†]{.pink }</sup> correlation, $\hat{y}_i$ (low error), model selection, nonlinear models are much more common
-
-::: {.footnote}
-[†]{.pink} Includes forecasting.
-:::
+- **Prediction:**^[Includes forecasting.] correlation, $\hat{y}_i$ (low error), model selection, nonlinear models are much more common
 
 ---
 
@@ -1657,9 +1683,7 @@ Much of modern (micro)econometrics focuses on causally estimating (*identifying*
 - [The Clean Water Act](https://academic.oup.com/qje/article-abstract/134/1/349/5092609)
 
 ::: {.fragment}
-In this literature, the program is often a binary variable, and we place high importance on finding an unbiased estimate for the program's effect, $\hat{\tau}$.
-
-$$ \text{Outcome}_i = \beta_0 + \tau \, \text{Program}_i + u_i $$
+In this literature, the program is often a binary variable, and we place high importance on finding an unbiased estimate for the program's effect.
 :::
 
 ---
@@ -1892,10 +1916,40 @@ Similarly, missing data can affect your results.
 1 + 2 + 3 + NA + 5
 ```
 
-If you run a regression<sup>†</sup> with missing values, [R]{.mono } drops the observations missing those values.
+If you run a regression^[Or perform almost any operation/function.] with missing values, [R]{.mono } drops the observations missing those values.
 
 If the observations are missing in a nonrandom way, a random sample may end up nonrandom.
 
-::: {.footnote}
-[†]: Or perform almost any operation/function
-:::
+---
+
+## Wrapping up {.center}
+
+---
+
+## Wrapping up
+
+We've refresshed the main ingredients for OLS regression:
+
+- OLS estimates unknown [population]{.b .pink} parameters using a random [sample]{.b .purple};<br> uncertainty is unavoidable.
+- standard errors, conf. intervals, and hyp. tests help us [infer]{.b .slate} from [sample]{.purple} to [population]{.pink} [(while accounting for sampling variability/uncertainty).]{.grey-vlight}
+- [omitted variables]{.b .orange} bias $\beta$ est. when they affect $y$ & corr. w/ regressors.
+- coef. [interpretation]{.b .slate} depends on the variable type & model spec.
+
+---
+
+## Wrapping up
+
+### Moving forward...
+
+So far, the big message has been
+
+- OLS is powerful when we satisfy its assumptions.
+- Different assumptions protect different results
+  - [exogeneity]{.pink} provides for unbiased-ness,
+  - [disturbance var./cov.]{.purple} affects for efficiency and inference.
+- Residuals $e_i$ help us learn about unobserved disturbances $u_i$.
+
+[Next]{.note} What happens when we violate $u_i$ var. or cov. assumptions?
+
+- Is OLS biased? What happens to efficiency and inference?
+- What can we do about it?

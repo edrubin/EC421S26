@@ -38,15 +38,15 @@ notes/01-intro-r/slides.html : notes/01-intro-r/slides.qmd notes/my.scss
 notes/01-intro-r/slides.pdf : notes/01-intro-r/slides.html
 	decktape $<?fragments=true $@
 # Lecture 02
-notes/02-review/slides.html : notes/02-review/slides.qmd notes/my-css.css
+notes/02-review/slides.html : notes/02-review/slides.qmd notes/my.scss
 	quarto render '$<'
 notes/02-review/slides.pdf : notes/02-review/slides.html
 	decktape $<?fragments=true $@
 # Lecture 03
-notes/03-review/slides.html : notes/03-review/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/03-review/slides.html : notes/03-review/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/03-review/slides.pdf : notes/03-review/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 04
 notes/04-heteroskedasticity/slides.html : notes/04-heteroskedasticity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
