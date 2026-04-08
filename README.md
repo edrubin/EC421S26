@@ -55,7 +55,7 @@ In case you're interested, I originally created the slides with [`xaringan`](htt
 
 3. [Review of key topics from EC320](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.html)<br>(the first course in our intro-to-metrics sequence) <br> [PDF](https://raw.githack.com/edrubin/EC421S26/master/notes/03-review/slides.pdf) | [.qmd](https://github.com/edrubin/EC421S26/blob/master/notes/03-review/slides.qmd)
 
-4. [Heteroskedasticity: Tests and implications](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/04-heteroskedasticity/slides.rmd)
+4. [Heteroskedasticity: Tests and implications](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/04-heteroskedasticity/slides.pdf) | [.qmd](https://github.com/edrubin/EC421W26/blob/master/notes/04-heteroskedasticity/slides.qmd)
 
 5. [Heteroskedasticity: Living with it](https://raw.githack.com/edrubin/EC421W26/master/notes/05-heteroskedasticity/slides.html) <br> [PDF](https://raw.githack.com/edrubin/EC421W26/master/notes/05-heteroskedasticity/slides.pdf) | [.Rmd](https://github.com/edrubin/EC421W26/blob/master/notes/05-heteroskedasticity/slides.rmd)
 

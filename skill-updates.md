@@ -1,11 +1,3 @@
 Updates for skill:
 
-For general conversions:
-
-- footnotes should be converted to `^[Footnote text]` (following [here](https://quarto.org/docs/presentations/revealjs/#asides-footnotes));
-
-For LaTeX-style math formatting (rendered by MathJax), the following changes are made:
-
-- `\_` should becomes `_`;
-- `\color` should become `\textcolor`;
-
+For code chunks: Unless the chunk is clearly labeled to be excluded (e.g., RMD chunk options `include: false` or `echo: false`), you should ensure the code is included (i.e., `#| echo: true`)

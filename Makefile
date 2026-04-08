@@ -48,10 +48,10 @@ notes/03-review/slides.html : notes/03-review/slides.qmd notes/my.scss
 notes/03-review/slides.pdf : notes/03-review/slides.html
 	decktape $<?fragments=true $@
 # Lecture 04
-notes/04-heteroskedasticity/slides.html : notes/04-heteroskedasticity/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/04-heteroskedasticity/slides.html : notes/04-heteroskedasticity/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/04-heteroskedasticity/slides.pdf : notes/04-heteroskedasticity/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 05
 notes/05-heteroskedasticity/slides.html : notes/05-heteroskedasticity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
