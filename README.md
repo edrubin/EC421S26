@@ -12,7 +12,7 @@ For information on the course specifics, please see the [syllabus](https://raw.g
 
 __Edward Rubin:__ Thursdays: 2:00p–3:30p ([PLC 530](https://map.uoregon.edu/b83e556a1))
 
-__Connor Mulholland:__ TBD (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or [PLC 506](https://map.uoregon.edu/0669fd239))
+__Connor Mulholland:__ 3:30p–4:30p (_See [Canvas](https://canvas.uoregon.edu/):_ Zoom or [PLC 506](https://map.uoregon.edu/0669fd239))
 
 
 ## Assignments
