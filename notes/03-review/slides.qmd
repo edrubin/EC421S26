@@ -1886,20 +1886,113 @@ theme_empty
 ---
 
 ## Additional topics
-
 ### Outliers
 
 Because OLS minimizes the sum of the **squared** errors, outliers can play a large role in our estimates.
 
+```{r}
+#| label: "outlier-fig-1"
+#| dev: "svg"
+#| fig-height: 5.5
+#| echo: false
+
+# Generate simple dataset
+set.seed(123)
+n = 10
+outlier_df =
+  tibble(
+    x = seq_len(n),
+    y = 2 * x + rnorm(n, sd = 5)
+  )
+# Add an outlier
+outlier_df$yo = outlier_df$y
+outlier_df$yo[n] = outlier_df$y |> min()
+outlier_df$yoo = outlier_df$yo
+outlier_df$yoo[n-1] = outlier_df$y |> min()
+
+# Plot
+ggplot(data = outlier_df, aes(x = x, y = y)) +
+geom_line(stat = "smooth", method = lm, formula = y ~ x, color = red_pink, size = 1.5) +
+geom_point(size = 2.5, color = "darkslategrey") +
+labs(x = 'x', y = 'y') +
+coord_cartesian(ylim = c(0, 20), xlim = c(1, 10)) +
+theme_minimal(base_family = 'Fira Sans Condensed', base_size = 16)
+```
+
+---
+
+## Additional topics
+### Outliers
+
+Because OLS minimizes the sum of the **squared** errors, outliers can play a large role in our estimates.
+
+```{r}
+#| label: "outlier-fig-2"
+#| dev: "svg"
+#| fig-height: 5.5
+#| echo: false
+
+# Plot with outliner
+ggplot(data = outlier_df, aes(x = x, y = yo)) +
+geom_line(aes(y = y),stat = "smooth", method = lm, formula = y ~ x, color = '#F9D2DF', size = 1.5) +
+geom_line(stat = "smooth", method = lm, formula = y ~ x, color = red_pink, size = 1.5) +
+geom_point(aes(y = y), size = 2.5, color = "grey80") +
+geom_point(size = 2.5, color = "darkslategrey") +
+labs(x = 'x', y = 'y') +
+coord_cartesian(ylim = c(0, 20), xlim = c(1, 10)) +
+theme_minimal(base_family = 'Fira Sans Condensed', base_size = 16)
+```
+
+---
+
+## Additional topics
+### Outliers
+
+Because OLS minimizes the sum of the **squared** errors, outliers can play a large role in our estimates.
+
+```{r}
+#| label: "outlier-fig-3"
+#| dev: "svg"
+#| fig-height: 5.5
+#| echo: false
+
+# Plot with outliner
+ggplot(data = outlier_df, aes(x = x, y = yoo)) +
+geom_line(aes(y = y),stat = "smooth", method = lm, formula = y ~ x, color = '#F9D2DF', size = 1.5) +
+geom_line(aes(y = yo),stat = "smooth", method = lm, formula = y ~ x, color = '#F9D2DF', size = 1.5) +
+geom_line(stat = "smooth", method = lm, formula = y ~ x, color = red_pink, size = 1.5) +
+geom_point(aes(y = y), size = 2.5, color = "grey80") +
+geom_point(aes(y = yo), size = 2.5, color = "grey80") +
+geom_point(size = 2.5, color = "darkslategrey") +
+labs(x = 'x', y = 'y') +
+coord_cartesian(ylim = c(0, 20), xlim = c(1, 10)) +
+theme_minimal(base_family = 'Fira Sans Condensed', base_size = 16)
+```
+
+---
+
+## Additional topics
+### Outliers
+
+Because OLS minimizes the sum of the **squared** errors, outliers can play a large role in our estimates.
+
+
 **Common responses**
 
-- Remove the outliers from the dataset
+- remove the outliers from the dataset;
+  
+- _related:_ leave-one-out regression to identify influential observations;
 
-- Replace outliers with the 99<sup>th</sup> percentile of their variable (*Windsorize*)
+- replace outliers with the 99^th^ percentile of their variable (*Windsorize*);
 
-- Take the log of the variable to "take care of" outliers
+- take the log of the variable to "take care of" outliers.
 
-- Do nothing. Outliers are not always bad. Some people are "far" from the average. It may not make sense to try to change this variation.
+---
+
+## {.clear .center}
+
+[Another option]{.note}
+<br>Do nothing. Outliers are not always bad. Some people are "far" from the average. It may not make sense to try to change this variation.
 
 ---
 
@@ -1928,7 +2021,7 @@ If the observations are missing in a nonrandom way, a random sample may end up n
 
 ## Wrapping up
 
-We've refresshed the main ingredients for OLS regression:
+We've refreshed the main ingredients for OLS regression:
 
 - OLS estimates unknown [population]{.b .pink} parameters using a random [sample]{.b .purple};<br> uncertainty is unavoidable.
 - standard errors, conf. intervals, and hyp. tests help us [infer]{.b .slate} from [sample]{.purple} to [population]{.pink} [(while accounting for sampling variability/uncertainty).]{.grey-vlight}
