@@ -21,7 +21,7 @@ Below are the tentatively planned topics for the problem sets.
 
 **Problem Set 0: Review**
 <br>Due: TBD
-<br>Files: [assignment](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/assignment.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/data.csv) | solutions
+<br>Files: [assignment](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/assignment.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/data-ps0.csv) | solutions
 
 **Problem Set 1: Heteroskedasticity, clustering, and OLS assumptions**
 <br>Due: TBD
