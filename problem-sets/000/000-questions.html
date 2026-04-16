@@ -2617,7 +2617,9 @@ window.Quarto = {
 <p>To be clear, you’re estimating two different simple linear regressions. Each estimates the model below separately for the lowest and highest income quartiles: <span class="math display">\[ (\text{Life expectancy})_i = \beta_0 + \beta_1 (\text{Median household income})_i + u_i \]</span></p>
 <p><em>Hint:</em> You can use the <code>filter()</code> function to create separate datasets for the lowest and highest income quartiles, and then run the regression separately on each dataset.</p>
 <p><strong>[15]</strong> Do the regression results in <strong>[14]</strong> suggest that the association between life expectancy and median household income is the same for the lowest and highest income quartiles? Explain your answer.</p>
-<p><strong>[16]</strong> Now run a <em>single</em> regression that includes <em>all</em> observations. The model you are estimating is <span class="math display">\[ (\text{Life expectancy})_i = \beta_0 + \beta_1 (\text{Median household income})_i + \beta_2 (\text{Income quartile} = 4)_i + \beta_3 (\text{Median household income})_i \times (\text{Income quartile} = 4)_i + u_i \]</span> In other words, you have a coefficient on median household income, a coefficient on an indicator variable for the highest income quartile, and an interaction term between median household income and the income-quartile indicator variable.</p>
+<p><strong>[16]</strong> Now run a <em>single</em> regression that includes <em>all</em> observations. The model you are estimating is <span class="math display">\[\begin{align}
+(\text{Life expectancy})_i = \beta_0 &amp;+ \beta_1 (\text{Median household income})_i + \beta_2 (\text{Income quartile} = 4)_i \\ &amp;+ \beta_3 (\text{Median household income})_i \times (\text{Income quartile} = 4)_i + u_i
+\end{align}\]</span> In other words, you have a coefficient on median household income, a coefficient on an indicator variable for the highest income quartile, and an interaction term between median household income and the income-quartile indicator variable.</p>
 <p>Estimate the model and report your results.</p>
 <p><em>Hint:</em></p>
 <ul>
