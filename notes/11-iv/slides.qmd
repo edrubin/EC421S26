@@ -1,0 +1,1924 @@
+---
+title: 'Instrumental Variables'
+subtitle: 'EC 421, Set 11'
+author:
+  - name: Ed Rubin
+    email: edwardr@uoregon.edu
+editor:
+  render-on-save: true
+format:
+  clean-revealjs:
+    slide-level: 2
+    theme: [../my.scss, default]
+    highlight-style: gruvbox
+    embed-resources: true
+    slide-number: c/t
+    incremental: false
+    controls-layout: edges
+    transition: none
+    preview-links: auto
+    html-math-method: mathjax
+    code-line-numbers: false
+execute:
+  warning: false
+  message: false
+
+---
+
+## {.center}
+
+[Prologue]{.bigger .it .slab}
+
+---
+
+## Schedule {#schedule}
+
+```{r}
+#| label: "setup"
+#| include: false
+# devtools::install_github("dill/emoGG")
+library(pacman)
+p_load(
+  broom, here, tidyverse,
+  emoGG, latex2exp, ggplot2, ggthemes, ggforce, viridis, extrafont, gridExtra,
+  wooldridge,
+  kableExtra, snakecase,
+  data.table, dplyr, estimatr,
+  lubridate,
+  magrittr, knitr, parallel
+)
+# Define pink color
+red_pink <- "#e64173"
+turquoise <- "#20B2AA"
+orange <- "#FFA500"
+red <- "#fb6107"
+blue <- "#2b59c3"
+green <- "#8bb174"
+grey_light <- "grey70"
+grey_mid <- "grey50"
+grey_dark <- "grey20"
+purple <- "#6A5ACD"
+# Dark slate grey: #314f4f
+# Knitr options
+opts_chunk$set(
+  comment = "#>",
+  fig.align = "center",
+  fig.height = 7,
+  fig.width = 10.5,
+  warning = F,
+  message = F
+)
+opts_chunk$set(dev = "svg")
+options(device = function(file, width, height) {
+  svg(tempfile(), width = width, height = height)
+})
+options(crayon.enabled = F)
+options(knitr.table.format = "html")
+# Column names for regression results
+reg_columns <- c("Term", "Est.", "S.E.", "t stat.", "p-Value")
+# Function for formatting p values
+format_pvi <- function(pv) {
+  return(ifelse(
+    pv < 0.0001,
+    "<0.0001",
+    round(pv, 4) %>% format(scientific = F)
+  ))
+}
+format_pv <- function(pvs) lapply(X = pvs, FUN = format_pvi) %>% unlist()
+# Tidy regression results table
+tidy_table <- function(x, terms, highlight_row = 1, highlight_color = "black", highlight_bold = T, digits = c(NA, 3, 3, 2, 5)) {
+  x %>%
+    tidy() %>%
+    select(1:5) %>%
+    mutate(
+      term = terms,
+      p.value = p.value %>% format_pv()
+    ) %>%
+    kable(
+      col.names = reg_columns,
+      escape = F,
+      digits = digits
+    ) %>%
+    kable_styling(font_size = 20) %>%
+    row_spec(1:nrow(tidy(x)), background = "white") %>%
+    row_spec(highlight_row, bold = highlight_bold, color = highlight_color)
+}
+```
+
+### Last Time
+
+Causality
+
+### Today
+
+- Review: Causality
+- New: Instrumental variables
+
+---
+
+## {.center}
+
+[Causality]{.bigger .it .slab}
+
+[Review]{.it .slab .grey-vlight}
+
+---
+
+## Causality {#causality_review}
+### Review
+
+In our last lecture, we returned to the concept of [causality]{.b .pink}.
+
+::: {.fragment}
+
+We worked through the *Rubin causal model*, in which we defined
+
+:::
+
+::: {.fragment}
+
+- $\textcolor{#e64173}{y_{1i}:}$ the outcome for individual $i$ if she had received treatment
+
+:::
+
+::: {.fragment}
+
+- $\textcolor{#6A5ACD}{y_{0i}:}$ the outcome for individual $i$ if she had not received treatment
+
+:::
+
+::: {.fragment}
+
+and we referred to individuals who did not receive treatment as *control*.
+
+:::
+
+::: {.fragment}
+
+***If*** we were able to know both $\textcolor{#e64173}{y_{1i}}$ ***and*** $\textcolor{#6A5ACD}{y_{0i}}$, we could calculate the causal effect of treatment for individual $i$, _i.e._,
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \tau_i = \textcolor{#e64173}{y_{1i}} - \textcolor{#6A5ACD}{y_{0i}}
+\end{align}
+$$
+
+:::
+
+---
+
+## Causality
+### Review
+
+[Fundamental problem of causal inference:]{.b .slate}
+
+<br>We cannot simultaneously know $\textcolor{#e64173}{y_{1i}}$ and $\textcolor{#6A5ACD}{y_{0i}}$.
+
+::: {.fragment}
+
+Either we observe individual $i$ in the treatment group, _i.e._,
+$$
+\begin{align}
+  \tau_i = \textcolor{#e64173}{y_{1i}} - \textcolor{#6A5ACD}{?}
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+or we observe $i$ in the control group, _i.e._,
+$$
+\begin{align}
+  \tau_i = \textcolor{#e64173}{?} - \textcolor{#6A5ACD}{y_{0i}}
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+but never both at the same time.
+
+:::
+
+---
+
+## Causality
+### Review
+
+If we want to know $\tau_i$ (or at least $\overline{\tau}$), what can we do?
+
+::: {.fragment}
+
+**Idea:** Estimate the [average treatment effect]{.b .slate} as the difference between the average outcomes in the treatment group and the control group, _i.e._,
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \textcolor{#e64173}{\mathop{Avg}\left( y_i\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_i\mid D_i =0 \right)}
+\end{align}
+$$
+where $D_i=1$ if $i$ received treatment, and $D_i=0$ if $i$ is in the control group.
+
+:::
+
+---
+
+## Causality
+### Review
+
+**Result:** We showed that even when the treatment effect is constant (meaning $\tau_i=\tau$ for all $i$),
+$$
+\begin{align}
+  &\textcolor{#e64173}{\mathop{Avg}\left( y_i\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_i\mid D_i =0 \right)} \\
+  &\quad\quad = \tau + \underbrace{\textcolor{#e64173}{\mathop{Avg}\left(\textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}}_{\textcolor{#FFA500}{\text{Selection bias}}}
+\end{align}
+$$
+
+which says that the difference in the groups' means will give us a **biased estimate** for the causal effect of treatment [if we have selection bias.]{.b .orange}
+
+---
+
+## Causality
+### Review
+
+**Q:** What is this [selection bias]{.b .orange}?
+
+::: {.fragment}
+
+**A:** **(Informal)** We have selection bias when our control group doesn't offer a good comparison for our treatment group.
+
+:::
+
+::: {.fragment}
+
+Specifically, the control group doesn't give us a good [counterfactual]{.b .orange} for [what our treatment group would have looked like if the members had not received treatment.]{.orange}
+
+:::
+
+::: {.fragment}
+
+Basically, the groups are different.
+
+:::
+
+::: {.fragment}
+
+**A:** **(Formal)** The [average *untreated* outcome for a member of our **treatment group**]{.pink} (which we cannot observe) differs from the [average *untreated* outcome for a member of our **control group**]{.purple}, _i.e._,
+$$
+\begin{align}
+  \textcolor{#e64173}{\mathop{Avg}\left(\textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}
+\end{align}
+$$
+
+:::
+
+---
+
+## Causality
+### Review
+
+[Practical problem:]{.b .slate}
+
+$$
+\begin{align}
+  \underbrace{\textcolor{#e64173}{\mathop{Avg}\left(\textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)}}_{\textcolor{#e64173}{\text{Unobservable}}} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}
+\end{align}
+$$
+
+(back to the *fundamental problem of causal inference*)
+
+::: {.fragment}
+
+[Bigger problem:]{.b .slate}
+
+:::
+
+::: {.fragment}
+
+Sounds a bit like omitted-variable bias, right?
+
+:::
+
+::: {.fragment}
+
+Our [treatment]{.pink} variable is correlated with something that makese the two groups different.
+
+:::
+
+---
+
+## Causality
+### Review
+
+**Example:** Imagine we have two people—Al and Bri—and a single binary treatment, college. We interested in the effect of college on earnings.
+
+::: columns
+::: {.column width="50%"}
+::: {.center}
+[Earn[1,Al]{.sub}]{.pink}
+
+<br>[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
+:::
+:::
+::: {.column width="50%"}
+[Earn[1,Bri]{.sub}]{.pink}
+
+<br>[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
+:::
+:::
+
+::: {.fragment}
+
+They both have the same treatment effect (return to college)
+
+:::
+
+::: {.fragment}
+
+<br> $\quad\quad\tau$[Al]{.sub} = [Earn[1,Al]{.sub}]{.pink} - [Earn[0,Al]{.sub}]{.purple} = [$60K]{.pink} - [$30K]{.purple} = $30K
+
+:::
+
+::: {.fragment}
+
+<br> $\quad\quad\tau$[Bri]{.sub} = [Earn[1,Bri]{.sub}]{.pink} - [Earn[0,Bri]{.sub}]{.purple} = [$140K]{.pink} - [$100K]{.purple} = $30K
+
+:::
+
+::: {.fragment}
+
+but any real-world estimate would have serious selection issues since [Earn[0,Al]{.sub}]{.purple} ≠ [Earn[0,Bri]{.sub}.]{.purple}
+
+:::
+
+---
+
+## Causality
+### Review
+
+**Example:** Imagine we have two people—Al and Bri—and a single binary treatment, college. We interested in the effect of college on earnings.
+
+::: columns
+::: {.column width="50%"}
+::: {.center}
+[Earn[1,Al]{.sub}]{.pink}
+
+<br>[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
+:::
+:::
+::: {.column width="50%"}
+[Earn[1,Bri]{.sub}]{.pink}
+
+<br>[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
+:::
+:::
+
+The selection bias...
+
+::: {.fragment}
+
+If Bri attended college (D[Bri]{.sub}=1) and Al did not (D[Al]{.sub}=0):
+<br>
+$\quad\quad\hat{\tau}$ = [Earn[1,Bri]{.sub}]{.pink} - [Earn[0,Al]{.sub}]{.purple} = [$140K]{.pink} - [$30K]{.purple} = $110K
+
+:::
+
+::: {.fragment}
+
+If Al attended college (D[Al]{.sub}=1) and Bri did not (D[Bri]{.sub}=0):
+<br>
+$\quad\quad\hat{\tau}$ = [Earn[1,Al]{.sub}]{.pink} - [Earn[0,Bri]{.sub}]{.purple} = [$60K]{.pink} - [$110K]{.purple} = -$50K
+
+:::
+
+---
+
+## Causality
+### Review
+
+We have (at least) two problems...
+
+1. Selection bias is difficult to observe
+
+2. If selection bias is present, our estimate for $\tau$ is biased, preventing us from understanding the causal effect of treatment.
+
+::: {.fragment}
+
+[Solution:]{.b .slate}
+
+:::
+
+::: {.fragment}
+
+- [Option 1:]{.b .slate} [Distribute treatment]{.b .pink} in a way such that the treatment and control groups are essentially identical
+
+:::
+
+::: {.fragment}
+
+(experiments).
+
+:::
+
+::: {.fragment}
+
+- [Option 2:]{.b .slate} [Build a control]{.b .purple} group that *matches* the treatment group
+
+:::
+
+::: {.fragment}
+
+<br>(life with observational data).
+
+:::
+
+---
+
+## Instrumental variables {#intro}
+
+### Intro
+
+[Instrumental variables (IV)]{.b .pink}
+
+::: {.fragment}
+
+*Recall:* [Selection bias]{.b .orange} means our [treatment]{.pink} and [control]{.purple} groups differ on some unobserved/omitted dimension. ([Endogeneity]{.b .slate})
+
+:::
+
+::: {.fragment}
+
+[Instrumental variables]{.b .pink}
+
+:::
+
+::: {.fragment}
+
+- the [exogenous]{.b .slate} part of $x$, which gives us unbiased estimates
+- the [endogenous]{.b .slate} part of $x$, which biases our results
+
+:::
+
+::: {.fragment}
+
+If we use only the exogenous (*good*) variation in $x$, then we can avoid selection bias/omitted-variable bias.
+
+:::
+
+---
+
+## Instrumental variables
+
+### Introductory example
+
+*Example:* If we want to estimate the effect of veteran status on earnings,
+$$
+\begin{align}
+  \text{Earnings}_i = \beta_0 + \beta_1 \text{Veteran}_i + u_i \tag{1}
+\end{align}
+$$
+
+::: {.fragment}
+
+We would love to calculate $\textcolor{#e64173}{\text{Earnings}_{1i}} - \textcolor{#6A5ACD}{\text{Earnings}_{0i}}$, but we can't.
+
+:::
+
+::: {.fragment}
+
+And OLS will likely be biased for $(1)$ due to selection/omitted-variable bias.
+
+:::
+
+---
+
+## Instrumental variables
+
+### Introductory example
+
+Imagine that we can split veteran status into an exogenous part and an endogenous part...
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \text{Earnings}_i
+  &= \beta_0 + \beta_1 \text{Veteran}_i + u_i \tag{1} \\
+  &= \beta_0 + \beta_1 \left(\text{Veteran}_i^{\text{Exog.}} + \text{Veteran}_i^{\text{Endog.}}\right) + u_i \\
+  &= \beta_0 + \beta_1 \text{Veteran}_i^{\text{Exog.}} + \underbrace{\beta_1 \text{Veteran}_i^{\text{Endog.}} + u_i}_{w_i} \\
+  &= \beta_0 + \beta_1 \text{Veteran}_i^{\text{Exog.}} + w_i
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+We could use this exogenous variation in veteran status to consistently estimate $\beta_1$.
+
+:::
+
+::: {.fragment}
+
+**Q:** What would exogenous variation in veteran status mean?
+
+:::
+
+---
+
+## Instrumental variables
+
+### Introductory example
+
+**Q:** What would exogenous variation in veteran status mean?
+
+::: {.fragment}
+
+**A[1]{.sub}:** Choices to enlist in the military that are essentially random—or at least uncorrelated with omitted variables and the disturbance.
+
+:::
+
+::: {.fragment}
+
+**A[2]{.sub}:** [No selection bias:]{.b .orange}
+$$
+\begin{align}
+  \textcolor{#e64173}{\mathop{Avg}\left(\text{Earnings}_{0i}\mid\text{Veteran}_i = 1\right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( \text{Earnings}_{0i} \mid \text{Veteran}_i = 0 \right)} = 0
+\end{align}
+$$
+
+:::
+
+---
+
+## Instrumental variables {#instruments}
+
+### Instruments
+
+**Q:** How do we isolate this *exogenous variation* in our explanatory variable?
+
+::: {.fragment}
+
+<br>**A:** Find an instrument (an instrumental variable).
+
+:::
+
+::: {.fragment}
+
+**Q:** What's an instrument?
+
+:::
+
+::: {.fragment}
+
+<br>**A:** An [instrument]{.b .pink} is a variable that is
+
+:::
+
+::: {.fragment}
+
+1. **correlated** with the **explanatory variable** of interest ([relevant]{.b .pink}),
+2. **uncorrelated** with the **disturbance** ([exogenous]{.b .pink}).
+
+:::
+
+---
+
+## Instrumental variables
+
+### Instruments
+
+>**Q:** What's an instrument?
+><br>**A:** An [instrument]{.b .pink} is a variable that is
+>
+>1. **correlated** with the **explanatory variable** of interest ([relevant]{.b .pink}),
+>2. **uncorrelated** with the **disturbance** ([exogenous]{.b .pink}).
+
+::: {.fragment}
+
+So if we want an instrument $z_i$ for endogenous veteran status in
+$$
+\begin{align}
+  \text{Earnings}_i = \beta_0 + \beta_1 \text{Veteran}_i + u_i
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+1. [Relevant:]{.b .pink} $\mathop{\text{Cov}} \left( \text{Veteran}_i,\, z_i \right) \neq 0$
+2. [Exogenous:]{.b .pink} $\mathop{\text{Cov}} \left( z_i,\, u_i \right) = 0$
+
+:::
+
+---
+
+## Instrumental variables {#relevant}
+
+### Instruments: Relevance
+
+[Relevance:]{.b .pink}
+
+We can actually test this requirement using regression and a *t* test.
+
+::: {.fragment}
+
+***Example:*** For the [veteran status]{.pink}, consider three potential instruments:
+
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+1\. Social security number<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Probably not relevant]{.b .slate}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+2\. Physical fitness<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Potentially relevant]{.b .pink}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+3\. Vietnam War draft
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Relevant]{.b .pink}
+
+:::
+:::
+:::
+
+---
+
+## Instrumental variables {#exogenous}
+
+### Instruments: Exogeneity
+
+[Exogeneity:]{.b .pink}
+
+$z_i$ must be uncorrelated with our disturbance $u_i$. [Not testable.]{.b .pink}
+
+::: {.fragment}
+
+***Example:*** For the [veteran status]{.pink}, consider three potential instruments:
+
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+1\. Social security number<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Exogenous]{.b .pink}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+2\. Physical fitness<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Not exogenous]{.b .slate}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+3\. Vietnam War draft
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Exogenous]{.b .pink}
+
+:::
+:::
+:::
+
+---
+
+## Instrumental variables
+
+### Instrumental review
+
+Let's recap...
+
+- Our instrument must be [correlated with our endogenous variable]{.b .pink}.
+
+- Our instrument must be [uncorrelated with any other variable that affects the outcome]{.b .pink}.
+
+::: {.fragment}
+
+[In other words:]{.b .slate}
+
+:::
+
+::: {.fragment}
+
+<br>The instrument only affects our outcome through the endogenous variable.
+
+:::
+
+---
+
+## Instrumental variables
+
+### Back to our example
+
+For [veteran status]{.pink} we considered three potential instruments:
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+1\. Social security number<br>[blank]{.white}<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Not relevant]{.b .slate}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+2\. Physical fitness<br>[blank]{.white}<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Probably relevant]{.b .pink}
+
+:::
+:::
+:::
+
+::: columns
+::: {.column width="50%"}
+::: {.fragment}
+
+3\. Vietnam War draft<br>[blank]{.white}<br>[blank]{.white}
+
+:::
+:::
+::: {.column width="50%"}
+::: {.fragment}
+
+[Relevant]{.b .pink}
+
+:::
+:::
+:::
+
+::: {.fragment}
+
+Thus, only the Vietnam War's draft lottery appears to be a [*valid* instrument]{.b .pink}.
+
+:::
+
+---
+
+## {.clear}
+
+If we have a *valid* instrument (_e.g._, the draft lottery), how do we use it?
+
+---
+
+## Instrumental variables {#iv_estimation}
+### Estimation
+
+*Recall:* We want to estimate the effect of veteran status on earnings.
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Earnings}_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{\text{Veteran}_i} + u_i
+\end{align}
+$$
+
+::: {.fragment}
+
+Let's consider two related effects:
+
+:::
+
+::: {.fragment}
+
+1. The effect of the [instrument]{.b .pink} on the [endogenous variable]{.b .purple}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Veteran}_i} = \gamma_0 + \gamma_1 \textcolor{#e64173}{\text{Draft}_i} + v_i
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+1. The effect of the [instrument]{.b .pink} on the [outcome variable]{.b .orange}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Earnings}_i} = \pi_0 + \pi_1 \textcolor{#e64173}{\text{Draft}_i} + w_i
+\end{align}
+$$
+
+:::
+
+---
+
+## Instrumental variables
+### Estimation
+
+*Recall:* We want to estimate the effect of veteran status on earnings.
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Earnings}_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{\text{Veteran}_i} + u_i
+\end{align}
+$$
+and we know that the draft affected veteran status.
+
+::: {.fragment}
+
+[[Draft]{.b .pink} ⟶ [Veteran status]{.b .purple} ⟶ [Earnings]{.b .orange}]{.center}
+
+:::
+
+::: {.fragment}
+
+Using our assumptions on independence and exogeneity:
+
+:::
+
+::: {.fragment}
+
+(Effect of [the draft]{.b .pink} on [earnings]{.b .orange}) =
+<br>  (Effect of [the draft]{.b .pink} on [veteran status]{.b .purple})×
+<br>  (Effect of [veteran status]{.b .purple} on [earnings]{.b .orange})
+
+:::
+
+---
+
+## Instrumental variables
+### Estimation
+
+We just wrote out an expression for the effect of [the draft]{.b .pink} on [earnings]{.b .orange}, _i.e._,
+
+(Effect of [the draft]{.b .pink} on [earnings]{.b .orange}) =
+<br>  (Effect of [the draft]{.b .pink} on [veteran status]{.b .purple})×
+<br>  (Effect of [veteran status]{.b .purple} on [earnings]{.b .orange})[but we want to know the effect of [veteran status]{.b .purple} on [earnings]{.b .orange}.]{.fragment}
+
+::: {.fragment}
+
+Rearrange!
+
+:::
+
+::: {.fragment}
+
+(Effect of [veteran status]{.b .purple} on [earnings]{.b .orange}) =
+<br>  [(Effect of [the draft]{.b .pink} on [earnings]{.b .orange})]{.top}
+<br>  [(Effect of [the draft]{.b .pink} on [veteran status]{.b .purple})]{.bottom}
+
+:::
+
+::: {.fragment}
+
+Our [instrument]{.b .pink} consistently estimates both parts of this fraction!
+
+:::
+
+---
+
+## Instrumental variables
+### Estimation: Bring it all together
+
+By estimating two regressions involving our [instrument]{.b .pink},
+
+1. The effect of the [instrument]{.b .pink} on the [endogenous variable]{.b .purple}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Veteran}_i} = \gamma_0 + \gamma_1 \textcolor{#e64173}{\text{Draft}_i} + v_i
+\end{align}
+$$
+
+1. The effect of the [instrument]{.b .pink} on the [outcome variable]{.b .orange}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Earnings}_i} = \pi_0 + \pi_1 \textcolor{#e64173}{\text{Draft}_i} + w_i
+\end{align}
+$$
+
+::: {.fragment}
+
+we can estimate our desired effect:
+
+:::
+
+::: {.fragment}
+
+(Effect of [veteran status]{.b .purple} on [earnings]{.b .orange}) =
+<br>  [(Effect of [the draft]{.b .pink} on [earnings]{.b .orange})]{.top}
+<br>  [(Effect of [the draft]{.b .pink} on [veteran status]{.b .purple})]{.bottom}
+
+:::
+
+---
+
+## Instrumental variables
+### Estimation: Bring it all together
+
+By estimating two regressions involving our [instrument]{.b .pink},
+
+1. The effect of the [instrument]{.b .pink} on the [endogenous variable]{.b .purple}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Veteran}_i} = \gamma_0 + \gamma_1 \textcolor{#e64173}{\text{Draft}_i} + v_i
+\end{align}
+$$
+
+1. The effect of the [instrument]{.b .pink} on the [outcome variable]{.b .orange}, _e.g._,
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Earnings}_i} = \pi_0 + \pi_1 \textcolor{#e64173}{\text{Draft}_i} + w_i
+\end{align}
+$$
+
+we can estimate our desired effect:
+
+(Effect of [veteran status]{.b .purple} on [earnings]{.b .orange}) = $\dfrac{\pi_1}{\gamma_1}$
+
+---
+
+## Instrumental variables
+### Estimation: Bring it all together
+
+So with instrumental variables, we estimate $\beta_1$ using
+$$
+\begin{align}
+  \hat{\beta}_1^\text{IV} = \dfrac{\hat{\pi}_1}{\hat{\gamma}_1}
+\end{align}
+$$
+where $\hat{\pi}_1$ and $\hat{\gamma}_1$ come from the two equations we just discussed.
+
+::: {.fragment}
+
+**Q:** Can we trust $\hat{\beta}_1^\text{IV}$?
+
+:::
+
+::: {.fragment}
+
+<br>**A:** Yes... **if we have a valid instrument.**
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \mathop{\text{plim}}\left( \hat{\beta}_1^\text{IV} \right) = \beta_1 + \dfrac{\mathop{\text{Cov}} \left( \textcolor{#e64173}{\text{Instrument}},\, u \right)}{\mathop{\text{Cov}} \left( \textcolor{#e64173}{\text{Instrument}},\, \textcolor{#6A5ACD}{\text{Endog. variable}} \right)}
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+which equals $\beta_1$ as long as our instrument is [exogenous]{.b .pink} (numerator) and [relevant]{.b .purple} (denominator).
+
+:::
+
+---
+
+## {.clear}
+
+```{r}
+#| label: "venn_iv"
+#| echo: false
+#| fig-height: 7.5
+# Colors (order: x1, x2, x3, y, z)
+venn_colors <- c(purple, red, "grey60", orange, red_pink)
+# Line types (order: x1, x2, x3, y, z)
+venn_lines <- c("solid", "dotted", "dotted", "solid", "solid")
+# Locations of circles
+venn_df <- tibble(
+  x  = c( 0.0,   -0.5,    1.5,   -1.0, -1.4),
+  y  = c( 0.0,   -2.5,   -1.8,    2.0, -2.6),
+  r  = c( 1.9,    1.5,    1.5,    1.3,  1.3),
+  l  = c( "Y", "X[1]", "X[2]", "X[3]",  "Z"),
+  xl = c( 0.0,    0.7,    1.6,   -1.0, -2.9),
+  yl = c( 0.0,   -3.8,   -1.9,    2.2, -2.6)
+)
+# Venn
+ggplot(data = venn_df, aes(x0 = x, y0 = y, r = r, fill = l, color = l)) +
+geom_circle(aes(linetype = l), alpha = 0.3, size = 0.75) +
+theme_void() +
+theme(legend.position = "none") +
+scale_fill_manual(values = venn_colors) +
+scale_color_manual(values = venn_colors) +
+scale_linetype_manual(values = venn_lines) +
+geom_text(aes(x = xl, y = yl, label = l), size = 9, family = "Fira Sans Book", parse = T) +
+annotate(
+  x = -5.5, y = 3.3,
+  geom = "text", label = "Figure 1", size = 10, family = "Fira Sans Book", hjust = 0
+) +
+xlim(-5.5, 4.5) +
+ylim(-4.2, 3.4) +
+coord_equal()
+```
+
+---
+
+## {.clear}
+
+```{r}
+#| label: "venn_iv_endog"
+#| echo: false
+#| fig-height: 7.5
+# Change locations of circles
+venn_df %>%
+mutate(
+  x = x +   c(0, 0, 0, 0, 0),
+  xl = xl + c(0, 0, 0, 0, 0),
+  y = y +   c(0, 0, 0, 0, 1),
+  yl = yl + c(0, 0, 0, 0, 1)
+) %>%
+# Venn
+ggplot(data = ., aes(x0 = x, y0 = y, r = r, fill = l, color = l)) +
+geom_circle(aes(linetype = l), alpha = 0.3, size = 0.75) +
+theme_void() +
+theme(legend.position = "none") +
+scale_fill_manual(values = venn_colors) +
+scale_color_manual(values = venn_colors) +
+scale_linetype_manual(values = venn_lines) +
+geom_text(aes(x = xl, y = yl, label = l), size = 9, family = "Fira Sans Book", parse = T) +
+annotate(
+  x = -5.5, y = 3.3,
+  geom = "text", label = "Figure 2", size = 10, family = "Fira Sans Book", hjust = 0
+) +
+xlim(-5.5, 4.5) +
+ylim(-4.2, 3.4) +
+coord_equal()
+```
+
+---
+
+## {.clear}
+
+```{r}
+#| label: "venn_iv_irrelevant"
+#| echo: false
+#| fig-height: 7.5
+# Change locations of circles
+venn_df %>%
+mutate(
+  x = x +   c(0, 0, 0, 0,-1),
+  xl = xl + c(0, 0, 0, 0,-1),
+  y = y +   c(0, 0, 0, 0, 2.3),
+  yl = yl + c(0, 0, 0, 0, 2.3)
+) %>%
+# Venn
+ggplot(data = ., aes(x0 = x, y0 = y, r = r, fill = l, color = l)) +
+geom_circle(aes(linetype = l), alpha = 0.3, size = 0.75) +
+theme_void() +
+theme(legend.position = "none") +
+scale_fill_manual(values = venn_colors) +
+scale_color_manual(values = venn_colors) +
+scale_linetype_manual(values = venn_lines) +
+geom_text(aes(x = xl, y = yl, label = l), size = 9, family = "Fira Sans Book", parse = T) +
+annotate(
+  x = -5.5, y = 3.3,
+  geom = "text", label = "Figure 3", size = 10, family = "Fira Sans Book", hjust = 0
+) +
+xlim(-5.5, 4.5) +
+ylim(-4.2, 3.4) +
+coord_equal()
+```
+
+---
+
+## {.clear}
+
+```{r}
+#| label: "venn_iv_endog2"
+#| echo: false
+#| fig-height: 7.5
+# Change locations of circles
+venn_df %>%
+mutate(
+  x = x +   c(0,    0,   0, 0,    2),
+  xl = xl + c(0, -2.4, 0.8, 0,  4.6),
+  y = y +   c(0,    0,   0, 0,    0),
+  yl = yl + c(0,    0,   0, 0, -1.1)
+) %>%
+# Venn
+ggplot(data = ., aes(x0 = x, y0 = y, r = r, fill = l, color = l)) +
+geom_circle(aes(linetype = l), alpha = 0.3, size = 0.75) +
+theme_void() +
+theme(legend.position = "none") +
+scale_fill_manual(values = venn_colors) +
+scale_color_manual(values = venn_colors) +
+scale_linetype_manual(values = venn_lines) +
+geom_text(aes(x = xl, y = yl, label = l), size = 9, family = "Fira Sans Book", parse = T) +
+annotate(
+  x = -5.5, y = 3.3,
+  geom = "text", label = "Figure 4", size = 10, family = "Fira Sans Book", hjust = 0
+) +
+xlim(-5.5, 4.5) +
+ylim(-4.2, 3.4) +
+coord_equal()
+```
+
+---
+
+## Venn diagram explanation
+
+In these figures (Venn diagrams)
+
+- Each circle illustrates a variable.
+- Overlap gives the share of correlatation between two variables.
+- Dotted borders denote *omitted* variables.
+
+Take-aways
+
+- Figure 1: [Valid instrument]{.b .pink} (relevant; exogenous)
+- Figure 2: [Invalid instrument]{.b .slate} (relevant; not exogenous)
+- Figure 3: [Invalid instrument]{.b .slate} (not relevant; not exogenous)
+- Figure 4: [Invalid instrument]{.b .slate} (relevant; not exogenous)
+
+---
+
+## {.clear}
+
+Let's work an example in [R]{.mono}.
+
+---
+
+## Instrumental variables {#r_example}
+### Example in [R]{.mono}
+
+Back to our age-old battle to estimate the returns to education.
+
+```{r}
+#| label: "wooldridge_data"
+#| echo: false
+# Grab desired variables
+wage_df <- wage2 %>% transmute(wage, education = educ, education_dad = feduc, education_mom = meduc) %>% na.omit() %>% as_tibble()
+# Print to screen
+wage_df
+```
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+OLS for the returns to education with will likely (definitely) be biased...
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{\text{Education}}_i + u_i
+\end{align}
+$$
+
+::: {.fragment}
+
+[(Likely biased) OLS results:]{.b .slate}
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| label: "ols"
+#| echo: false
+reg_ols <- lm(wage ~ education, wage_df)
+reg_ols %>%
+  tidy_table(
+    terms = c("Intercept", "Education"),
+    highlight_row = 2,
+    highlight_color = purple
+  )
+```
+
+:::
+
+::: {.fragment}
+
+but what if mother's education provides a valid instrument?
+
+:::
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+We can check/test the *relevance* of [mother's education]{.b .pink} for [education]{.b .purple}.
+
+::: {.fragment}
+
+This regression is known as the [*first stage*:]{.b .slate}
+<br> The effect of the [instrument]{.pink} on our [endogenous explanatory variable]{.purple}.
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Education}_i} = \gamma_0 + \gamma_1 \textcolor{#e64173}{\left( \text{Mother's Education} \right)_i} + v_i
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+[First-stage results:]{.b .slate}
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| label: "first_stage"
+#| echo: false
+reg_iv1 <- lm(education ~ education_mom, wage_df)
+reg_iv1 %>%
+  tidy_table(
+    terms = c("Intercept", "Mother's Education"),
+    highlight_row = 2,
+    highlight_color = red_pink
+  )
+```
+
+:::
+
+::: {.fragment}
+
+The *p*-value suggests a very strong relationship (very *relevant*).
+
+:::
+
+---
+
+## Instrumental variables
+### Visualizing the first stage
+
+```{r}
+#| label: "first_stage_plot"
+#| echo: false
+#| fig-height: 5.75
+ggplot(data = wage_df, aes(x = education_mom, y = education)) +
+geom_point(alpha = 0.15, size = 3.5) +
+labs(x = "Mother's education (years)", y = "Education (years)") +
+theme_pander(base_size = 20, base_family = "Fira Sans Book")
+```
+
+---
+
+## Instrumental variables
+### Visualizing the first stage
+
+```{r}
+#| label: "first_stage_plot2"
+#| echo: false
+#| fig-height: 5.75
+ggplot(data = wage_df, aes(x = education_mom, y = education)) +
+geom_point(alpha = 0.15, size = 3.5) +
+geom_smooth(method = lm, se = F, color = red_pink) +
+labs(x = "Mother's education (years)", y = "Education (years)") +
+theme_pander(base_size = 20, base_family = "Fira Sans Book")
+```
+
+---
+
+## Instrumental variables
+### Exogeneity
+
+**Q:** What does [exogeneity]{.b .pink} mean in this case?
+
+::: {.fragment}
+
+<br>**A:** We need two things
+
+:::
+
+::: {.fragment}
+
+1. [Mother's education (our instrument)]{.pink} must only affect earnings through [education (our endogenous explanatory variable)]{.purple}.
+2. [Mother's education]{.pink} must be uncorrelated with other factors that affect [wages (our outcome variable)]{.orange}.
+
+:::
+
+::: {.fragment}
+
+We want to be able to compare two people (*A* and *B*) whose mothers have different levels of education and say that the only differences between the two people (*A* and *B*) are due to their mothers' educational levels.
+
+:::
+
+::: {.fragment}
+
+**Q:** Does *mother's education* seem likely to satisfy exogeneity?
+
+:::
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+Now, let's estimate the [*reduced form*]{.b .turquoise}:
+<br> The effect of the [instrument]{.pink} on our [outcome variable]{.orange}.
+
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \pi_0 + \pi_1 \textcolor{#e64173}{\left( \text{Mother's Education} \right)_i} + w_i
+\end{align}
+$$
+
+::: {.fragment}
+
+[Reduced-form results:]{.b .turquoise}
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| label: "reduced_form"
+#| echo: false
+reg_rf <- lm(wage ~ education_mom, wage_df)
+reg_rf %>%
+  tidy_table(
+    terms = c("Intercept", "Mother's Education"),
+    highlight_row = 2,
+    highlight_color = red_pink,
+    digits = c(NA, 2, 2, 2, 5)
+  )
+```
+
+:::
+
+::: {.fragment}
+
+**Q[1]{.sub}:** How do we interpret this estimated coefficient $\left( \hat{\pi}_1 \right)$?
+
+:::
+
+::: {.fragment}
+
+<br>**Q[2]{.sub}:** If our instrument is *valid*, can we interpret these estimates as [causal]{.b .pink}?
+
+:::
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+So what is our IV-based estimate for the returns to education?
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{\text{Education}}_i + u_i
+\end{align}
+$$
+
+::: {.fragment}
+
+We know that the IV estimate for $\beta_1$ is
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \hat{\beta}_1^\text{IV} = \dfrac{\textcolor{#20B2AA}{\hat{\pi}_1}}{\textcolor{#314f4f}{\hat{\gamma}_1}}
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+1. In the [reduced-form equation]{.b .turquoise}, we estimated $\textcolor{#20B2AA}{\hat{\pi}_1 \approx `r reg_rf$coef[2] %>% round(2)`}$.
+2. In the [first-stage equation]{.b .slate}, we estimated $\textcolor{#314f4f}{\hat{\gamma}_1 \approx `r reg_iv1$coef[2] %>% round(3)`}$.
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  \implies\hat{\beta}_1^\text{IV} = \dfrac{\textcolor{#20B2AA}{\hat{\pi}_1}}{\textcolor{#314f4f}{\hat{\gamma}_1}} = \dfrac{\textcolor{#20B2AA}{`r reg_rf$coef[2] %>% round(2)`}}{\textcolor{#314f4f}{`r reg_iv1$coef[2] %>% round(3)`}} \approx `r ((reg_rf$coef[2] %>% round(2))/(reg_iv1$coef[2] %>% round(3))) %>% round(1)`
+\end{align}
+$$
+
+:::
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+**Alternative:** Use the function `iv_robust()` from the `estimatr` package.
+
+This new function `iv_robust` works very similar to our good friend `lm`:
+
+`iv_robust(y ~ x | z, data = dataset)`
+
+- `formula` Specify the regression followed by `|` and your instrument (`z`).
+- `data` You still need a dataset.
+
+***Note:*** As you might guess by its name, `iv_robust` calculates heteroskedasticity-robust standard errors by default.
+
+---
+
+## Instrumental variables
+### Example in [R]{.mono}
+
+In practice...
+
+```{r}
+#| label: "iv_reg"
+#| echo: true
+# Estimate our IV regression
+iv_est <- iv_robust(wage ~ education | education_mom, data = wage_df)
+```
+
+```{r}
+#| label: "iv_reg_results"
+#| echo: false
+iv_est %>%
+  tidy_table(
+    terms = c("Intercept", "Education"),
+    highlight_row = 2,
+    highlight_color = purple
+  )
+```
+
+---
+
+## Instrumental variables
+### More
+
+So now we know how to "do" instrumental variables
+
+::: {.fragment}
+
+*when we have one endogenous variable and one exogenous variable.*
+
+:::
+
+::: {.fragment}
+
+1. Estimate the reduced form (regress [outcome var.]{.orange} on [instrument]{.pink}).
+2. Estimate the first stage (regress [expl. var.]{.purple} on [instrument]{.pink}).
+3. Calculate the IV estimate using the estimates from (1) and (2).
+
+:::
+
+::: {.fragment}
+
+Our magical [instrument]{.pink} isolates the exogenous variation in our [endogenous variable]{.purple}.
+
+:::
+
+::: {.fragment}
+
+**Q:** What if we want more?
+
+:::
+
+::: {.fragment}
+
+(_E.g._, more instruments or endog. variables)
+
+:::
+
+::: {.fragment}
+
+<br>**A:** Too bad.
+
+:::
+
+---
+
+## Instrumental variables
+### More
+
+So now we know how to "do" instrumental variables *when we have one endogenous variable and one exogenous variable.*
+
+1. Estimate the reduced form (regress [outcome var.]{.orange} on [instrument]{.pink}).
+2. Estimate the first stage (regress [expl. var.]{.purple} on [instrument]{.pink}).
+3. Calculate the IV estimate using the estimates from (1) and (2).
+
+Our magical [instrument]{.pink} isolates the exogenous variation in our [endogenous variable]{.purple}.
+
+**Q:** What if we want more? (_E.g._, more instruments or endog. variables)
+<br>**A:** [Too bad.]{.st} Extend IV to [two-stage least squares (2SLS)]{.b .pink}.
+
+---
+
+## {.center}
+
+[Two-stage least squares]{.bigger .it .slab}
+
+---
+
+## Two-stage least squares {#2sls_intro}
+### Intro
+
+The intuition and insights of IV carry over into two-stage least squares.
+
+::: {.fragment}
+
+**Plus:** The *first stage* that we've been discussing is actually the *first* of the *two stages* in two-stage least squares.
+
+:::
+
+::: {.fragment}
+
+$$
+\begin{align}
+  {\textcolor{#c5c5c5}{\text{Endogenous model}}}& &\textcolor{#FFA500}{\text{Outcome}_i} &= \beta_0 + \beta_1 \textcolor{#6A5ACD}{\left( \text{Endog. var.} \right)_i} + u_i\\[0.5em]
+  {\text{First stage}}& &\textcolor{#6A5ACD}{\left( \text{Endog. var.} \right)_i} &= \pi_0 + \pi_1 \textcolor{#e64173}{\text{Instrument}_i} + v_i\\[0.25em]
+  {\text{Second stage}}& &\textcolor{#FFA500}{\text{Outcome}_i} &= \delta_0 + \delta_1 \textcolor{#6A5ACD}{\widehat{\left( \text{Endog. var.} \right)}_i} + \varepsilon_i\\[0.5em]
+  {\textcolor{#c5c5c5}{\text{Reduced form}}}& &\textcolor{#FFA500}{\text{Outcome}_i} &= \pi_0 + \pi_1 \textcolor{#e64173}{\text{Instrument}_i} + w_i\\[0.25em]
+\end{align}
+$$
+
+:::
+
+::: {.fragment}
+
+where $\textcolor{#6A5ACD}{\widehat{\left( \text{Endog. var.} \right)}_i}$ denotes the predicted values (*fitted values*) from the first-stage regression.
+
+:::
+
+---
+
+## Two-stage least squares
+### Intro
+
+Two-stage least squares is very flexible—we include other controls, additional endogenous variables, *and* have multiple instruments.
+
+**But** don't get too distracted by this fancy flexiblity.
+
+We still need [valid]{.b .pink} instruments.
+
+---
+
+## Two-stage least squares {#2sls_r}
+### In [R]{.mono}
+
+Back to our *returns to education* example.
+
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \beta_0 + \beta_1 \textcolor{#6A5ACD}{\text{Education}}_i + u_i
+\end{align}
+$$
+
+Imagine that mother's *and* father's education are both valid instruments.
+
+Then our [first-stage regression]{.b .slate} is
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Education}}_i = \gamma_0 + \gamma_1 \textcolor{#e64173}{\left( \text{Mother's education} \right)}_i + \gamma_2 \textcolor{#e64173}{\left( \text{Father's education} \right)}_i + v_i
+\end{align}
+$$
+which we can estimate via OLS.
+
+::: {.fragment}
+
+**Q:** Why?
+
+:::
+
+---
+
+## Two-stage least squares
+### In [R]{.mono}
+
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\text{Education}}_i = \gamma_0 + \gamma_1 \textcolor{#e64173}{\left( \text{Mother's education} \right)}_i + \gamma_2 \textcolor{#e64173}{\left( \text{Father's education} \right)}_i + v_i
+\end{align}
+$$
+
+```{r}
+#| label: "stage1_code"
+#| echo: true
+stage1 <- lm(education ~ education_mom + education_dad, wage_df)
+```
+
+[First-stage results:]{.b .slate}
+
+```{r}
+#| label: "stage1_table"
+#| echo: false
+stage1 %>%
+  tidy_table(
+    terms = c("Intercept", "Mother's Education", "Father's Education"),
+    highlight_row = 2:3,
+    highlight_color = red_pink
+  )
+```
+
+::: {.fragment}
+
+Our instruments each appear to be *relevant*.
+
+:::
+
+::: {.fragment}
+
+<br>Formally, we should jointly test them (_e.g._, $F$ test).
+
+:::
+
+---
+
+## Two-stage least squares
+### In [R]{.mono}
+
+Using our [estimated first stage]{.slate}, we grab the *fitted* [endogenous variable]{.purple}
+$$
+\begin{align}
+  \textcolor{#6A5ACD}{\widehat{\text{Education}}}_i = \widehat{\gamma}_0 + \widehat{\gamma}_1 \textcolor{#e64173}{\left( \text{Mother's education} \right)}_i + \widehat{\gamma}_2 \textcolor{#e64173}{\left( \text{Father's education} \right)}_i
+\end{align}
+$$
+
+::: {.fragment}
+
+```{r}
+#| label: "add_predications"
+#| echo: true
+# Add fitted values from first stage
+wage_df$education_hat <- stage1$fitted.values
+```
+
+:::
+
+::: {.fragment}
+
+Now we use OLS (again) to estimate the [second-stage regression]{.b .green}
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \delta_0 + \delta_1 \textcolor{#6A5ACD}{\widehat{\text{Education}}}_i + \varepsilon_i
+\end{align}
+$$
+
+:::
+
+---
+
+## Two-stage least squares
+### In [R]{.mono}
+
+$$
+\begin{align}
+  \textcolor{#FFA500}{\text{Wage}_i} = \delta_0 + \delta_1 \textcolor{#6A5ACD}{\widehat{\text{Education}}}_i + \varepsilon_i
+\end{align}
+$$
+
+```{r}
+#| label: "stage2_code"
+#| echo: true
+stage2 <- lm(wage ~ education_hat, wage_df)
+```
+
+[Second-stage results:]{.b .green}
+
+```{r}
+#| label: "stage2_table"
+#| echo: false
+stage2 %>%
+  tidy_table(
+    terms = c("Intercept", "Fitted Education"),
+    highlight_row = 2,
+    highlight_color = purple
+  )
+```
+
+---
+
+## {.clear}
+
+[Ordinary least squares]{.purple}
+
+```{r}
+#| label: "results_ols"
+#| echo: false
+reg_ols %>%
+  tidy_table(
+    terms = c("Intercept", "Education"),
+    highlight_row = 2,
+    highlight_color = purple
+  )
+```
+
+<br>[Instrumental variables]{.slate}
+
+```{r}
+#| label: "results_iv"
+#| echo: false
+iv_est %>%
+  tidy_table(
+    terms = c("Intercept", "Education"),
+    highlight_row = 2,
+    highlight_color = "darkslategrey"
+  )
+```
+
+<br>[Two-stage least squares w/ two instruments]{.green}
+
+```{r}
+#| label: "results_2sls"
+#| echo: false
+stage2 %>%
+  tidy_table(
+    terms = c("Intercept", "Education"),
+    highlight_row = 2,
+    highlight_color = "#8bb174"
+  )
+```
+
+---
+
+## Two-stage least squares
+### In [R]{.mono}
+
+As you probably guessed, [R]{.mono} will do both of the stages for you.
+
+::: {.fragment}
+
+`iv_robust(y ~ x1 + x2 + ⋯ | z1 + z2 + ⋯, data)`
+
+:::
+
+::: {.fragment}
+
+In our case, we have
+
+<ul>
+<li>one explanatory variable (`x`) ([education]{.purple})</li>
+<li>two instruments (`z`) ([parents' educations]{.pink})</li>
+</ul>
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| label: "iv_robust_2sls"
+#| echo: true
+#| eval: false
+iv_robust(wage ~ education | education_mom + education_dad, data = wage_df)
+```
+
+:::
+
+::: {.fragment}
+
+```{r}
+#| label: "iv_robus_2sls_table"
+#| echo: false
+iv_robust(wage ~ education | education_mom + education_dad, data = wage_df) %>%
+  tidy_table(
+    terms = c("Intercept", "Education, fitted"),
+    highlight_row = 2,
+    highlight_color = purple
+  )
+```
+
+:::
+
+---
+
+## Two-stage least squares {#more-apps}
+### There's more!
+
+Because 2SLS [isolates exogenous variation in an endogenous variable]{.b .pink}, we apply it in other settings that are biased from *endogenous* relationships.
+
+::: {.fragment}
+
+[Common applications]{.b .pink}
+
+:::
+
+::: {.fragment}
+
+- **General causal inference** for observational data (as we've seen).
+- **Experiments:** Randomize a treatment that affects an endog. variable.
+- **Measurement error:** Regress noisy $x_1$ on noisy $x_2$ to capture signal.
+- **Simultaneous relationships** (_e.g._, $p$ and $q$ from supply and demand).
+
+:::
+
+::: {.fragment}
+
+However, in any 2SLS/IV setting, you need to mind the requirements for [valid instruments]{.b .pink}—[exogeneity]{.pink} and [relevance]{.pink}.
+
+:::
+
+---
+
+## Table of contents
+
+::: columns
+::: {.column width="50%"}
+#### Admin
+
+::: {.smallest}
+1. [Schedule](#schedule)
+1. [Causality review](#causality_review)
+:::
+:::
+::: {.column width="50%"}
+#### Instrumental variables
+
+::: {.smallest}
+1. [Introduction](#intro)
+1. [What is an instrument?](#instruments)
+  - [Relevant](#relevant)
+  - [Exogenous](#exogenous)
+1. [IV Estimation](#iv_estimation)
+1. [Venn diagrams](#venn)
+1. [Example in [R]{.mono}](#r_example)
+1. [Two-stage least squares](#2sls_intro)
+  - [Introduction](#2sls_intro)
+  - [Back to [R]{.mono}](#2sls_r)
+1. [More applications](#more)
+:::
+:::
+:::

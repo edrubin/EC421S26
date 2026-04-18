@@ -24,6 +24,10 @@ execute:
   message: false
 ---
 
+## {.center}
+
+[Prologue]{.bigger .it .slab}
+
 ```{r}
 #| label: "setup"
 #| include: false
@@ -48,72 +52,42 @@ opts_chunk$set(
   fig.align = "center",
   fig.height = 7,
   fig.width = 10.5,
-  warning = F,
-  message = F
+  warning = FALSE,
+  message = FALSE
 )
 # A blank theme for ggplot
-theme_empty = theme_bw() + theme(
-  line = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_simple = theme_bw() + theme(
-  line = element_blank(),
-  panel.grid = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text.x = element_text(size = 18, family = "STIXGeneral"),
-  axis.text.y = element_blank(),
-  axis.ticks = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_math = theme_void() + theme(
-  text = element_text(family = "MathJax_Math"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_serif = theme_void() + theme(
-  text = element_text(family = "MathJax_Main"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes = theme_void() + theme(
-  text = element_text(family = "Fira Sans Book"),
-  axis.title = element_text(size = 18),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = grey_light,
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
+theme_empty =
+  theme_bw() +
+  theme(
+    line = element_blank(),
+    rect = element_blank(),
+    strip.text = element_blank(),
+    axis.text = element_blank(),
+    plot.title = element_blank(),
+    axis.title = element_blank(),
+    plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
+    legend.position = "none"
+  )
+theme_axes =
+  theme_void(base_family = "Fira Sans Condensed") +
+  theme(
+    text =
+      element_text(family = "Fira Sans Condensed"),
+    axis.title =
+      element_text(size = 20, family = "Fira Sans Condensed"),
+    axis.title.x =
+      element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines"), family = "Fira Sans Condensed"),
+    axis.title.y =
+      element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines"), family = "Fira Sans Condensed"),
+    axis.line =
+      element_line(
+        color = "grey70",
+        size = 0.25,
+        arrow = arrow(angle = 30, length = unit(0.15, "inches")
+      )),
+    plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
+    legend.position = "none"
+  )
 ```
 
 ```{css}
@@ -125,10 +99,6 @@ theme_axes = theme_void() + theme(
   }
 }
 ```
-
-## {.center}
-
-[Prologue]{.bigger .it .slab}
 
 ---
 
@@ -241,7 +211,7 @@ ggplot(data = tibble(x = c(0, 20)), aes(x)) +
     color = "orange"
   ) +
   labs(x = "x", y = "f") +
-  theme_axes_math
+  theme_axes
 ```
 
 ---
@@ -273,7 +243,7 @@ ggplot(data = tibble(x = c(0, 8)), aes(x)) +
   geom_vline(xintercept = 5, color = grey_dark, size = 0.5, linetype = "dotted") +
   annotate("text", x = 5, y = 1.55 * dchisq(5, df = 2), label = TeX("$\\widehat{LM}$"), family = "MathJax_Main", size = 7) +
   labs(x = "x", y = "f") +
-  theme_axes_math
+  theme_axes
 ```
 
 ---
@@ -288,31 +258,19 @@ ggplot(data = tibble(x = c(0, 8)), aes(x)) +
 
 Let's write down our **current assumptions**
 
-::: {.fragment}
 1. Our sample (the $x_k$'s and $y_i$) was [randomly drawn]{.b .pink } from the population.
-:::
 
-::: {.fragment}
 2. $y$ is a [linear function]{.b .pink } of the $\beta_k$'s and $u_i$.
-:::
 
-::: {.fragment}
 3. There is no perfect [multicollinearity]{.b .pink } in our sample.
-:::
 
-::: {.fragment}
 4. The explanatory variables are [exogenous]{.b .pink }: $\mathop{\boldsymbol{E}}\left[ u \middle| X \right] = 0 \left(\implies \mathop{\boldsymbol{E}}\left[ u \right] = 0\right)$.
-:::
 
-::: {.fragment}
 5. The disurbances have [constant variance]{.b .pink } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
-  - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X \right] = \mathop{\text{Var}} \left( u_i \middle| X \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
-  - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X \right] = 0$ for $i\neq j$
-:::
+    - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X \right] = \mathop{\text{Var}} \left( u_i \middle| X \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
+    - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X \right] = 0$ for $i\neq j$
 
-::: {.fragment}
 6. The disturbances come from a [Normal]{.b .pink } distribution, _i.e._, $u_i \overset{\text{iid}}{\sim} \mathop{\text{N}}\left( 0, \sigma^2 \right)$.
-:::
 
 ---
 
@@ -320,12 +278,13 @@ Let's write down our **current assumptions**
 
 Today we're focusing on assumption \#5:
 
-> 5\. The disurbances have [constant variance]{.b .pink } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
->  - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X \right] = \mathop{\text{Var}} \left( u_i \middle| X \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
->  - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X \right] = 0$ for $i\neq j$
+5\. The disurbances have [constant variance]{.b .pink } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
+
+  - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X \right] = \mathop{\text{Var}} \left( u_i \middle| X \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
+  - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X \right] = 0$ for $i\neq j$
 
 ::: {.fragment}
-Specifically, we will focus on the assumption of [constant variance]{.b .pink } (also known as *homoskedasticity*).
+We will focus on the assumption of [constant variance]{.b .pink }<br>(also known as *homoskedasticity*).
 :::
 
 ::: {.fragment}
@@ -358,7 +317,7 @@ ggplot(data = tibble(
 ), aes(x = x, y = e)) +
 geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 ---
@@ -381,7 +340,7 @@ ggplot(data = tibble(
 ), aes(x = x, y = e)) +
 geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 ---
@@ -408,7 +367,7 @@ scale_color_manual(values = c("darkslategrey", red_pink)) +
 scale_shape_manual(values = c(16, 1)) +
 scale_alpha_manual(values = c(0.5, 0.8)) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 ---
@@ -510,22 +469,25 @@ Phew. [OLS is still unbiased]{.b .pink } for the $\beta_k$.
 
 ---
 
+## {.center}
+
+OLS's **efficiency** and **inference** do not survive heteroskedasticity.
+
+---
+
 ## Heteroskedasticity
 
 ### Consequences: Efficiency
 
-OLS's **efficiency** and **inference** do not survive heteroskedasticity.
 
-- In the presence of heteroskedasticity, OLS is [no longer the most efficient]{.b .pink } (best) linear unbiased estimator.
+In the presence of heteroskedasticity, OLS is [no longer the most efficient]{.b .pink } (best) linear unbiased estimator.
 
 ::: {.fragment}
-- It would be more informative (efficient) to [weight observations]{.b .pink } inversely to their $u_i$'s variance.
+It would be more informative (efficient) to [weight observations]{.b .pink } inversely to their $u_i$'s variance.
 
-  - Downweight high-variance $u_i$'s (too noisy to learn much).
-
-  - Upweight observations with low-variance $u_i$'s (more 'trustworthy').
-
-  - Now you have the idea of weighted least squares (WLS)
+- Downweight high-variance $u_i$'s (too noisy to learn much).
+- Upweight observations with low-variance $u_i$'s (more 'trustworthy').
+- Now you have the idea of weighted least squares (WLS)
 :::
 
 ---
@@ -540,9 +502,7 @@ OLS [standard errors are biased]{.b .pink } in the presence of heteroskedasticit
 
 - Problems for hypothesis testing (both $t$ and $F$ tests)
 
-::: {.fragment}
 - It's hard to learn much without sound inference.
-:::
 
 ---
 
@@ -639,7 +599,8 @@ follows an $F$ distribution (under the null hypothesis) with $n^{\star}-k$ and $
 #| label: "gq1a"
 #| echo: false
 #| dev: "svg"
-#| fig-height: 4
+#| fig-height: 3.75
+
 set.seed(12345)
 # Data
 gq_df = tibble(
@@ -657,7 +618,7 @@ sse2 = lm(y ~ x, data = gq_df %>% filter(x > gq_x[2])) %>%
 ggplot(data = gq_df, aes(x = x, y = e)) +
 geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 ---
@@ -669,7 +630,8 @@ theme_axes_math
 #| label: "gq1b"
 #| echo: false
 #| dev: "svg"
-#| fig-height: 4
+#| fig-height: 3.75
+
 ggplot(data = gq_df, aes(
   x = x, y = e,
   color = cut(x, c(-Inf, gq_x, Inf)),
@@ -686,7 +648,7 @@ labs(x = "x", y = "u") +
 scale_color_manual(values = c("darkslategrey", grey_mid, red_pink)) +
 scale_shape_manual(values = c(19, 1, 19)) +
 scale_alpha_manual(values = c(0.5, 0.8, 0.6)) +
-theme_axes_math
+theme_axes
 ```
 
 $F_{375,\,375} = \dfrac{\textcolor{#e64173}{\text{SSE}_2 = `r format(round(sse2, 1), nsmall = 0L, big.mark = ",")`}}{\textcolor{#314f4f}{\text{SSE}_1 = `r format(round(sse1, 1), nsmall = 0L, big.mark = ",")`}} \approx `r format(round(sse2/sse1, 1), nsmall = 0L, big.mark = ",")` \implies$ *p*-value $< 0.001$
@@ -729,7 +691,7 @@ ggplot(data = gq2_df, aes(
 )) +
 geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5, shape = 19) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 ---
@@ -758,7 +720,7 @@ labs(x = "x", y = "u") +
 scale_color_manual(values = c("darkslategrey", grey_mid, red_pink)) +
 scale_shape_manual(values = c(19, 1, 19)) +
 scale_alpha_manual(values = c(0.5, 0.8, 0.6)) +
-theme_axes_math
+theme_axes
 ```
 
 $F_{375,\,375} = \dfrac{\textcolor{#e64173}{\text{SSE}_2 = `r format(round(sse2b, 1), nsmall = 0L, big.mark = ",")`}}{\textcolor{#314f4f}{\text{SSE}_1 = `r format(round(sse1b, 1), nsmall = 0L, big.mark = ",")`}} \approx `r format(round(sse2b/sse1b, 1), nsmall = 0L, big.mark = ",")` \implies$ *p*-value $\approx `r round(pf(sse2b/sse1b, 375, 375, lower.tail = F), 3)`$
@@ -894,7 +856,7 @@ lm_bp2 = lm(residuals(lm(y ~ x, bp_df))^2 ~ 1 + bp_df$x + I(bp_df$x^2)) %>%
 ggplot(data = bp_df, aes(x = x, y = e)) +
 geom_point(size = 2.75, color = "darkslategrey", alpha = 0.5) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 The White test for this simple linear regression.
@@ -911,7 +873,7 @@ $$
 
 [Testing for Heteroskedasticity]{.bigger .it .slab}
 
-[Examples]{.it .slab}
+[Examples]{.it .slab .grey-vlight}
 
 ---
 
@@ -940,6 +902,8 @@ We will use testing data from the dataset `Caschool` in the `Ecdat` [R]{.mono } 
 
 ```{r}
 #| label: "ex-data"
+#| echo: true
+
 # Load packages
 library(pacman)
 p_load(tidyverse, Ecdat)
@@ -962,6 +926,8 @@ $$ \left(\text{Test score}\right)_i = \beta_0 + \beta_1 \text{Ratio}_{i} + \beta
 
 ```{r}
 #| label: "ex-gq1"
+#| echo: true
+
 # Estimate the model
 est_model = lm(test_score ~ ratio + income, data = test_df)
 # Summary of the estimate
@@ -977,6 +943,8 @@ Now, let's see what the residuals suggest about heteroskedasticity
 
 ```{r}
 #| label: "ex-gq2"
+#| echo: true
+
 # Add the residuals to our dataset
 test_df$e = residuals(est_model)
 ```
@@ -985,17 +953,18 @@ test_df$e = residuals(est_model)
 #| label: "gq3"
 #| echo: false
 #| dev: "svg"
-#| fig-height: 4.25
+#| fig-height: 4.5
+
 # Plot residuals against income
 plot1 = ggplot(data = test_df, aes(x = income, y = e)) +
   geom_point(size = 2.5, alpha = 0.5, color = red_pink) +
   labs(x = "Income", y = TeX("\\textit{e}")) +
-  theme_axes_serif
+  theme_axes
 # Plot residuals against student-teacher ratio
 plot2 = ggplot(data = test_df, aes(x = ratio, y = e)) +
   geom_point(size = 2.5, alpha = 0.5, color = "darkslategrey") +
   labs(x = "Student-to-teacher ratio", y = TeX("\\textit{e}")) +
-  theme_axes_serif
+  theme_axes
 # The grid
 gridExtra::grid.arrange(plot1, plot2, nrow = 1)
 ```
@@ -1009,7 +978,9 @@ Income looks potentially heteroskedastic; let's test via Goldfeld-Quandt.
 
 ```{r}
 #| label: "ex-gq4"
+#| echo: true
 #| eval: false
+
 # Arrange the data by income
 test_df = arrange(test_df, income)
 ```
@@ -1023,7 +994,9 @@ Income looks potentially heteroskedastic; let's test via Goldfeld-Quandt.
 
 ```{r}
 #| label: "ex-gq5"
+#| echo: true
 #| eval: false
+
 # Arrange the data by income
 test_df = arrange(test_df, income)
 # Re-estimate the model for the last and first 158 observations
@@ -1040,7 +1013,9 @@ Income looks potentially heteroskedastic; let's test via Goldfeld-Quandt.
 
 ```{r}
 #| label: "ex-gq6"
+#| echo: true
 #| eval: false
+
 # Arrange the data by income
 test_df = arrange(test_df, income)
 # Re-estimate the model for the last and first 158 observations
@@ -1060,6 +1035,8 @@ Income looks potentially heteroskedastic; let's test via Goldfeld-Quandt.
 
 ```{r}
 #| label: "ex-gq7"
+#| echo: true
+
 # Arrange the data by income
 test_df = arrange(test_df, income)
 # Re-estimate the model for the last and first 158 observations
@@ -1081,22 +1058,18 @@ e_model2 = residuals(est_model2)
 Remember the Goldfeld-Quandt test statistic?
 
 $F_{n^\star-k,\,n^\star-k} = \dfrac{\text{SSE}_2}{\text{SSE}_1}$
+[$\approx\dfrac{`r round(sse_model2, 2) %>% format(big.mark = ",")`}{`r round(sse_model1, 2) %>% format(big.mark = ",")`}$]{.fragment}
+[$\approx`r round(sse_model2/sse_model1, 2)`$]{.fragment}
 
 ::: {.fragment}
-$\approx\dfrac{`r round(sse_model2, 2) %>% format(big.mark = ",")`}{`r round(sse_model1, 2) %>% format(big.mark = ",")`}$
-:::
-
-::: {.fragment}
-$\approx`r round(sse_model2/sse_model1, 2)`$
-:::
-
-::: {.fragment}
- Test via $F_{158-3,\,158-3}$
+Test via $F_{158-3,\,158-3}$
 :::
 
 ::: {.fragment}
 ```{r}
 #| label: "ex-gq8"
+#| echo: true
+
 # G-Q test statistic
 (f_gq = sse_model2/sse_model1)
 ```
@@ -1105,6 +1078,8 @@ $\approx`r round(sse_model2/sse_model1, 2)`$
 ::: {.fragment}
 ```{r}
 #| label: "ex-gq9"
+#| echo: true
+
 # p-value
 pf(q = f_gq, df1 = 158-3, df2 = 158-3, lower.tail = F)
 ```
@@ -1143,7 +1118,7 @@ ggplot(data = tibble(x = c(0, f_gq * 1.3)), aes(x)) +
     family = "MathJax_Main", size = 7
   ) +
   labs(x = "x", y = "f") +
-  theme_axes_math
+  theme_axes
 ```
 
 ---
@@ -1161,7 +1136,7 @@ Goldfeld-Quandt test statistic: $F \approx `r round(f_gq, 2)`$
 
 ∴ Reject H[0]{.sub } (*p*-value is less than 0.05).
 
-**Conclusion:** There is statistically significant evidence that $\sigma_1^2 \neq \sigma_2^2$. Therefore, we find statistically significant evidence of heteroskedasticity (at the 5-percent level).
+**Conclusion:** We find statistically significant evidence that $\sigma_1^2 \neq \sigma_2^2$.<br>There is statistically significant evidence of heteroskedasticity (at the 5\% level).
 
 ---
 
@@ -1173,6 +1148,8 @@ What if we had chosen to focus on student-to-teacher ratio?
 ::: {.fragment}
 ```{r}
 #| label: "ex-gq11"
+#| echo: true
+
 # Arrange the data by ratio
 test_df = arrange(test_df, ratio)
 # Re-estimate the model for the last and first 158 observations
@@ -1216,6 +1193,8 @@ Let's test the same model and data with the White test.
 ```{r}
 #| label: "white-recall"
 #| eval: false
+#| echo: true
+
 # Estimate the model
 est_model = lm(test_score ~ ratio + income, data = test_df)
 # Add the residuals to our dataset
@@ -1257,6 +1236,8 @@ We just need to write some [R]{.mono } code to test [H[0]{.sub }]{.pink }.
 ```{r}
 #| label: "ex-quad"
 #| eval: false
+#| echo: true
+
 # Pretend quadratic regression w/ interactions
 lm(y ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = pretend_df)
 ```
@@ -1271,6 +1252,8 @@ lm(y ~ x1 + x2 + I(x1^2) + I(x2^2) + x1:x2, data = pretend_df)
 ```{r}
 #| label: "ex-white1"
 #| eval: false
+#| echo: true
+
 # Regress squared residuals on quadratic of explanatory variables
 white_model = lm(
   I(e^2) ~ ratio + income + I(ratio^2) + I(income^2) + ratio:income,
@@ -1290,6 +1273,8 @@ white_model = lm(
 ```{r}
 #| label: "ex-white2"
 #| eval: true
+#| echo: true
+
 # Regress squared residuals on quadratic of explanatory variables
 white_model = lm(
   I(e^2) ~ ratio + income + I(ratio^2) + I(income^2) + ratio:income,
@@ -1309,6 +1294,8 @@ white_model = lm(
 ```{r}
 #| label: "ex-white3"
 #| eval: true
+#| echo: true
+
 # Regress squared residuals on quadratic of explanatory variables
 white_model = lm(
   I(e^2) ~ ratio + income + I(ratio^2) + I(income^2) + ratio:income,
@@ -1330,6 +1317,8 @@ white_r2 = summary(white_model)$r.squared
 ```{r}
 #| label: "ex-white4"
 #| eval: true
+#| echo: true
+
 # Regress squared residuals on quadratic of explanatory variables
 white_model = lm(
   I(e^2) ~ ratio + income + I(ratio^2) + I(income^2) + ratio:income,
@@ -1350,15 +1339,11 @@ pchisq(q = white_stat, df = 5, lower.tail = F)
 
 Putting everything together...
 
-::: {.fragment}
-H[0]{.sub }: $\alpha_1 = \alpha_2 = \alpha_3 = \alpha_4 = \alpha_5 = 0$
-:::
+[H[0]{.sub }: $\alpha_1 = \alpha_2 = \alpha_3 = \alpha_4 = \alpha_5 = 0$]{.fragment fragment-index=0}
+[ *vs.* H[A]{.sub }: $\alpha_i \neq 0$ for some $i \in \{1,\, 2,\,\ldots,\, 5\}$]{.fragment fragment-index=1}
 
-::: {.fragment}
- *vs.* H[A]{.sub }: $\alpha_i \neq 0$ for some $i \in \{1,\, 2,\,\ldots,\, 5\}$
-:::
-
-::: {.fragment}
+::: {.fragment fragment-index=1}
+from the model
 $$
 \begin{align}
 u_i^2 =& \alpha_0 + \alpha_1 \text{Ratio}_i + \alpha_2 \text{Income}_i \\
@@ -1368,20 +1353,16 @@ u_i^2 =& \alpha_0 + \alpha_1 \text{Ratio}_i + \alpha_2 \text{Income}_i \\
 $$
 :::
 
-::: {.fragment}
+::: {.fragment fragment-index=2}
 Our White test statistic: $\text{LM} = n \times R_e^2 \approx 420 \times `r round(white_r2, 3)` \approx `r round(white_stat, 2)`$
 :::
 
-::: {.fragment}
+::: {.fragment fragment-index=3}
 Under the $\chi_5^2$ distribution, this $\widehat{\text{LM}}$ has a *p*-value less than 0.001.
 :::
 
-::: {.fragment}
-∴ We [reject H[0]{.sub }]{.b .pink }
-:::
-
-::: {.fragment}
- and conclude there is [statistically significant evidence of heteroskedasticity]{.b .pink } (at the 5-percent level).
+::: {.fragment fragment-index=4}
+∴ We [reject H[0]{.sub }]{.b .pink } and conclude there is [statistically significant evidence of heteroskedasticity]{.b .pink } (at the 5-percent level).
 :::
 
 ---
@@ -1418,7 +1399,7 @@ ggplot(data = tibble(x = c(0, white_stat * 1.1)), aes(x)) +
     hjust = 0.5
   ) +
   labs(x = "x", y = "f") +
-  theme_axes_math
+  theme_axes
 ```
 
 ---
@@ -1560,7 +1541,7 @@ ggplot(data = tibble(x = c(0, white_stat * 1.1)), aes(x)) +
 
 ---
 
-## {.clear}
+## {.center}
 
 *Next time:* Living/working with heteroskedasticity.
 
@@ -1656,6 +1637,7 @@ Breusch-Pagan tests are still [sensitive to functional form]{.b .pink }.
 #| echo: false
 #| dev: "svg"
 #| fig-height: 3.75
+
 set.seed(12345)
 # Data
 bp_df = tibble(
@@ -1672,7 +1654,7 @@ lm_bp2 = lm(residuals(lm(y ~ x, bp_df))^2 ~ 1 + bp_df$x + I(bp_df$x^2)) %>%
 ggplot(data = bp_df, aes(x = x, y = e)) +
 geom_point(size = 2.75, color = "darkslategrey", alpha = 0.5) +
 labs(x = "x", y = "u") +
-theme_axes_math
+theme_axes
 ```
 
 $$
@@ -1694,6 +1676,8 @@ Let's test the same model with the Breusch Pagan.
 ```{r}
 #| label: "bp-recall"
 #| eval: false
+#| echo: true
+
 test_df$e = residuals(est_model)
 ```
 
@@ -1706,6 +1690,8 @@ In B-P, we first regress $e_i^2$ on the explanatory variables,
 
 ```{r}
 #| label: "ex-bp1"
+#| echo: true
+
 # Regress squared residuals on explanatory variables
 bp_model = lm(I(e^2) ~ ratio + income, data = test_df)
 ```
@@ -1719,6 +1705,8 @@ and use the resulting $R^2$ to calculate a test statistic.
 
 ```{r}
 #| label: "ex-bp2"
+#| echo: true
+
 # Regress squared residuals on explanatory variables
 bp_model = lm(I(e^2) ~ ratio + income, data = test_df)
 # Grab the R-squared
@@ -1747,6 +1735,8 @@ which we test against a $\chi_k^2$ distribution (here: $k=2$).^[$k$ is the numbe
 ::: {.fragment}
 ```{r}
 #| label: "ex-bp3"
+#| echo: true
+
 # B-P test statistic
 bp_stat = 420 * bp_r2
 # Calculate the p-value
@@ -1760,28 +1750,17 @@ pchisq(q = bp_stat, df = 2, lower.tail = F)
 ### Example: Breusch-Pagan
 
 H[0]{.sub }: $\alpha_1 = \alpha_2 = 0$ *vs.* H[A]{.sub }: $\alpha_1 \neq 0$ and/or $\alpha_2 \neq 0$
-
 for the model $u_i^2 = \alpha_0 + \alpha_1 \text{Ratio}_i + \alpha_2 \text{Income}_i + w_i$
 
-::: {.fragment}
 Breusch-Pagan test statistic: $\widehat{\text{LM}} \approx `r round(bp_stat, 3)`$
-:::
 
-::: {.fragment}
 *p*-value $\approx `r pchisq(q = bp_stat, df = 2, lower.tail = F) %>% round(3)`$
-:::
 
-::: {.fragment}
 ∴ Fail to reject H[0]{.sub } (the *p*-value is greater than 0.05)
-:::
 
-::: {.fragment}
 **Conclusion:** We do not find statistically significant evidence of heteroskedasticity at the 5-percent level.
-:::
 
-::: {.fragment}
- (We find no evidence of a *linear* relationship between $u_i^2$ and the explanatory variables.)
-:::
+(We find no evidence of a *linear* relationship between $u_i^2$ and the explanatory variables.)
 
 ---
 
@@ -1817,5 +1796,5 @@ ggplot(data = tibble(x = c(0, 7)), aes(x)) +
     hjust = 0
   ) +
   labs(x = "x", y = "f") +
-  theme_axes_math
+  theme_axes
 ```

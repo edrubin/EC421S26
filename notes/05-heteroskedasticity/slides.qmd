@@ -1,0 +1,1768 @@
+---
+title: 'Heteroskedasticity, Part II'
+subtitle: 'EC 421, Set 05'
+author:
+  - name: Ed Rubin
+    email: edwardr@uoregon.edu
+editor:
+  render-on-save: true
+format:
+  clean-revealjs:
+    slide-level: 2
+    theme: [../my.scss, default]
+    highlight-style: gruvbox
+    embed-resources: true
+    slide-number: c/t
+    incremental: false
+    controls-layout: edges
+    transition: none
+    preview-links: auto
+    html-math-method: mathjax
+    code-line-numbers: false
+knitr:
+  opts_chunk:
+    comment: "#>"
+    fig-align: "center"
+    fig-height: 7
+    fig-width: 10.5
+    warning: false
+    message: false
+    fig-format: svg
+execute:
+  warning: false
+  message: false
+---
+
+## [R]{.mono } showcase
+
+```{r}
+#| label: "setup"
+#| include: false
+
+# General options
+options(htmltools.dir.version = FALSE)
+# Load package
+library(pacman)
+p_load(
+  broom,
+  latex2exp, ggplot2, ggthemes, viridis, extrafont,
+  kableExtra,
+  dplyr, magrittr, knitr, parallel
+)
+# Define colors
+red_pink   = "#e64173"
+turquoise  = "#20B2AA"
+orange     = "#FFA500"
+red        = "#fb6107"
+blue       = "#3b3b9a"
+green      = "#8bb174"
+grey_light = "grey70"
+grey_mid   = "grey50"
+grey_dark  = "grey20"
+purple     = "#6A5ACD"
+slate      = "#23373b"
+# Knitr options
+# opts_chunk$set(
+#   comment = "#>",
+#   fig.align = "center",
+#   fig.height = 7,
+#   fig.width = 10.5,
+#   warning = FALSE,
+#   message = FALSE
+# )
+# opts_chunk$set(dev = "svg")
+# options(device = function(file, width, height) {
+#   svg(tempfile(), width = width, height = height)
+# })
+# A simple theme for math plots
+theme_axes =
+  theme_void(base_family = "Fira Sans Condensed") +
+  theme(
+    text =
+      element_text(family = "Fira Sans Condensed"),
+    axis.title =
+      element_text(size = 20, family = "Fira Sans Condensed"),
+    axis.title.x =
+      element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines"), family = "Fira Sans Condensed"),
+    axis.title.y =
+      element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines"), family = "Fira Sans Condensed"),
+    axis.line =
+      element_line(
+        color = "grey70",
+        size = 0.25,
+        arrow = arrow(angle = 30, length = unit(0.15, "inches")
+      )),
+    plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
+    legend.position = "none"
+  )
+```
+
+```{css}
+#| echo: false
+
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+
+**[Posit Cloud](https://posit.cloud)**
+
+- Cloud-based RStudio IDE.
+- Free tier available. Also student plans.
+- No installation of R/RStudio required.
+- Easily share projects.
+- Runs in your browser. Code on your phone!
+
+---
+
+## {.center}
+
+[Prologue]{.bigger .it .slab}
+
+---
+
+## Schedule
+
+
+### Last Time
+
+Heteroskedasticity: Issues and tests
+
+### Today
+
+- [First assignment]{.b .pink } due Sunday.
+- Living with heteroskedasticity.
+
+### Upcoming
+
+- [Second assignment]{.b .pink } coming soon.
+
+---
+
+## EC 421
+
+### Goals
+
+- Develop [intuition]{.b .pink } for econometrics.
+- Learn how to [*apply*]{.b .pink } econometrics—strengths, weaknessed, *etc.*
+- Learn [[R]{.mono }]{.b .pink }.
+
+::: {.fragment}
+[R]{.mono } does the calculations and has already memorized the formulas.
+
+I want you to know what the formulas mean, when/why we use them, and when they fail/work.
+:::
+
+::: {.fragment}
+This course has the potential to be one of the most useful/valuable/applicable/marketable classes that you take at UO.
+:::
+
+---
+
+## {.center}
+
+[Heteroskedasticity]{.bigger .it .slab}
+
+[Review]{.it .slab .grey-vlight}
+
+---
+
+## Heteroskedasticity
+### Review
+
+Three review questions
+
+**Question 1:** What is the difference between $u_i$ and $e_i$?
+
+**Question 2:** We spend *a lot* of time discussing $u_i^2$. Why?
+
+**Question 3:** We also spend *a lot* of time discussing $e_i^2$. Why?
+
+---
+
+## Heteroskedasticity
+### Review
+
+**Question 1:** What is the difference between $u_i$ and $e_i$?
+
+**Answer 1:** [$\textcolor{#e64173}{u_i}$ gives the [population disturbance]{.b .pink } for the $i$[th]{.super } observation.]{.fragment}
+
+::: {.fragment}
+ $u_i$ measures how far the $i$[th]{.super } observation is from the [population]{.b .pink } line, _i.e._,
+
+$$ u_i = y_i - \textcolor{#e64173}{\underbrace{\left(\beta_0 + \beta_1 x_i\right)}_{\text{Population line}}} $$
+:::
+
+::: {.fragment}
+$\textcolor{#6A5ACD}{e_i}$ gives the [regression residual (error)]{.b .purple } for the $i$[th]{.super } observation.
+:::
+
+::: {.fragment}
+ $e_i$ measures how far the $i$[th]{.super } observation is from the [sample regression]{.b .purple } line, _i.e._,
+
+ $$ e_i = y_i - \textcolor{#6A5ACD}{\underbrace{\left(\hat{\beta}_0 + \hat{\beta}_1 x_i\right)}_{\text{Sample reg. line} = \hat{y}}} = y_i - \textcolor{#6A5ACD}{\hat{y}_i} $$
+:::
+
+---
+
+## Heteroskedasticity
+### Review
+
+**Question 2:** We spend *a lot* of time discussing $u_i^2$. Why?
+
+**Answer 2:**
+
+One of major assumptions is that our disturbances (the $u_i$'s) are homoskedastic (they have constant variance), _i.e._, $\mathop{\text{Var}} \left( u_i \middle| x_i \right) = \sigma^2$.
+
+We also assume that the mean of these disturbances is zero, $\textcolor{#e64173}{\mathop{\boldsymbol{E}}\left[ u_i \middle| x_i \right] = 0}$.
+
+By definition, $\mathop{\text{Var}} \left( u_i \middle| x_i \right) = \mathop{\boldsymbol{E}}\Big[ u_i^2 - \underbrace{\textcolor{#e64173}{\mathop{\boldsymbol{E}}\left[ u_i \middle| x_i \right]}^2}_{\textcolor{#e64173}{=0}} \Big| x_i \Big] = \mathop{\boldsymbol{E}}\left[ u_i^2 \middle| x_i \right]$
+
+Thus, if we want to learn about the variance of $u_i$, we can focus on $u_i^2$.
+
+---
+
+## Heteroskedasticity
+### Review
+
+**Question 3:** We also spend *a lot* of time discussing $e_i^2$. Why?
+
+**Answer 3:**
+
+We cannot observe $u_i$ (or $u_i^2$).
+
+But $u_i^2$ tells us about the variance of $u_i$.
+
+We use $e_i^2$ to learn about $u_i^2$ and, consequently, $\sigma_i^2$.
+
+---
+
+## Heteroskedasticity
+### Review: Current assumptions
+
+::: {.fragment}
+1. Our sample (the $x_k$'s and $y_i$) was [randomly drawn]{.b .pink } from the population.
+:::
+
+::: {.fragment}
+2. $y$ is a [linear function]{.b .pink } of the $\beta_k$'s and $u_i$.
+:::
+
+::: {.fragment}
+3. There is no perfect [multicollinearity]{.b .pink } in our sample.
+:::
+
+::: {.fragment}
+4. The explanatory variables are [exogenous]{.b .pink }: $\mathop{\boldsymbol{E}}\left[ u \middle| X \right] = 0 \left(\implies \mathop{\boldsymbol{E}}\left[ u \right] = 0\right)$.
+:::
+
+::: {.fragment}
+5. The disurbances have [constant variance]{.b .pink } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
+    - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X_i \right] = \mathop{\text{Var}} \left( u_i \middle| X_i \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
+    - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X_i,\,X_j \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X_i,\,X_j \right] = 0$ for $i\neq j$
+:::
+
+::: {.fragment}
+6. The disturbances come from a [Normal]{.b .pink } distribution, _i.e._, $u_i \overset{\text{iid}}{\sim} \mathop{\text{N}}\left( 0, \sigma^2 \right)$.
+:::
+
+---
+
+## Heteroskedasticity
+### Review
+
+We're currently focused on assumption \#5:
+
+5\. The disurbances have [constant variance]{.b .pink } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
+
+  - $\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X_i \right] = \mathop{\text{Var}} \left( u_i \middle| X \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2$
+  - $\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X_i,\,X_j \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X_i,\,X_j \right] = 0$ for $i\neq j$
+
+Specifically, we're discussing the assumption of [constant variance]{.b .pink } (also known as *homoskedasticity*).
+
+**Violation of this assumption:** Our disturbances have different variances.
+<br>
+[Heteroskedasticity:]{.b .pink } $\mathop{\text{Var}} \left( u_i \right) = \sigma^2_i$ and $\sigma^2_i \neq \sigma^2_j$ for some $i\neq j$.
+
+---
+
+## Heteroskedasticity
+### Review
+
+Classic example of heteroskedasticity: The funnel
+
+Variance of $u$ increases with $x$
+
+```{r}
+#| label: "het-ex1"
+#| dev: "svg"
+#| echo: false
+#| fig-height: 4.5
+set.seed(12345)
+ggplot(data = tibble(
+  x = runif(1e3, -3, 3),
+  e = rnorm(1e3, 0, sd = 4 + 1.5 * x)
+), aes(x = x, y = e)) +
+geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
+labs(x = "x", y = "u") +
+theme_axes
+```
+
+---
+
+## Heteroskedasticity
+### Review
+
+Another example of heteroskedasticity: (double funnel?)
+
+Variance of $u$ increasing at the extremes of $x$
+
+```{r}
+#| label: "het-ex2"
+#| dev: "svg"
+#| echo: false
+#| fig-height: 4.5
+set.seed(12345)
+ggplot(data = tibble(
+  x = runif(1e3, -3, 3),
+  e = rnorm(1e3, 0, sd = 2 + x^2)
+), aes(x = x, y = e)) +
+geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
+labs(x = "x", y = "u") +
+theme_axes
+```
+
+---
+
+## Heteroskedasticity
+### Review
+
+Another example of heteroskedasticity:
+
+Differing variances of $u$ by group
+
+```{r}
+#| label: "het-ex3"
+#| dev: "svg"
+#| echo: false
+#| fig-height: 4.5
+set.seed(12345)
+ggplot(data = tibble(
+  g = sample(c(F,T), 1e3, replace = T),
+  x = runif(1e3, -3, 3),
+  e = rnorm(1e3, 0, sd = 0.5 + 2 * g)
+), aes(x = x, y = e, color = g, shape = g, alpha = g)) +
+geom_point(size = 2.75) +
+scale_color_manual(values = c("darkslategrey", red_pink)) +
+scale_shape_manual(values = c(16, 1)) +
+scale_alpha_manual(values = c(0.5, 0.8)) +
+labs(x = "x", y = "u") +
+theme_axes
+```
+
+---
+
+## Heteroskedasticity
+### Review
+
+[Heteroskedasticity]{.b .pink } is present when the variance of $u$ changes with any combination of our explanatory variables $x_1$ through $x_k$.
+
+---
+
+## Testing for heteroskedasticity
+
+We have some tests that may help us detect heteroskedasticity.
+
+- Goldfeld-Quandt
+- White
+- (There are others, *e.g.*, Breusch-Pagan)
+
+::: {.fragment}
+What do we do if we detect it?
+:::
+
+---
+
+## {.center}
+
+[Living with heteroskedasticity]{.bigger .it .slab}
+
+---
+
+## Living with heteroskedasticity
+
+In the presence of heteroskedasticity, OLS is
+
+- still [unbiased]{.b .pink }
+- [no longer the most efficient]{.b .pink } unbiased linear estimator
+
+On average, we get the right answer but with more noise (less precision).
+<br> *Also:* Our standard errors are biased.
+
+::: {.fragment}
+**Options:**
+
+1. Check regression [specification]{.b .pink }.
+2. Find a new, more efficient [unbiased estimator]{.b .pink } for $\beta_j$'s.
+3. Live with OLS's inefficiency; find a [new variance estimator]{.b .pink } to fix<br> standard errors, conf. intervals, hyp. tests.
+:::
+
+---
+
+## Living with heteroskedasticity 
+### Misspecification
+
+As we've discussed, the specification^[*Specification:* Functional form and included variables.] of your regression model matters a lot for the unbiasedness and efficiency of your estimator.
+
+**Response \#1:** Ensure your specification doesn't cause heteroskedasticity.
+
+---
+
+## Living with heteroskedasticity
+### Misspecification
+
+*Example:* Let the population relationship be $$ y_i = \beta_0 + \beta_1 x_i + \beta_2 x_i^2 + u_i $$
+
+with $\mathop{\boldsymbol{E}}\left[ u_i \middle| x_i \right] = 0$ and $\mathop{\text{Var}} \left( u_i \middle| x_i \right) = \sigma^2$.
+
+However, we omit $x^2$ and estimate $$ y_i = \gamma_0 + \gamma_1 x_i + w_i $$
+
+Then $$ w_i = u_i + \beta_2 x_i^2 \implies \mathop{\text{Var}} \left( w_i \right) = f(x_i) $$
+
+_I.e._, the variance of $w_i$ changes systematically with $x_i$ (heteroskedasticity).
+
+## Living with heteroskedasticity {auto-animate=true}
+### Misspecification
+
+```{r}
+#| label: "spec-data"
+#| include: false
+# Set the seed
+set.seed(1234)
+# Generate data
+spec_df = tibble(x = runif(1e3, 0, 3), y = exp(0.5 + 0.6 * x + rnorm(1e3, sd = 0.3)))
+# Add residuals ('w': wrong specification; 'c': correct specification)
+spec_df %<>% mutate(
+  e_w = lm(y ~ x, data = spec_df) %>% residuals(),
+  e_c = lm(log(y) ~ x, data = spec_df) %>% residuals()
+)
+```
+
+[Truth:]{.pink } $\textcolor{#e64173}{\log\left(y_i\right) = \beta_0 + \beta_1 x_i + u_i}$  [**Misspecification:**]{.slate } $\textcolor{#314f4f}{y_i = \beta_0 + \beta_1 x_i + v_i}$
+
+::: {data-id="spec-plot"}
+```{r}
+#| label: "spec-plot1"
+#| echo: false
+#| dev: "svg"
+#| fig-height: 5
+ggplot(data = spec_df, aes(x = x)) +
+  geom_point(aes(y = e_w), color = "darkslategrey", size = 2.75, alpha = 0.5, shape = 16) +
+  geom_point(aes(y = e_c), color = red_pink, size = 2.5, alpha = 0, shape = 19) +
+  labs(x = "x", y = "e") +
+  theme_axes
+```
+:::
+
+## Living with heteroskedasticity {auto-animate=true}
+### Misspecification
+
+[**Truth:**]{.pink } $\textcolor{#e64173}{\log\left(y_i\right) = \beta_0 + \beta_1 x_i + u_i}$  [Misspecification:]{.slate } $\textcolor{#314f4f}{y_i = \beta_0 + \beta_1 x_i + v_i}$
+
+::: {data-id="spec-plot"}
+```{r}
+#| label: "spec-plot2"
+#| echo: false
+#| dev: "svg"
+#| fig-height: 5
+ggplot(data = spec_df, aes(x = x)) +
+  geom_point(aes(y = e_w), color = "darkslategrey", size = 2.75, alpha = 0.25, shape = 1) +
+  geom_point(aes(y = e_c), color = red_pink, size = 2.5, alpha = 0.5, shape = 19) +
+  labs(x = "x", y = "e") +
+  theme_axes
+```
+:::
+
+---
+
+## Living with heteroskedasticity
+### Misspecification
+
+More generally:
+
+**Misspecification problem:** Incorrect specification of the regression model can cause heteroskedasticity (among other problems).
+
+::: {.fragment}
+**Solution:** 💡 Get it right (_e.g._, don't omit $x^2$).
+:::
+
+::: {.fragment}
+**New problems:**
+
+- We often don't know the *right* specification.
+- We'd like a more formal process for addressing heteroskedasticity.
+:::
+
+::: {.fragment}
+**Conclusion:** Specification often will not "solve" heteroskedasticity.
+<br> However, correctly specifying your model is still really important.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Weighted least squares
+
+Weighted least squares (WLS) presents another approach.
+
+**Response \#2:** Increase efficiency by weighting our observations.
+
+::: {.fragment}
+Let the true population relationship be
+
+$$
+\begin{align}
+  y_i = \beta_0 + \beta_1 x_{i} + u_i \tag{1}
+\end{align}
+$$
+
+with $u_i \sim \mathop{N} \left( 0,\, \sigma_i^2 \right)$.
+:::
+
+::: {.fragment}
+Now transform $(1)$ by dividing each observation's data by $\sigma_i$, _i.e._,
+
+$$
+\begin{align}
+  \dfrac{y_i}{\sigma_i} &= \beta_0 \dfrac{1}{\sigma_i} + \beta_1 \dfrac{x_{i}}{\sigma_i} + \dfrac{u_i}{\sigma_i} \tag{2}
+\end{align}
+$$
+:::
+
+---
+
+## Living with heteroskedasticity
+### Weighted least squares
+
+$$
+\begin{align}
+  y_i &= \beta_0 + \beta_1 x_{i} + u_i \tag{1} \\[1em]
+  \dfrac{y_i}{\sigma_i} &= \beta_0 \dfrac{1}{\sigma_i} + \beta_1 \dfrac{x_{i}}{\sigma_i} + \dfrac{u_i}{\sigma_i} \tag{2}
+\end{align}
+$$
+
+Whereas $(1)$ is heteroskedastic,
+
+::: {.fragment}
+ $\textcolor{#e64173}{(2)}$ [is homoskedastic]{.b .pink }.
+
+∴ OLS is efficient and unbiased for estimating the $\beta_k$ in $(2)$!
+:::
+
+::: {.fragment}
+Why is $(2)$ homoskedastic?
+:::
+
+[$\mathop{\text{Var}} \left( \dfrac{u_i}{\sigma_i} \middle| x_i \right) =$]{.fragment}
+[$\dfrac{1}{\sigma_i^2} \mathop{\text{Var}} \left( u_i \middle| x_i \right) =$]{.fragment}
+[$\dfrac{1}{\sigma_i^2} \sigma_i^2 =$]{.fragment}
+[$1$]{.fragment}
+
+---
+
+## Living with heteroskedasticity
+### Weighted least squares
+
+WLS is great, but we need to know $\sigma_i^2$, which is generally unlikely.
+
+We can *slightly* relax this requirement—instead requiring
+
+1. $\mathop{\text{Var}} \left( u_i | x_i \right) = \sigma_i^2 = \sigma^2 h(x_i)$
+
+2. We know $h(x)$.
+
+::: {.fragment}
+As before, we transform our heteroskedastic model into a homoskedastic model. This time we divide each observation's data^[Divide *all* of the data by $\sqrt{h(x_i)}$, including the intercept.] by $\sqrt{h(x_i)}$.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Weighted least squares
+
+$$
+\begin{align}
+  y_i &= \beta_0 + \beta_1 x_{i} + u_i \tag{1} \\[1em]
+  \dfrac{y_i}{\sqrt{h(x_i)}} &= \beta_0 \dfrac{1}{\sqrt{h(x_i)}} + \beta_1 \dfrac{x_{i}}{\sqrt{h(x_i)}} + \dfrac{u_i}{\sqrt{h(x_i)}} \tag{2}
+\end{align}
+$$
+with $\mathop{\text{Var}} \left( u_i | x_i \right) = \sigma^2 h(x_i)$.
+
+Now let's check that $(2)$ is indeed homoskedastic.
+
+[$\mathop{\text{Var}} \left( \dfrac{u_i}{\sqrt{h(x_i)}} \middle| x_i \right) =$]{.fragment}
+[$\dfrac{1}{h(x_i)} \mathop{\text{Var}} \left( u_i \middle| x_i \right) =$]{.fragment}
+[$\dfrac{1}{h(x_i)} \sigma^2 h(x_i) =$]{.fragment}
+[$\textcolor{#e64173}{\sigma^2}$]{.fragment}
+
+[Homoskedasticity!]{.b .pink .fragment}
+
+---
+
+## Living with heteroskedasticity
+### Weighted least squares
+
+[Weighted least squares]{.b .pink } (WLS) estimators are a special class of<br>[generalized least squares]{.b .pink } (GLS) estimators focused on heteroskedasticity.
+
+::: {.fragment}
+$$
+  y_i = \beta_0 + \beta_1 x_{1i} + u_i \quad \textcolor{#e64173}{\text{ vs. }} \quad
+  \dfrac{y_i}{\sigma_i} = \beta_0 \dfrac{1}{\sigma_i} + \beta_1 \dfrac{x_{1i}}{\sigma_i} + \dfrac{u_i}{\sigma_i}
+$$
+
+*Notes:*
+
+1. WLS **transforms** a heteroskedastic model into a homoskedastic model.
+2. **Weighting:** WLS downweights observations with higher variance $u_i$'s.
+3. **Big requirement:** WLS requires that we *know* $\sigma_i^2$ for each observation.
+4. WLS is generally **infeasible**. *Feasible* GLS (FGLS) offers a solution.
+5. Under its assumptions: WLS is the **best linear unbiased estimator**.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+**Response \#3:**
+
+- Ignore OLS's inefficiency (in the presence of heteroskedasticity).
+- Focus on [unbiased estimates for our standard errors]{.b .pink }.
+- In the process: Correct inference.
+
+::: {.fragment}
+**Q:** What is a standard error?
+:::
+
+::: {.fragment}
+<br>**A:** The [standard deviation of an estimator's distribution]{.b .pink }.
+:::
+
+::: {.fragment}
+Estimators (like $\hat{\beta}_1$) are random variables, so they have distributions.
+
+Standard errors give us a sense of how much variability is in our estimator.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+*Recall*: We can write the OLS estimator for $\beta_1$ as
+
+$$ \hat{\beta}_1 = \beta_1 + \dfrac{\sum_i \left( x_i - \overline{x} \right) u_i}{\sum_i \left( x_i - \overline{x} \right)^2} = \beta_1 + \dfrac{\sum_i \left( x_i - \overline{x} \right) u_i}{\text{SST}_x} \tag{3} $$
+
+::: {.fragment}
+Let $\mathop{\text{Var}} \left( u_i \middle| x_i \right) = \sigma_i^2$.
+:::
+
+::: {.fragment}
+We can use $(3)$ to write the variance of $\hat{\beta}_1$, _i.e._,
+
+$$ \mathop{\text{Var}} \left( \hat{\beta}_1 \middle| x_i \right) = \dfrac{\sum_i \left( x_i - \overline{x} \right)^2 \sigma_i^2}{\text{SST}_x^2} \tag{4} $$
+:::
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+If we want unbiased estimates for our standard errors, we need an unbiased estimate for
+
+$$ \dfrac{\sum_i \left( x_i - \overline{x} \right)^2 \sigma_i^2}{\text{SST}_x^2} $$
+
+Our old friend Hal White provided such an estimator:^[This specific equation is for simple linear regression.]
+
+$$ \widehat{\mathop{\text{Var}}} \left( \hat{\beta}_1 \right) = \dfrac{\sum_i \left( x_i - \overline{x} \right)^2 e_i^2}{\text{SST}_x^2} $$
+
+where the $e_i$ comes from the OLS regression of interest.
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+Our heteroskedasticity-robust estimators for the standard error of $\beta_j$.
+
+[Case 1]{.b .pink } Simple linear regression, $y_i = \beta_0 + \beta_1 x_i + u_i$
+
+$$ \widehat{\mathop{\text{Var}}} \left( \hat{\beta}_1 \right) = \dfrac{\sum_i \left( x_i - \overline{x} \right)^2 e_i^2}{\text{SST}_x^2} $$
+
+[Case 2]{.b .pink } Multiple (linear) regression, $y_i = \beta_0 + \beta_1 x_{1i} + \cdots + \beta_k x_{ki} + u_i$
+
+$$ \widehat{\mathop{\text{Var}}} \left( \hat{\beta}_j \right) = \dfrac{\sum_i \hat{r}_{ij}^2 e_i^2}{\text{SST}_{x_j^2}} $$
+
+where $\hat{r}_{ij}$ denotes the i[th]{.super } residual from regressing $x_j$ on all other explanatory variables.
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+With these standard errors, we can return to correct statistical inferencel
+
+_E.g._, we can update our previous $t$ statistic formula with our new heteroskedasticity-robust standard erros.
+
+$$ t = \dfrac{\text{Estimate} - \text{Hypothesized value}}{\text{Standard error}} $$
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+**Notes**
+
+- We are still using [OLS estimates for]{.b .pink } $\textcolor{#e64173}{\beta_j}$
+- Our het.-robust standard errors use a [different estimator]{.b .pink }.
+- Homoskedasticity
+  - Plain OLS variance estimator is more efficient.
+  - Het.-robust is still unbiased.
+- Heteroskedasticity
+  - Plain OLS variance estimator is biased.
+  - Het.-robust variance estimator is unbiased.
+
+---
+
+## Living with heteroskedasticity
+### Heteroskedasticity-robust standard errors
+
+These standard errors go by many names
+
+- Heteroskedasticity-robust standard errors
+- Het.-robust standard errors
+- White standard errors
+- Eicker-White standard errors
+- Huber standard errors
+- Eicker-Huber-White standards errors
+- (some other combination of Eicker, Huber, and White)
+
+**Do not say:** "Robust standard errors". The problem: "robust" to what?
+
+---
+
+## {.center}
+
+[Living with heteroskedasticity]{.bigger .it .slab}
+
+[Examples]{.it .slab .grey-vlight}
+
+---
+
+## Living with heteroskedasticity
+
+### Examples
+
+
+Back to our test-scores dataset…
+
+```{r}
+#| label: "ex-test-data"
+#| echo: true
+# Load packages
+library(pacman)
+p_load(tidyverse, Ecdat)
+# Select and rename desired variables; assign to new dataset; format as tibble
+test_df = Caschool %>% select(
+  test_score = testscr, ratio = str, income = avginc, enrollment = enrltot
+) %>% as_tibble()
+# View first 2 rows of the dataset
+head(test_df, 2)
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+We found significant evidence of heteroskedasticity.
+
+Let's check if it was due to misspecifying our model.
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+Model[1]{.sub }: $\text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i$
+<br>`lm(test_score ~ ratio + income, data = test_df)`
+
+
+```{r}
+#| label: "ex-spec1"
+#| echo: false
+#| dev: "svg"
+#| fig-height: 4.75
+# Model 1: test ~ ratio + income
+test_df %<>% mutate(e1 = lm(test_score ~ ratio + income, data = test_df) %>% residuals())
+# Plot
+ggplot(data = test_df, aes(x = income, y = e1)) +
+geom_point(size = 3, alpha = 0.5, color = red_pink) +
+labs(x = "Income", y = TeX("\\textit{e}")) +
+theme_axes
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+Model[2]{.sub }: $\log\left(\text{Score}_i\right) = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i$
+<br>`lm(log(test_score) ~ ratio + income, data = test_df)`
+
+
+```{r}
+#| label: "ex-spec2"
+#| echo: false
+#| dev: "svg"
+#| fig-height: 4.75
+# Model 1: test ~ ratio + income
+test_df %<>% mutate(e2 = lm(log(test_score) ~ ratio + income, data = test_df) %>% residuals())
+# Plot
+ggplot(data = test_df, aes(x = income)) +
+geom_point(aes(y = e2), size = 3, alpha = 0.5, color = red_pink) +
+labs(x = "Income", y = TeX("\\textit{e}")) +
+theme_axes
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+Model[3]{.sub }: $\log\left(\text{Score}_i\right) = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \log\left(\text{Income}_i\right) + u_i$
+<br>`lm(log(test_score) ~ ratio + log(income), data = test_df)`
+
+
+```{r}
+#| label: "ex-spec3"
+#| echo: false
+#| dev: "svg"
+#| fig-height: 4.75
+# Model 1: test ~ ratio + income
+test_df %<>% mutate(e3 = lm(log(test_score) ~ ratio + log(income), data = test_df) %>% residuals())
+# Plot
+ggplot(data = test_df, aes(x = log(income))) +
+geom_point(aes(y = e3), size = 3, alpha = 0.5, color = red_pink) +
+labs(x = "Log(Income)", y = TeX("\\textit{e}")) +
+theme_axes
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+Let's test this new specification with the White test for heteroskedasticity.
+
+::: {.center}
+Model[3]{.sub }: $\log\left(\text{Score}_i\right) = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \log\left(\text{Income}_i\right) + u_i$
+:::
+
+```{r}
+#| label: "ex-spec-test"
+#| include: false
+white_r2_spec = lm(e3^2 ~
+  ratio * log(income) + I(ratio^2) + I(log(income)^2),
+  data = test_df
+) %>% summary() %$% r.squared
+white_stat_spec = white_r2_spec %>% multiply_by(420)
+```
+
+::: {.fragment}
+The regression for the White test
+:::
+
+::: {.fragment}
+$$
+\begin{align}
+  e_i^2 = &\alpha_0 + \alpha_1 \text{Ratio}_i + \alpha_2 \log\left(\text{Income}_i\right) + \alpha_3 \text{Ratio}_i^2 + \alpha_4 \left(\log\left(\text{Income}_i\right)\right)^2 \\
+  &+ \alpha_5 \left(\text{Ratio}_i\times\log\left(\text{Income}_i\right)\right) + v_i
+\end{align}
+$$
+:::
+
+[yields $R_e^2\approx`r round(white_r2_spec, 3)`$]{.fragment}
+[and test statistic of]{.fragment}
+[$\widehat{\text{LM}} = n\times R_e^2 \approx `r round(white_stat_spec, 1)`$.]{.fragment}
+
+[Under H[0]{.sub }, $\text{LM}$ is distributed as]{.fragment}
+[$\chi_5^2$ $\implies$ *p*-value $\approx$ `r pchisq(white_stat_spec, 5, lower.tail = F) %>% round(3)`.]{.fragment}
+
+[∴ [Reject H[0]{.sub }.]{.b .pink } [Conclusion:]{.b .pink }]{.fragment}
+[There is (still) statistically significant evidence of heteroskedasticity at the 5\%-percent level.]{.fragment}
+
+---
+
+## Living with heteroskedasticity
+### Example: Model specification
+
+Okay, we tried adjusting our specification, but there is still evidence of heteroskedasticity.
+
+**Next:** In general, you will turn to [heteroskedasticity-robust standard errors]{.b .pink}.
+
+- OLS is still unbiased for the [coefficients]{.b .pink } (the $\beta_j$'s)
+
+- Heteroskedasticity-robust standard errors are unbiased for the<br>[standard errors]{.b .pink } of the $\hat{\beta}_j$'s, _i.e._, $\sqrt{\mathop{\text{Var}} \left( \hat{\beta}_j \right)}$.
+
+---
+
+## Living with heteroskedasticity
+### Example: Het.-robust standard errors
+
+Let's return to our model
+
+$$ \text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i $$
+
+We can use the `fixest` package in [R]{.mono } to calculate standard errors.
+
+---
+
+## Living with heteroskedasticity
+### Example: Het.-robust standard errors
+
+$$ \text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i $$
+
+1\. Run the regression with `feols()` (instead of `lm()`)
+```{r}
+#| label: "fixest1"
+#| echo: true
+# Load 'fixest' package
+p_load(fixest)
+# Regress log score on ratio and log income
+test_reg = feols(test_score ~ ratio + income, data = test_df)
+```
+
+::: {.fragment}
+*Notice* that `feols()` uses the same syntax as `lm()` for this regression.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: Het.-robust standard errors
+
+$$ \text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i $$
+
+2\. Estimate het.-robust standard errors with `vcov = 'hetero'` option in `summary()`
+
+```{r}
+#| label: "fixest2a"
+#| eval: false
+#| echo: true
+# Het-robust standard errors with 'vcov = 'hetero''
+summary(test_reg, vcov = 'hetero')
+```
+
+```{r}
+#| label: "fixest2b"
+#| echo: false
+test_het_out = summary(test_reg, vcov = 'hetero') %>% capture.output()
+test_het_out[4:7] %>% paste0("\n") %>% cat()
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: Het.-robust standard errors
+
+Ceofficients and **heteroskedasticity-robust standard errors**:
+
+```{r}
+#| label: "fixest3"
+#| eval: false
+#| echo: true
+summary(test_reg, vcov = 'hetero')
+```
+
+```{r}
+#| label: "fixest4"
+#| echo: false
+test_het_out = summary(test_reg, vcov = 'hetero') %>% capture.output()
+test_het_out[4:7] %>% paste0("\n") %>% cat()
+```
+
+Ceofficients and **plain OLS standard errors** (assumes homoskedasticity):
+
+```{r}
+#| label: "fixest5"
+#| eval: false
+#| echo: true
+summary(test_reg, vcov = 'iid')
+```
+
+```{r}
+#| label: "fixest6"
+#| echo: false
+test_hom_out = summary(test_reg, vcov = 'iid') %>% capture.output()
+test_hom_out[4:7] %>% paste0("\n") %>% cat()
+```
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+We mentioned that WLS is often not possible—we need to know the functional form of the heteroskedasticity—either
+
+**A**\. $\sigma_i^2$
+
+or
+
+**B**\. $h(x_i)$, where $\sigma_i^2 = \sigma^2 h(x_i)$
+
+::: {.fragment}
+There *are* occasions in which we can know $h(x_i)$.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+Imagine individuals in a population have homoskedastic disturbances.
+
+However, instead of observing individuals' data, we observe (in data) groups' averages (_e.g._, cities, counties, school districts).
+
+If these groups have different sizes, then our dataset will be heteroskedastic—in a predictable fashion.
+
+**Recall:** The variance of the sample mean depends upon the sample size,
+$$ \mathop{\text{Var}} \left( \overline{x} \right) = \dfrac{\sigma_x^2}{n} $$
+
+::: {.fragment}
+**Example:**  Our school testing data is averaged at the school level.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+*Example:*  Our school testing data is averaged at the school level.
+
+Even if individual students have homoskedastic disturbances, the schools would have heteroskedastic disturbances, _i.e._,
+
+**Individual-level model:** $\quad \text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i$
+
+**School-level model:** $\quad \overline{\text{Score}}_s = \beta_0 + \beta_1 \overline{\text{Ratio}}_s + \beta_2 \overline{\text{Income}}_s + \overline{u}_s$
+
+where the $s$ subscript denotes an individual school (just as $i$ indexes an individual person).
+
+$$ \mathop{\text{Var}} \left( \overline{u}_s \right) = \dfrac{\sigma^2}{n_s} $$
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+For WLS, we're looking for a function $h(x_s)$ such that $\mathop{\text{Var}} \left( \overline{u}_s | x_s \right) = \sigma^2 h(x_s)$.
+
+::: {.fragment}
+We just showed^[Assuming the individuals' disturbances are homoskedastic.] that $\mathop{\text{Var}} \left( \overline{u}_s |x_s \right) = \dfrac{\sigma^2}{n_s}$.
+:::
+
+::: {.fragment}
+Thus, $h(x_s) = 1/n_s$, where $n_s$ is the number of students in school $s$.
+:::
+
+::: {.fragment}
+To implement WLS, we divide each observation's data by $1/\sqrt{h(x_s)}$, meaning we need to multiply each school's data by $\sqrt{n_s}$.
+:::
+
+::: {.fragment}
+The variable [enrollment]{.mono } in the [test_df]{.mono } dataset is our $n_s$.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+Using WLS to estimate $\text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i$
+
+**Step 1:** Multiply each variable by $1/\sqrt{h(x_i)} = \sqrt{\text{Enrollment}_i}$
+
+```{r}
+#| label: "wls1"
+#| echo: true
+# Create WLS transformed variables, multiplying by sqrt of 'pop'
+test_df = mutate(test_df,
+  test_score_wls = test_score * sqrt(enrollment),
+  ratio_wls      = ratio * sqrt(enrollment),
+  income_wls     = income * sqrt(enrollment),
+  intercept_wls  = 1 * sqrt(enrollment)
+)
+```
+
+Notice that we are creating a transformed intercept.
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+Using WLS to estimate $\text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i$
+
+**Step 2:** Run our WLS (transformed) regression
+
+```{r}
+#| label: "wls2"
+#| echo: true
+# WLS regression
+wls_reg = lm(
+  test_score_wls ~ -1 + intercept_wls + ratio_wls + income_wls,
+  data = test_df
+)
+```
+
+::: {.fragment}
+*Note:* The `-1` in our regression tells [R]{.mono } not to add an intercept, since we are adding a transformed intercept (`intercept_wls`).
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+The [WLS estimates and standard errors:]{.b .pink }
+```{r}
+#| label: "wls3"
+#| echo: false
+# Grab the summary
+test_wls_out = summary(wls_reg) %>% capture.output()
+# Print the coefficients
+test_wls_out[11:14] %>% paste0("\n") %>% cat()
+```
+
+::: {.fragment}
+<br>
+The [OLS estimates]{.b .pink } and [het.-robust standard errors:]{.b .pink }
+```{r}
+#| label: "wls4"
+#| echo: false
+# Print the coefficients
+test_het_out[4:7] %>% paste0("\n") %>% cat()
+```
+:::
+
+---
+
+## Living with heteroskedasticity
+### Example: WLS
+
+Alternative to doing your own weighting: feed `lm()` some `weights`.
+
+```{r}
+#| label: "wls5"
+#| eval: false
+#| echo: true
+
+lm(test_score ~ ratio + income, data = test_df, weights = enrollment)
+```
+
+```{r}
+#| label: "wls6"
+#| echo: false
+
+test_wls_out2 = lm(test_score ~ ratio + income, data = test_df, weights = enrollment)
+# Grab the summary
+test_wls_out = summary(wls_reg) %>% capture.output()
+# Print the coefficients
+test_wls_out[11:14] %>% paste0("\n") %>% cat()
+```
+
+---
+
+## Living with heteroskedasticity
+
+In this example
+
+- [Heteroskedasticity-robust standard errors]{.b .pink } did not change our standard errors very much (relative to plain OLS standard errors).
+
+- [WLS]{.b .pink } changed our answers a bit—coefficients and standard errors.
+
+::: {.fragment}
+These examples highlighted a few things:
+
+1. Using the correct estimator for your standard errors really matters.^[Sit in on an economics seminar, and you will see what I mean.]
+
+2. Econometrics doesn't always offer an obviously *correct* route.
+:::
+
+::: {.fragment}
+To see \#1, let's run a simulation.
+:::
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+```{r}
+#| label: "sim-params"
+#| include: false
+b0 = 1L
+b1 = 10L
+```
+
+Let's examine a simple linear regression model with heteroskedasticity.
+
+$$ y_i = \underbrace{\beta_0}_{=`r b0`} + \underbrace{\beta_1}_{=`r b1`} x_i + u_i $$
+
+where $\mathop{\text{Var}} \left( u_i | x_i \right) = \sigma_i^2 = \sigma^2 x_i^2$.
+
+::: {.r-stack}
+
+::: {.fragment .fade-out fragment-index=1}
+```{r}
+#| label: "sim-plot-y"
+#| echo: false
+#| fig-height: 4
+#| fig-width: 10.5
+
+set.seed(12345)
+ggplot(data = tibble(
+  x = runif(1e3, 0.5, 1.5),
+  y = b0 + b1 * x + rnorm(1e3, 0, sd = x^2)
+), aes(x = x, y = y)) +
+geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
+geom_abline(intercept = b0, slope = b1, color = "orange", size = 1.5, alpha = 0.85) +
+labs(x = "x", y = "y") +
+theme_axes
+```
+:::
+
+::: {.fragment .fade-in fragment-index=1}
+```{r}
+#| label: "sim-plot-u"
+#| echo: false
+#| fig-height: 4
+#| fig-width: 10.5
+
+set.seed(12345)
+ggplot(data = tibble(
+  x = runif(1e3, 0.5, 1.5),
+  u = rnorm(1e3, 0, sd = x^2)
+), aes(x = x, y = u)) +
+geom_point(color = "darkslategrey", size = 2.75, alpha = 0.5) +
+labs(x = "x", y = "u") +
+theme_axes
+```
+:::
+
+:::
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+*Note regarding WLS:*
+
+Since $\mathop{\text{Var}} \left( u_i | x_i \right) = \sigma^2 x_i^2$,
+
+$$ \mathop{\text{Var}} \left( u_i | x_i \right) = \sigma^2 h(x_i) \implies h(x_i) = x_i^2 $$
+
+WLS multiplies each variable by $1/\sqrt{h(x_i)} = 1/x_i$.
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+In this simulation, we want to compare
+
+The **efficiency** of
+
++ OLS
++ WLS with correct weights: $h(x_i) = x_i$
++ WLS with incorrect weights: $h(x_i) = \sqrt{x_i}$
+
+How well our **standard errors** perform (via confidence intervals) with
+
++ Plain OLS standard errors
++ Heteroskedasticity-robust standard errors
++ WLS standard errors
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+The simulation plan:
+
+::: {.pseudocode-small}
+
+Do 10,000 times:
+
+1. Generate a sample of size 30 from the population
+
+2. Calculate/save OLS and WLS (×2) estimates for β[1]{.sub }
+
+3. Calculate/save standard errors for β[1]{.sub } using
+  - Plain OLS standard errors
+  - Heteroskedasticity-robust standard errors
+  - WLS (correct)
+  - WLS (incorrect)
+
+:::
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+**For one iteration of the simulation:**
+
+Code to generate the data...
+
+```{r}
+#| label: "sim-one-iteration-1"
+#| eval: false
+#| echo: true
+# Parameters
+b0 = 1
+b1 = 10
+s2 = 1
+# Sample size
+n = 30
+# Generate data
+sample_df = tibble(
+  x = runif(n, 0.5, 1.5),
+  y = b0 + b1 * x + rnorm(n, 0, sd = s2 * x^2)
+)
+```
+
+---
+
+## Living with heteroskedasticity
+### Simulation
+
+**For one iteration of the simulation:**
+
+Code to estimate our coefficients and standard errors...
+
+```{r}
+#| label: "sim-one-iteration-2"
+#| eval: false
+#| echo: true
+# OLS
+ols = feols(y ~ x, data = sample_df)
+# WLS: Correct weights
+wls_t = lm(y ~ x, data = sample_df, weights = 1/x^2)
+# WLS: Correct weights
+wls_f = lm(y ~ x, data = sample_df, weights = 1/x)
+# Coefficients and standard errors
+summary(ols, vcov = 'iid')
+summary(ols, vcov = 'hetero')
+summary(wls_t)
+summary(wls_f)
+```
+
+Then save the results.
+
+---
+
+## Living with heteroskedasticity
+### Simulation: Coefficients
+
+```{r}
+#| label: "sim-df"
+#| include: false
+#| cache: true
+# Parameters
+b0 = 1
+b1 = 10
+s2 = 1
+# Sample size
+n = 30
+# Number of iterations
+n_iter = 1e3
+# Set seed
+set.seed(1234)
+# The simulation
+sim_df = mclapply(X = 1:n_iter, FUN = function(i, size) {
+  # Generate data
+  sample_df = tibble(
+    x = runif(size, 0.5, 1.5),
+    y = b0 + b1 * x + rnorm(size, 0, sd = s2 * x^2)
+  )
+  # OLS
+  ols = feols(y ~ x, data = sample_df)
+  # WLS: Correct weights
+  wls_t = lm(y ~ x, data = sample_df, weights = 1/x^2)
+  # WLS: Correct weights
+  wls_f = lm(y ~ x, data = sample_df, weights = 1/x)
+  # Save results
+  iter_df = rbind(
+    summary(ols, vcov = 'iid') %>% coeftable() %>% magrittr::extract(2, 1:2),
+    summary(ols, vcov = 'hetero') %>% coeftable() %>% magrittr::extract(2, 1:2),
+    summary(wls_t) %>% coef() %>% magrittr::extract(2,1:2),
+    summary(wls_f) %>% coef() %>% magrittr::extract(2,1:2)
+  ) %>%
+  as_tibble() %>%
+  mutate(
+    model = c("OLS Hom.", "OLS Het.", "WLS T", "WLS F"),
+    iter = i
+  )
+  # Return the data
+  return(iter_df)
+}, mc.cores = detectCores()-1, size = n) %>% bind_rows()
+# Change names
+names(sim_df) = c("coef", "se", "model", "iter")
+```
+
+```{r}
+#| label: "sim-plot-efficiency"
+#| echo: false
+#| fig-height: 6.25
+ggplot(data = sim_df %>% filter(model != "OLS Hom."), aes(x = coef, color = model, fill = model)) +
+geom_vline(xintercept = 10, linetype = "dashed") +
+geom_density(alpha = 0.1) +
+geom_hline(yintercept = 0) +
+labs(x = "Estimated coefficient", y = "Density") +
+scale_color_viridis_d("",
+  labels = c("OLS", "WLS Incorrect", "WLS Correct"),
+  end = 0.9, option = "C"
+) +
+scale_fill_viridis_d("",
+  labels = c("OLS", "WLS Incorrect", "WLS Correct"),
+  end = 0.9, option = "C"
+) +
+theme_pander(base_size = 20, base_family = "Fira Sans Condensed") +
+theme(
+  legend.position = c(.85, .85),
+  # legend.background = element_blank(),
+  legend.key.size = unit(1, "cm")
+)
+```
+
+---
+
+## Living with heteroskedasticity
+### Simulation: Inference
+
+
+```{r}
+#| label: "sim-plot-t-stat"
+#| echo: false
+#| fig-height: 6.25
+ggplot(data = sim_df, aes(x = (coef-10)/se, color = model, fill = model)) +
+geom_vline(xintercept = qt(c(0.025, 0.975), df = 28), linetype = "dashed") +
+geom_density(alpha = 0.1) +
+geom_hline(yintercept = 0) +
+labs(x = "t statistic testing the true value", y = "Density") +
+scale_color_viridis_d("",
+  labels = c("OLS + Het.-robust", "Plain OLS", "WLS Incorrect", "WLS Correct"),
+  end = 0.9, option = "C"
+) +
+scale_fill_viridis_d("",
+labels = c("OLS + Het.-robust", "Plain OLS", "WLS Incorrect", "WLS Correct"),
+  end = 0.9, option = "C"
+) +
+theme_pander(base_size = 20, base_family = "Fira Sans Condensed") +
+theme(
+  legend.position = c(.85, .85),
+  # legend.background = element_blank(),
+  legend.key.size = unit(1, "cm")
+)
+```
+
+---
+
+## Living with heteroskedasticity
+### Simulation: Results
+
+Summarizing our simulation results (10,000 iterations)
+
+:::: {.columns}
+
+::: {.column width="48%"}
+::: {.center}
+**Estimation**: Summary of $\hat{\beta}_1$'s
+
+```{r}
+#| label: "sim-table-coef"
+#| eval: true
+#| echo: false
+sim_df %>%
+  filter(model != "OLS Hom.") %>%
+  mutate(Estimator = recode(model,
+    "OLS Het." = "OLS",
+    "WLS F" = "WLS Incorrect",
+    "WLS T" = "WLS Correct"
+  )) %>%
+  group_by(Estimator) %>%
+  summarize(Mean = mean(coef) %>% round(3), "S.D." = sd(coef) %>% round(3)) %>%
+  kable() %>%
+  kable_styling(full_width = T)
+```
+:::
+:::
+
+::: {.column width="48%"}
+::: {.fragment}
+::: {.center}
+**Inference:** % of times we reject $\beta_1$
+
+```{r}
+#| label: "sim-table-se"
+#| eval: true
+#| echo: false
+sim_df %>%
+  mutate(Estimators = recode(model,
+    "OLS Hom." = "OLS + Homosk.",
+    "OLS Het." = "OLS + Het.-robust",
+    "WLS F" = "WLS Incorrect",
+    "WLS T" = "WLS Correct"
+  )) %>%
+  group_by(Estimators) %>%
+  summarize(`% Reject` = mean(abs(coef-10)/se > qt(0.975, 28)) %>% multiply_by(100) %>% round(1)) %>%
+  kable() %>%
+  kable_styling(full_width = T)
+```
+:::
+:::
+:::
+
+::::
+
+---
+
+## {.center}
+
+Going further...
+
+---
+
+## Similar violations
+### Assumptions
+
+Recall our old assumption that led to this heteroskedasticity discussion:
+
+5\. The disurbances have [constant variance]{.b .slate } $\sigma^2$ and [zero covariance]{.b .pink }, _i.e._,
+
+- $\textcolor{#314f4f}{\mathop{\boldsymbol{E}}\left[ u_i^2 \middle| X_i \right] = \mathop{\text{Var}} \left( u_i \middle| X_i \right) = \sigma^2 \implies \mathop{\text{Var}} \left( u_i \right) = \sigma^2}$
+- $\textcolor{#e64173}{\mathop{\text{Cov}} \left( u_i, \, u_j \middle| X_i,\,X_j \right) = \mathop{\boldsymbol{E}}\left[ u_i u_j \middle| X_i,\,X_j \right] = 0}$ for $i\neq j$
+
+::: {.fragment}
+It's also possible (likely) that the [disturbances are correlated]{.b .pink }.
+
+Ignoring this correlation is _even more_ problematic for inference.
+:::
+
+---
+
+## Correlated disturbances
+### The problem
+
+In many cases, [observations' disturbances]{.b .slate } $\left(u_i,\,u_j\right)$ [may correlate]{.b .pink }.
+
+[Remember]{.note }
+
+- The [disturbance]{.b .slate } represents the un-included variables that affect $y$. 
+- Some [observations]{.b .pink } in the sample may *relate* to other observations.
+
+If these observation-level relationships extend to the variables in the disturbance, then disturbances can correlate.
+
+$\implies \mathop{\text{Cov}} \left( u_i, \, u_j \middle| X_i,\,X_j \right) \textcolor{#e64173}{\neq} 0$.
+
+::: {.fragment}
+Ignoring this correlation can cause [big problems]{.b .pink} in your inference.
+:::
+
+---
+
+## Correlated disturbances
+### The intution
+
+
+Why is ignoring this correlation problematic?
+
+**False precision:** We can get "overconfident" in our knowledge.
+
+When we teating correlated observations as independent, we OLS thinks we're learning more than we actually are. 
+
+::: {.fragment}
+**Extreme example:** If duplicate your dataset (stack it on top of itself), plain OLS standard errors would decrease every time you duplicated the dataset.
+:::
+
+---
+
+## Hidden {visibility="hidden"}
+
+```{r}
+#| label: "dup-data"
+#| echo: false
+#| cache: true
+
+# And an id
+test_df %<>% mutate(id = 1:nrow(test_df))
+# Stack the dataset a bunch of times
+n_dup = 1e2
+dup_df = lapply(X = 1:n_dup, FUN = function(x) mutate(test_df, dup = x)) %>% bind_rows()
+# Now run a regression
+dup_est = lapply(
+  X = 1:n_dup,
+  FUN = function(x) feols(test_score ~ ratio + income, data = dup_df %>% filter(dup <= x))
+)
+# Grab standard errors
+dup_se = lapply(
+  X = seq_along(dup_est),
+  FUN = function(x) {
+    data.frame(
+      dups = x - 1,
+      se_iid = dup_est[[x]] %>% summary(vcov = 'iid') %>% coeftable() %>% magrittr::extract(2,2),
+      se_cl = dup_est[[x]] %>% summary(cluster = 'id') %>% coeftable() %>% magrittr::extract(2,2)
+    )
+  }
+) %>% bind_rows()
+```
+
+---
+
+## {auto-animate=true}
+
+The effect of duplicating our data on the [OLS standard error]{.pink } of `ratio`.
+
+::: {data-id="dup"}
+```{r}
+#| label: "dup-plot0"
+#| echo: false
+#| fig-height: 6.5
+
+ggplot(
+  data = dup_se[1:5, ],
+  aes(x = dups, y = se_iid)
+) +
+geom_hline(yintercept = 0) +
+geom_line(color = red_pink, size = 0.5) +
+geom_point(color = red_pink, size = 3.5) +
+labs(x = "Number of times dataset is duplicated", y = "Standard error") +
+theme_pander(base_size = 22, base_family = "Fira Sans Condensed")
+```
+:::
+
+## {auto-animate=true}
+
+The effect of duplicating our data on the [OLS standard error]{.pink } of `ratio`.
+
+::: {data-id="dup"}
+```{r}
+#| label: "dup-plot1"
+#| echo: false
+#| fig-height: 6.5
+
+ggplot(
+  data = dup_se[1:25, ],
+  aes(x = dups, y = se_iid)
+) +
+geom_hline(yintercept = 0) +
+geom_line(color = red_pink, size = 0.5) +
+geom_point(color = red_pink, size = 3.5) +
+labs(x = "Number of times dataset is duplicated", y = "Standard error") +
+theme_pander(base_size = 22, base_family = "Fira Sans Condensed")
+```
+:::
+
+## {auto-animate=true}
+
+The effect of duplicating our data on the [OLS standard error]{.pink } of `ratio`.
+
+::: {data-id="dup"}
+```{r}
+#| label: "dup-plot2"
+#| echo: false
+#| fig-height: 6.5
+
+ggplot(
+  data = dup_se,
+  aes(x = dups, y = se_iid)
+) +
+geom_hline(yintercept = 0) +
+geom_line(color = red_pink, size = 0.5) +
+geom_point(color = red_pink, size = 3.5) +
+labs(x = "Number of times dataset is duplicated", y = "Standard error") +
+theme_pander(base_size = 22, base_family = "Fira Sans Condensed")
+```
+:::
+
+## {auto-animate=true}
+
+Correcting our [standard errors for clustering]{.orange } (observations' correlation).
+
+::: {data-id="dup"}
+```{r}
+#| label: "dup-plot3"
+#| echo: false
+#| fig-align: "center"
+#| fig-height: 6.5
+
+ggplot(
+  data = dup_se,
+  aes(x = dups)
+) +
+geom_hline(yintercept = 0) +
+geom_line(aes(y = se_iid), color = red_pink, size = 0.5, alpha = 0.25) +
+geom_point(aes(y = se_iid), color = red_pink, size = 3.5, alpha = 0.25) +
+geom_line(aes(y = se_cl), color = orange, size = 0.5) +
+geom_point(aes(y = se_cl), color = orange, size = 3.5) +
+labs(x = "Number of times dataset is duplicated", y = "Standard error") +
+theme_pander(base_size = 22, base_family = "Fira Sans Condensed")
+```
+:::
+
+## Correlated disturbances
+### Examples
+
+
+"Real" examples where disturbances might [correlate]{.b .purple }:
+
+- students in a [classroom]{.purple} (share teacher, curriculum, etc.);
+- counties in a [state]{.purple} (share state-level policies/laws);
+- businesses in a [city]{.purple} (share local economic shocks);
+- [consecutive]{.purple} days in a sample (share events, weather, etc.).
+
+## Correlated disturbances
+### The solution
+
+
+Just like we calculate *heteroskedasticity*-robust standard errors,
+<br>we can also calculate standard errors robust to correlated disturbances.
+
+People call these [*cluster-robust standard errors*]{.pink } (or just *clustered*).
+
+From `fixest` package:
+
+`feols(y ~ x, data = fake_data, cluster = 'cluster_var')`
+
+or even
+
+`feols(y ~ x, data = fake_data, cluster = c('cluster1', 'cluster2'))`
+
+## Final word
+### Better inference
+
+You should
+
+1. default to assuming your data are [heteroskedastic]{.b };
+1. consider how explanatory vars/disturbances [corr. across observations]{.b }.
+
+[Failure]{.pink } to address these issues can lead to
+
+- [overconfident inference]{.b .pink },
+- [false positives]{.b .pink },
+- [incorrect conclusions/decisions]{.b .pink }.
