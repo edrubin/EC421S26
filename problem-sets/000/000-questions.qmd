@@ -1,0 +1,514 @@
+---
+title: "Problem Set 0: Review"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+params:
+  showanswers: true
+---
+
+## Instructions
+
+[**Due**]{style="text-decoration: underline;"} Upload your **HTML or PDF answers** on [Canvas](https://canvas.uoregon.edu/) *before* 11:59PM on Sunday, 19 April 2026.
+
+[**Important**]{style="text-decoration: underline;"} You must **submit** your answers as an **HTML or PDF file**. The submitted file should be built from an RMarkdown (`.rmd`) or Quarto (`.qmd`) file. **Do not** submit the `.rmd` or `.qmd` file. You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or the regression results should be in the document that you submit (not just the code—we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero—for the assignment and possibly for the course. We may report you to the dean. Cheating includes copying from your classmates, from the internet, and from previous assignments.
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has three goals: (1) review the central econometrics topics you covered in EC320; (2) refresh (or build) your [R]{.mono} toolset; (3) start building your intuition about causality within econometrics/regression.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set (stored as `data-ps0.csv`) come from a study titled *The Association Between Income and Life Expectancy in the United States, 2001-2014* (by Raj Chetty, Augustin Bergeron, David Cutler, Benjamin Scuderi, Michael Stepner, and Nicholas Turner). The authors created a nice website for the project [here](https://opportunityinsights.org/paper/lifeexpectancy/). Below is a brief description of the project ([written](https://opportunityinsights.org/paper/lifeexpectancy/) by the authors)[^1]:
+
+[^1]: You can find the full paper on [JAMA](https://jamanetwork.com/journals/jama/fullarticle/2513561?guestAccessKey=4023ce75-d0fb-44de-bb6c-8a10a30a6173) and a non-technical summary from the authors [here](https://opportunityinsights.org/wp-content/uploads/2018/03/healthineq_summary.pdf).
+
+> How can we reduce socioeconomic disparities in health outcomes? Although it is well known that there are significant differences in health and longevity between income groups, debate remains about the magnitudes and determinants of these differences. We use new data from 1.4 billion anonymous earnings and mortality records to construct more precise estimates of the relationship between income and life expectancy at the national level than was feasible in prior work. We then construct new local area (county and metro area) estimates of life expectancy by income group and identify factors that are associated with higher levels of life expectancy for low-income individuals.
+<br> <br>
+Our findings show that disparities in life expectancy are not inevitable. There are cities throughout America — from New York to San Francisco to Birmingham, AL — where gaps in life expectancy are relatively small or are narrowing over time. Replicating these successes more broadly will require targeted local efforts, focusing on improving health behaviors among the poor in cities such as Las Vegas and Detroit. Our findings also imply that federal programs such as Social Security and Medicare are less redistributive than they might appear because low-income individuals obtain these benefits for significantly fewer years than high-income individuals, especially in cities like Detroit.
+<br> <br>
+Going forward, the challenge is to understand the mechanisms that lead to better health and longevity for low-income individuals in some parts of the U.S. To facilitate future research and monitor local progress, we have posted annual statistics on life expectancy by income group and geographic area (state, CZ, and county) at The Health Inequality Project website. Using these data, researchers will be able to study why certain places have high or improving levels of life expectancy and ultimately apply these lessons to reduce health disparities in other parts of the country.
+
+| Variable name       | Variable type | Variable description |
+|:--------------------|:--------------|:---------------------|
+| `county_name`       | character     | County name |
+| `county_code`       | integer       | County FIPS code |
+| `state_abb`         | character     | State abbreviation |
+| `income_quartile`   | numeric       | Income quartile (either 1 or 4) |
+| `life_exp`          | numeric       | Life expectancy (years) |
+| `pct_uninsured`     | numeric       | Proportion uninsured |
+| `poverty_rate`      | numeric       | Share below poverty line |
+| `pct_religious`     | numeric       | Proportion religious |
+| `pct_black`         | numeric       | Proportion Black |
+| `pct_hispanic`      | numeric       | Proportion Hispanic |
+| `unemployment_rate` | numeric       | Unemployment rate |
+| `median_hh_inc`     | numeric       | Median household income (in thousands of dollars) |
+| `is_urban`          | integer       | Urban county indicator (1 or 0) |
+| `pop`               | integer       | County population |
+| `pop_density`       | numeric       | Population density |
+| `pct_smoke`         | numeric       | Proportion who smoke |
+| `pct_obese`         | numeric       | Proportion obese (BMI) |
+| `pct_exercise`      | numeric       | Proportion who exercise |
+
+: Variable names and descriptions
+
+You can find more information about the life-expectancy variables [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_11_readme.pdf) and the county characteristics [here](https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_12_readme.pdf).
+
+## Setup 
+
+**[00]** Let's start by loading the `R` packages.
+
+You will need to install any packages that are not already installed. After you've installed them one time, you will not need to install them again. (The `pacman` package makes this easier; see the hint below.)
+
+- You will likely want to use `tidyverse` and `here` (among others).
+- *Also:* `pacman` and its `p_load()` function make package management easier—you just use `p_load()` to load packages, and `R` will install the packages if they're not already installed. E.g., use `p_load(tidyverse, here)` after you load the `pacman` package with `library(pacman)`. Remember that you will have to install `pacman` (`install.packages("pacman")`) if you have not installed it already.
+
+Here's an example where I load five packages:
+
+- `tidyverse` (for data manipulation),
+- `scales` (for formatting numbers),
+- `patchwork` (for combining plots),
+- `fixest` (for regressions),
+- `here` (for managing file paths).
+
+```{r, answer00}
+
+# Load packages using 'pacman'
+library(pacman)
+p_load(tidyverse, scales, patchwork, fixest, here)
+```
+
+**[01]** Now load the data (stored in `data-ps0.csv`).
+
+As described above, I saved the data as a CSV, so you'll want to use a function that can read CSV files.
+
+Examples of functions that can read a CSV file:
+
+- `read_csv()` in the `readr` package, which is part of the `tidyverse`;
+- `fread()` in the `data.table` package (really nice for large datasets; not part of the `tidyverse`);
+- `read.csv()`, which is available without loading any packages (but is slower and less convenient). 
+
+_Hint:_ Use the `here()` function to create the file path to the data file. For example, if your data file is in a folder called `data` in your project directory and is called `my_data.csv`, then you would use `here('data', 'my-data.csv')` to create the file path, _e.g._,
+
+```{r, hint01}
+#| eval: false
+
+# Load a (pretend) dataset called 'my-data.csv' from a folder called 'data'
+my_df = here('data', 'my-data.csv') |> read_csv()
+```
+
+You will need to adjust the file path to (1) match where the data file is stored in your project directory and (2) match the name of our data file.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r, answer01}
+
+# Load data
+life_df = here('problem-sets', '000', 'data-ps0.csv') |> read_csv()
+```
+::::
+:::
+
+## Get to know your data
+
+The first step in any data analysis is to get to know your data. This includes understanding the variables, their types, their distributions, whether there are any missing data, _etc._
+
+**[02]** Let's start simply: How many observations (rows) are in the dataset? How many variables? Are any observations missing data?
+
+*Hints:*
+
+1. The functions `dim()`, `nrow()`, `ncol()` show the number of rows and columns in a dataset, *e.g.*, `nrow(some_data)`.
+1. The function `na.omit()` removes observations with _any_ missing data.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer02}
+ 
+# The number of observations in the dataset
+life_df |> nrow() |> comma()
+# The number of variables
+life_df |> ncol()
+# The number of observations without missing data
+life_df |> na.omit() |> nrow() |> comma()
+```
+
+We have `r life_df |> nrow() |> comma()` total observations in the dataset, `r life_df |> ncol()` variables, and `r life_df |> na.omit() |> nrow() |> comma()` observations without any missing data. Thus, there are no observations with missing data.
+
+::::
+:::
+
+**[03]** Are there any variables that are not numeric? If so, which ones?
+
+_Hint_: The `glimpse()` function from the `tibble` package (part of the `tidyverse`) provides a nice summary of each variable in a dataset, including its type.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} 
+
+```{r, answer03}
+
+# Glimpse the dataset to see variable types
+life_df |> glimpse()
+```
+
+Yes, there are two non-numeric variable: `county_name` (a character variable indicating the county name) and `state_abb` (a character variable indicating the state abbreviation). (You could have also learned this from the data description table above.)
+
+::::
+:::
+
+## Summarizing data
+
+Time to make a few figures. Simple summaries and visualizations are fantastic ways to get to know the data and to try to figure out any potential issues/features.
+
+**[04]** Create a single histogram of the median household income (`median_hh_inc` in the dataset).
+
+**Important:** Make sure to label your axes. A title would be good too. Aesthetics (colors, themes, *etc.*) are up to you.
+
+_Hints:_
+
+- Median income is measured in _thousands_ of dollars.
+- You may want to format the x-axis labels with `scales::dollar` to make the numbers easier to read.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} Here's one route with `ggplot2`.
+
+```{r, answer04}
+#| fig-cap: "Histogram of median household income"
+
+ggplot(data = life_df, aes(x = median_hh_inc * 1e3)) +
+geom_histogram(bins = 30, fill = '#DD2C45FF', color = 'grey20') +
+scale_x_continuous('Median household income', labels = dollar) +
+scale_y_continuous('Number of counties', labels = comma) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+
+::::
+:::
+
+**[05]** Repeat the histogram in **[04]** but with _life expectancy_ (`life_exp`) on the x-axis instead of median household income.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} Here's one route with `ggplot2`.
+
+```{r, answer05}
+#| fig-cap: "Histogram of life expectancy"
+
+ggplot(data = life_df, aes(x = life_exp)) +
+geom_histogram(bins = 30, fill = '#DD2C45FF', color = 'grey20') +
+scale_x_continuous('Life expectancy', labels = number) +
+scale_y_continuous('Number of counties', labels = comma) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+
+::::
+:::
+
+**[06]** That's strange... why does the histogram in **[04]** look "normal" (i.e., bell-shaped), while the histogram in **[05]** looks "bimodal" (i.e., has two peaks)?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The histogram in **[05]** looks bimodal because the dataset includes two observations for each county: one for the lowest income quartile (the bottom 25% of the income distribution) and one for the highest income quartile (the top 25% of the income distribution). The life expectancy for the lowest income quartile is generally much lower than the life expectancy for the highest income quartile, which creates two peaks in the histogram.
+
+On the other hand, the histogram in **[04]** looks more "normal" because each county only has one observation for median household income.
+::::
+:::
+
+**[07]** The histogram in **[05]** ignores the fact that each county has two observations in the dataset: the life expectancy for the individuals in the lowest income quartile in the county (the county's bottom 25% of the income distribution) and the life expectancy for individuals in the highest income quartile in the county (the county's top 25% of the income distribution). 
+
+Create two separate histograms of life expectancy: one for the lowest income quartile (`income_quartile == 1`) and one for the highest income quartile (`income_quartile == 4`).
+
+_Hints:_
+
+1. You can use the `filter()` function to create separate datasets for the lowest and highest income quartiles.
+2. The variable `income_quartile` tells you whether the observation belongs to the lowest income quartile (when `income_quartile == 1`) or the highest income quartile (when `income_quartile == 4`).
+
+_Extra:_ If you're interested, you can use the `patchwork` package to combine the two histograms into a single figure.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} Again using `ggplot2`...
+
+```{r, answer07a}
+#| fig-cap: "Histogram of life expectancy for lowest income quartile"
+
+ggplot(
+  data = life_df |> filter(income_quartile == 1),
+  aes(x = life_exp)
+) +
+geom_histogram(bins = 30, fill = viridis::rocket(10)[4], color = 'grey20') +
+scale_x_continuous('Life expectancy', labels = number) +
+scale_y_continuous('Number of counties', labels = comma) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+
+```{r, answer07b}
+#| fig-cap: "Histogram of life expectancy for highest income quartile"
+
+ggplot(
+  data = life_df |> filter(income_quartile == 4),
+  aes(x = life_exp)
+) +
+geom_histogram(bins = 30, fill = viridis::rocket(10)[8], color = 'grey20') +
+scale_x_continuous('Life expectancy', labels = number) +
+scale_y_continuous('Number of counties', labels = comma) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+::::
+:::
+
+**[08]** One more histogram. Create a histogram of the _difference_ in life expectancy between the highest and lowest income quartiles for each county.
+
+_Note:_ This histogram requires that you create a new variable that captures the difference in life expectancies between Q4 and Q1 for each county. There are several ways to accomplish this task. Here's one route:
+
+1. Create a new dataset that only includes observations for the lowest income quartile (`filter`-ing to rows where `income_quartile == 1`). 
+2. Create a new dataset that only includes observations for the highest income quartile (`filter`-ing to rows where `income_quartile == 4`).
+3. Merge the two datasets together by county (using the `county_code` variable).
+4. Create a new variable that captures the difference in life expectancies between the highest and lowest income quartiles for each county (_e.g._, `life_exp_diff = life_exp_q4 - life_exp_q1`).
+
+Here's what the code for these steps might look like:
+
+```{r, hint08}
+# Step 1: Create dataset for lowest income quartile
+life_q1 =
+  life_df |>
+  filter(income_quartile == 1) |>
+  select(county_code, life_exp_q1 = life_exp)
+# Step 2: Create dataset for highest income quartile
+life_q4 =
+  life_df |>
+  filter(income_quartile == 4) |>
+  select(county_code, life_exp_q4 = life_exp)
+# Step 3: Merge datasets
+life_diff =
+  life_q1 |>
+  full_join(life_q4, by = "county_code")
+# Step 4: Create new variable for difference in life expectancy
+life_diff =
+  life_diff |>
+  mutate(life_exp_diff = life_exp_q4 - life_exp_q1)
+```
+
+Then make your histogram of the `life_exp_diff` variable.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Here's the requested histogram...
+
+```{r, answer08}
+#| fig-cap: "Histogram of difference in life expectancy between highest and lowest income quartiles"
+
+ggplot(data = life_diff, aes(x = life_exp_diff)) +
+geom_histogram(bins = 30, fill = viridis::rocket(10)[6], color = 'grey20') +
+scale_x_continuous('Difference in life expectancy', labels = number) +
+scale_y_continuous('Number of counties', labels = comma) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+
+::::
+:::
+
+**[09]** Summarize your findings from the histograms/reflections in **[04]** through **[08]**. What do these histograms tell you about how life expectancy varies _across_ counties and also _within_ counties?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} This question is pretty open-ended; here's one answer...
+
+The histogram in **[06]** shows that life expectancy varies substantially in the US—over 15 years from the minimum to the maximum. Comparing the two histograms in **[07]**, we see that life expectancy is generally much higher for the highest income quartile than for the lowest income quartile. However, there is still substantial variation in life expectancy within each income quartile. The histogram in **[08]** shows that there is also substantial variation within a county. Even individuals who live in the same county can have life expectancies that differ by 5--10 years.
+
+::::
+:::
+
+## Digging into the relationship between income and life expectancy
+
+**[10]** Plot a scatter plot (`geom_point` if you are using `ggplot2`) of life expectancy (`life_exp`) on the y-axis and median household income (`median_hh_inc`) on the x-axis. Color the points by income quartile.
+
+_Hint:_ You can use the `color` aesthetic in `ggplot2` to color points by a categorical variable, _e.g._, `aes(color = income_quartile)`. If `R` sees `income_quartile` as a numeric variable, you can convert it to a factor with `as.factor(income_quartile)`, for example, `aes(color = as.factor(income_quartile))`.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The plot...
+
+```{r, answer10}
+#| fig-cap: "Scatter plot of life expectancy and median household income, colored by income quartile"
+
+ggplot(data = life_df, aes(x = median_hh_inc * 1e3, y = life_exp, color = as.factor(income_quartile))) +
+geom_point() +
+scale_x_continuous('Median household income', labels = dollar) +
+scale_y_continuous('Life expectancy', labels = number) +
+scale_color_manual(
+  name = 'Income quartile',
+  values = c(viridis::rocket(10)[4], viridis::rocket(10)[8]),
+  labels = c('Lowest (Q1)', 'Highest (Q4)')
+) +
+theme_minimal(base_size = 12, base_family = 'Fira Sans Condensed')
+```
+
+::::
+:::
+
+**[11]** Summarize the relationship between life expectancy and median household income that you see in the scatter plot in **[10]**. Imagine you're writing a quick summary for a policymaker who is interested in the relationship between income and life expectancy. What would you say?
+
+_Hint:_ The _median household income_ variable is for the entire county, so you can think of it as measuring whether a county is _generally more affluent_. The _life expectancy_ variable is for a specific income quartile in the county, so you can think of it as measuring the life expectancy of either the lowest or highest income quartile in the county. 
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The figure shows a strong positive relationship between a county's median household income and the life expectancies of the county's residents: individuals in more affluent counties tend to live longer. However, being relatively more affluent—even when living in an affluent county—still matters. The individuals in the highest income quartile in a county tend to have higher life expectancies than individuals in the lowest income quartiles.
+::::
+:::
+
+**[12]** Time for a regression. Regress life expectancy (`life_exp`) on median household income (`median_hh_inc`). Show your results (e.g., `summary()` or a nice table).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans}
+
+```{r, answer12}
+# Regress life expectancy on median household income
+est12 = feols(life_exp ~ median_hh_inc, data = life_df)
+# Display the regression results
+est12 |> etable()
+```
+::::
+:::
+
+**[13]** Interpret the intercept and coefficient from the regression in **[12]**.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The intercept (`r est12$coefficients[1] |> comma(.1)`) is the estimated life expectancy when median household income is zero. This interpretation doesn't really make sense in this context, as there are no counties with a median household income anywhere near zero.
+
+The coefficient on median household income (`r est12$coefficients[2] |> comma(.001)`) is the estimated change in life expectancy associated with a one-thousand-dollar increase in median household income. Thus, we estimate that a one-thousand-dollar increase in median household income is associated with an increase in life expectancy of approximately `r est12$coefficients[2] |> comma(.001)` years.
+
+::::
+:::
+
+**[14]** That simple linear regression was nice, but we already know from the scatter plot in **[10]** that there are differences in life expectancy between the lowest and highest income quartiles. Let's dig into those differences.
+
+Repeat the regression in **[12]** for two separate subsets of the data: the lowest income quartile (`income_quartile == 1`) and the highest income quartile (`income_quartile == 4`).
+
+Report your results (you don't need to interpret them yet).
+
+To be clear, you're estimating two different simple linear regressions. Each estimates the model below separately for the lowest and highest income quartiles:
+$$ (\text{Life expectancy})_i = \beta_0 + \beta_1 (\text{Median household income})_i + u_i $$
+
+_Hint:_ You can use the `filter()` function to create separate datasets for the lowest and highest income quartiles, and then run the regression separately on each dataset.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans}
+
+```{r, answer14}
+
+# The regression for the lowest income quartile
+est14_q1 = feols(life_exp ~ median_hh_inc, data = life_df |> filter(income_quartile == 1))
+# The regression for the highest income quartile
+est14_q4 = feols(life_exp ~ median_hh_inc, data = life_df |> filter(income_quartile == 4))
+# Display the regression results
+etable(est14_q1, est14_q4, digits = 3)
+```
+::::
+:::
+
+**[15]** Do the regression results in **[14]** suggest that the association between life expectancy and median household income is the same for the lowest and highest income quartiles? Explain your answer.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+
+[Answer]{.ans} The regressions' results suggest these associations _might_ differ. The coefficient estimate for the highest income quartile is larger than the coefficient estimate for the lowest income quartile, which suggests that an extra $1,000 of median household income is associated with a larger increase in life expectancy for the highest income quartile than for the lowest income quartile. However, we would need to formally test whether the difference in coefficients is statistically significant before drawing any conclusions.
+
+::::
+:::
+
+**[16]** Now run a _single_ regression that includes _all_ observations. The model you are estimating is
+$$\begin{align}
+(\text{Life expectancy})_i = \beta_0 &+ \beta_1 (\text{Median household income})_i + \beta_2 (\text{Income quartile} = 4)_i \\ &+ \beta_3 (\text{Median household income})_i \times (\text{Income quartile} = 4)_i + u_i
+\end{align}$$
+In other words, you have a coefficient on median household income, a coefficient on an indicator variable for the highest income quartile, and an interaction term between median household income and the income-quartile indicator variable.
+
+Estimate the model and report your results.
+
+_Hint:_
+
+- You will probably want to create a new variable that is an indicator for the highest income quartile, _e.g._, `is_q4 = as.integer(income_quartile == 4)`.
+- Recall that in `R` you can create an interaction term with `:` in the formula, _e.g._, `y ~ x1 + x2 + x1 : x2` (or even `y ~ x1 * x2`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Here's the regression with the interaction term...
+
+```{r, answer16}
+
+# Create indicator variable for highest income quartile
+life_df = life_df |> mutate(is_q4 = as.integer(income_quartile == 4))
+# Regression with interaction term
+est16 = feols(
+  life_exp ~ median_hh_inc * is_q4,
+  data = life_df
+)
+# Display the regression results
+etable(est16, digits = 3)
+```
+::::
+:::
+
+**[17]** Interpret the intercept and each of the three coefficients in the regression in **[16]**. 
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The intercept (`r est16$coefficients[1] |> comma(.1)`) is the estimated life expectancy for the lowest income quartile when (county-level) median household income is zero. Again, this interpretation doesn't really make sense in this context.
+
+The coefficient on the indicator variable for the highest income quartile (`r est16$coefficients[3] |> comma(.1)`) represents the difference in life expectancy between the highest and lowest income quartiles when median household income is zero. Again, this interpretation doesn't really make sense in this context.
+
+The coefficient on median household income (`r est16$coefficients[2] |> comma(.001)`) is the expected change in life expectancy associated with a one-thousand-dollar increase in median household income for individuals in the lowest income quartile (when `is_q4 == 0`). We would say that a one-thousand-dollar increase in median household income is associated with an increase in life expectancy of approximately `r est16$coefficients[2] |> comma(.001)` years for individuals in the lowest income quartile.
+
+Finally, the coefficient on the interaction term (`r est16$coefficients[4] |> comma(.001)`) represents the difference in the effect (or association) of median household income on life expectancy between the highest and lowest income quartiles. We would say that a one-thousand-dollar increase in median household income _for individuals in the highest income quartile_ is associated with an additional increase in life expectancy of approximately `r est16$coefficients[4] |> comma(.001)` years. In other words, the total effect of a one-thousand-dollar increase in median household income on life expectancy for individuals in the highest income quartile is approximately `r (est16$coefficients[2] + est16$coefficients[4]) |> comma(.001)` years.
+::::
+:::
+
+**[18]** Explain how the regression results in **[16]** relate to the regression results in **[14]**.
+
+_Hint:_ Recall that an interaction between a continuous variable and a binary variable allows you to estimate two different slopes.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The regression in **[16]** generates two lines, one for individuals in the lowest income quartile and one for individuals in the highest income quartile.
+
+The line for individuals in the lowest income quartile has a slope of `r est16$coefficients[2] |> comma(.001)` ($\hat{\beta}_1$ above) and an intercept of `r est16$coefficients[1] |> comma(.1)` ($\hat{\beta}_0$ above).
+
+The line for individuals in the highest income quartile has a slope of `r (est16$coefficients[2] + est16$coefficients[4]) |> comma(.001)` ($\hat{\beta}_1 + \hat{\beta}_3$ above) and an intercept of `r (est16$coefficients[1] + est16$coefficients[3]) |> comma(.1)` ($\hat{\beta}_0 + \hat{\beta}_2$ above).
+::::
+:::
+
+**[19]** Do the regression results in **[16]** suggest that the association between life expectancy and median household income is the same for the lowest and highest income quartiles? Explain your answer.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} There is no significant evidence that the association between median household income and life expectancy is different for the lowest and highest income quartiles. While the coefficient on the interaction term is positive, it is not statistically significant at conventional levels (_e.g._, 5%). We cannot reject the null hypothesis that the effect of median household income on life expectancy is the same for both income quartiles.
+::::
+:::
+
+**[20]** Write a one-paragraph summary of your findings from this assignment. Feel free to include additional figures, tables, or analyses if you think they would be helpful for summarizing your findings. Again, imagine you're writing a quick summary for your supervisor or for a policymaker who is interested in the relationship between income and life expectancy. What would you say? How would you summarize the relationship? Would you say that the relationship is causal?
+
+[**Reminder**]{style="text-decoration: underline;"} Submit your final file to Canvas as PDF or HTML only.<br>(Do not submit it as `.rmd` or `.qmd`.)
