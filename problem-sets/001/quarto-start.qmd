@@ -1,0 +1,44 @@
+---
+title: "Problem Set 1: Heteroskedasticity, Clustering, and Omitted-Variable Bias"
+subtitle: "EC421"
+author: "Your Name"
+format:
+  html:
+    toc: true
+    number-sections: false
+    self-contained: true
+    theme:
+    - cosmo
+editor:
+  render-on-save: true
+---
+
+
+## Setup
+
+### Problem 00
+
+Done!
+
+### Problem 01
+
+I'm going to load the `pacman` package and then will use it to load the `tidyverse`, `scales`, `fixest`, and `here` packages. Then, I'll read in the data from the `data-ps1.csv` file using the `read_csv()` function from the `readr` package, which is part of the `tidyverse`. The data will be stored in a data frame called `life_df`.
+
+```{r, answer01}
+# Load packages using 'pacman'
+library(pacman)
+p_load(tidyverse, scales, fixest, here)
+# Load data
+life_df = here('problem-sets', '001', 'data-ps1.csv') |> read_csv()
+```
+
+## Get to Know Your Data
+
+### Problem 02
+
+Now you keep going...
+
+```{r, answer02}
+# Put your code for Problem 02 here
+```
+

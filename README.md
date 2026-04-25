@@ -20,22 +20,24 @@ __Connor Mulholland:__ 3:30p–4:30p (_See [Canvas](https://canvas.uoregon.edu/)
 Below are the tentatively planned topics for the problem sets.
 
 **Problem Set 0: Review**
-<br>Due: TBD
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/000/000-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/data-ps0.csv) | solutions
+<br>Due *before* 11:59PM on Sunday, 19 April 2026.
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/000/000-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/000/data-ps0.csv) | [solutions](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/000/000-solutions.html)
 
-**Problem Set 1: Heteroskedasticity, clustering, and OLS assumptions**
-<br>Due: TBD
-<br>Files: assignment | data | solutions
+**Problem Set 1: Heteroskedasticity, Clustering, and Omitted-Variable Bias**
+<br>Due *before* 11:59PM on Wednesday, 29 April 2026.
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/data-ps1.csv) | solutions
 
-**Problem Set 2: Time series data, analyses, and nonstationarity**
-<br>Due: TBD
-<br>Files: assignment | data | solutions
+*Help:* [Starter Quarto document](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/quarto-start.qmd) and [Guide to Projects in RStudio](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/rstudio-projects.html)
 
-**Problem Set 3: Causality, instrumental variables, and 2SLS**
+**Problem Set 2: Time-Series Data, Analyses, and Nonstationarity**
 <br>Due: TBD
 <br>Files: assignment | data | solutions
 
-**Problem Set 4: Panel data, DiD, and course review**
+**Problem Set 3: Causality, Instrumental Variables, and 2SLS**
+<br>Due: TBD
+<br>Files: assignment | data | solutions
+
+**Problem Set 4: Panel Data, DiD, and Course Review**
 <br>Due: TBD
 <br>Files: assignment | data | solutions
 

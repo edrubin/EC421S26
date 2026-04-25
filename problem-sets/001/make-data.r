@@ -120,6 +120,15 @@
     final_dt,
     c('county_name', 'county_code', 'state_abb', 'income_quartile', 'life_exp')
   )
+  # Make percentages into proportions
+  final_dt[, `:=`(
+    pct_uninsured = pct_uninsured / 100,
+    pct_religious = pct_religious / 100,
+    pct_black = pct_black / 100,
+    pct_hispanic = pct_hispanic / 100
+  )]
+  # Make income thousands of dollars instead of dollars
+  final_dt[, median_hh_inc := median_hh_inc / 1000]
 
 # Save cleaned dataset -------------------------------------------------------------------
   # Save

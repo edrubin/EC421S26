@@ -15,3 +15,5 @@ final/exam/*
 *.DS_Store
 *.here
 *.Rproj
+.Rproj.user
+.positai

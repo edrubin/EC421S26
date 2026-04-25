@@ -1,10 +1,12 @@
 # Agents
 
+
 ## General background
 
 *What?* This repository contains the materials for an undergraduate econometrics course (10-weeks in length) at the University of Oregon, taught by [Ed Rubin](https://edrub.in). The course is the second course in a two-course sequence. The preceding course covered the basics of regression analysis. This course explores how the "real world" deviates from the idealized assumptions of the classical linear regression model and introduces methods for addressing these issues. 
 
 *Who?* The students in the course are primarily economics majors.
+
 
 ## Repo layout
 

@@ -1,0 +1,47 @@
+---
+title: "File Management and RStudio Projects"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+---
+
+## Projects
+
+Using RStudio projects is a great way to manage your files and keep your work organized.
+
+A project is a folder that contains all the files related to a specific analysis or research project. When you create a project, RStudio will automatically set the working directory to the project folder, which makes it easier to manage your files and avoid confusion.
+
+
+## Setting up a project
+
+![Step 1: Click "New Project" in the "File" menu.](./images/ex1.png){.lightbox}
+
+![Step 2: Choose "New Directory".](./images/ex2.png){.lightbox}
+
+![Step 3: Choose "New Project".](./images/ex3.png){.lightbox}
+
+![Step 4: Name your project and choose a location to save it.](./images/ex4.png){.lightbox}
+
+![Notice that RStudio now shows the name of your project in the top right corner.](./images/ex5.png){.lightbox}
+
+![Step 5: Put your data and QMD/RMD files in your project.](./images/ex6.png){.lightbox}
+
+
+## Accessing projects
+
+To access an existing project, you have two options:
+
+![Option 1: Click "Open Project" in the "File" menu.](./images/ex8.png){.lightbox}
+
+![Option 2: Click on the project name in the top right corner of RStudio.](./images/ex7.png){.lightbox}
+
+
