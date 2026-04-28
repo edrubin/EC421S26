@@ -75,59 +75,6 @@ theme_empty <- theme_bw() + theme(
   plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
   legend.position = "none"
 )
-theme_simple <- theme_bw() + theme(
-  line = element_blank(),
-  panel.grid = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text.x = element_text(size = 18, family = "STIXGeneral"),
-  axis.text.y = element_blank(),
-  axis.ticks = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_math <- theme_void() + theme(
-  text = element_text(family = "MathJax_Math"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_serif <- theme_void() + theme(
-  text = element_text(family = "MathJax_Main"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes <- theme_void() + theme(
-  text = element_text(family = "Fira Sans Book"),
-  axis.title = element_text(size = 18),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = grey_light,
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-# A few extras
 ```
 
 ```{css}
@@ -244,10 +191,7 @@ Just as the *expected value* helped us characterize **the finite-sample distribu
 
 ::: {.fragment}
 
-
-the [*probability limit*]{.pink } helps us analyze [the asymptotic distribution of an estimator]{.b .pink } (the distribution of the estimator as $n$ gets "big"<sup>[†]{.pink }</sup>).
-
-^[[†]{.pink } Here, "big" $n$ means $n\rightarrow\infty$. That's *really* big data.]
+the [*probability limit*]{.pink } helps us analyze [the asymptotic distribution of an estimator]{.b .pink } (the distribution of the estimator as $n$ gets "big"^[Here, "big" $n$ means $n\rightarrow\infty$. That's *really* big data.]).
 
 :::
 
@@ -362,85 +306,30 @@ Let's compare the asymptotic distributions of two competing estimators:
 
 Note that (1) and (2) are unbiased, but (3) is biased.
 
----
-
 ## Consistency
 ### Consistent estimators
 
-
 To see which are unbiased/biased:
 
-::: {.fragment}
+[$\mathop{\boldsymbol{E}}\left[ X_1 \right] =$]{.fragment} [$\mu_x$]{.fragment}
 
+[$\mathop{\boldsymbol{E}}\left[ \overline{X} \right] =$]{.fragment}
+[$\mathop{\boldsymbol{E}}\left[ \dfrac{1}{n} \sum_{i=1}^n x_i \right] =$]{.fragment}
+[$\dfrac{1}{n} \sum_{i=1}^n \mathop{\boldsymbol{E}}\left[ x_i \right] =$]{.fragment}
+[$\dfrac{1}{n} \sum_{i=1}^n \mu_x =$]{.fragment}
+[$\dfrac{n}{n} \mu_x =$]{.fragment}
+[$\mu_x$]{.fragment}
 
-$\mathop{\boldsymbol{E}}\left[ X_1 \right] = \mu_x$
-
-:::
-
-::: {.fragment}
-
-
-$\mathop{\boldsymbol{E}}\left[ \overline{X} \right]$
-
-:::
-
-::: {.fragment}
-
- $= \mathop{\boldsymbol{E}}\left[ \dfrac{1}{n} \sum_{i=1}^n x_i \right]$
-
-:::
-
-::: {.fragment}
-
- $= \dfrac{1}{n} \sum_{i=1}^n \mathop{\boldsymbol{E}}\left[ x_i \right]$
-
-:::
-
-::: {.fragment}
-
- $= \dfrac{1}{n} \sum_{i=1}^n \mu_x$
-
-:::
-
-::: {.fragment}
-
- $= \mu_x$
-
-:::
-
-::: {.fragment}
-
-
-$\mathop{\boldsymbol{E}}\left[ \widetilde{X} \right]$
-
-:::
-
-::: {.fragment}
-
- $= \mathop{\boldsymbol{E}}\left[ \dfrac{1}{n+1} \sum_{i=1}^n x_i \right]$
-
-:::
-
-::: {.fragment}
-
- $= \dfrac{1}{n+1} \sum_{i=1}^n \mathop{\boldsymbol{E}}\left[ x_i \right]$
-
-:::
-
-::: {.fragment}
-
- $= \dfrac{n}{n+1}\mu_x$
-
-:::
-
----
+[$\mathop{\boldsymbol{E}}\left[ \widetilde{X} \right] =$]{.fragment}
+[$\mathop{\boldsymbol{E}}\left[ \dfrac{1}{n+1} \sum_{i=1}^n x_i \right] =$]{.fragment}
+[$\dfrac{1}{n+1} \sum_{i=1}^n \mathop{\boldsymbol{E}}\left[ x_i \right] =$]{.fragment}
+[$\dfrac{n}{n+1}\mu_x$]{.fragment}
+[$\neq \mu_x$]{.fragment .grey-light}
 
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 2)`$
 
 ```{r}
@@ -474,14 +363,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 5)`$
 
 ```{r}
@@ -513,14 +398,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 10)`$
 
 ```{r}
@@ -552,14 +433,10 @@ ggplot(data = tibble(x = seq(lb, ub, 0.001)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 30)`$
 
 ```{r}
@@ -591,14 +468,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 50)`$
 
 ```{r}
@@ -630,14 +503,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 100)`$
 
 ```{r}
@@ -669,14 +538,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 500)`$
 
 ```{r}
@@ -708,14 +573,10 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 Distributions of $\textcolor{#FFA500}{X_1}$, $\textcolor{#e64173}{\overline{X}}$, and $\textcolor{#314f4f}{\widetilde{X}}$
 
-
-<br>
 $n = `r (n <- 1000)`$
 
 ```{r}
@@ -747,13 +608,11 @@ ggplot(data = tibble(x = c(lb, ub)), aes(x)) +
   theme_empty
 ```
 
----
-
 ## Consistency
 
 
 The distributions of $\textcolor{#314f4f}{\widetilde{X}}$
-<br>
+
 For $n$ in $\{\textcolor{#FCCE25}{2},\, \textcolor{#F89441}{5},\, \textcolor{#E16462}{10},\, \textcolor{#BF3984}{50},\, \textcolor{#900DA4}{100},\, \textcolor{#5601A4}{500}, \textcolor{#0D0887}{1000}\}$
 ```{r}
 #| label: "ex-biased-consistent"
@@ -803,58 +662,29 @@ ggplot(data = tibble(x = c(6.67-2, 10)), aes(x)) +
 
 ::: {.fragment}
 
-
-- An estimator can be unbiased without being consistent
-
-:::
-
-::: {.fragment}
-
- (e.g., $\textcolor{#FFA500}{X_1}$).
+- An estimator can be unbiased without being consistent (e.g., $\textcolor{#FFA500}{X_1}$).
 
 :::
 
 ::: {.fragment}
 
-
-- An estimator can be unbiased and consistent
-
-:::
-
-::: {.fragment}
-
- (e.g., $\textcolor{#e64173}{\overline{X}}$).
+- An estimator can be unbiased and consistent (e.g., $\textcolor{#e64173}{\overline{X}}$).
 
 :::
 
 ::: {.fragment}
 
-
-- An estimator can be biased but consistent
-
-:::
-
-::: {.fragment}
-
-  (e.g., $\textcolor{#314f4f}{\widetilde{X}}$).
+- An estimator can be biased but consistent (e.g., $\textcolor{#314f4f}{\widetilde{X}}$).
 
 :::
 
 ::: {.fragment}
 
-
-- An estimator can be biased and inconsistent
-
-:::
-
-::: {.fragment}
-
-  (e.g., $\overline{X} - 50$).
+- An estimator can be biased and inconsistent (e.g., $\overline{X} - 50$).
 
 :::
 
 ::: {.fragment}
-
 
 **Best-case scenario:** The estimator is unbiased and consistent.
 
@@ -1167,19 +997,9 @@ $$
 
 :::
 
-::: {.fragment}
 
-
-*Our question:* Is $\hat{\beta}_1$ consistent for $\beta_1$ when we omit $x_2$?
-
-:::
-
-::: {.fragment}
-
-
-$$ \mathop{\text{plim}}\left( \hat{\beta}_1 \right) \overset{?}{=} \beta_1 $$
-
-:::
+[*Our question:* Is $\hat{\beta}_1$ consistent for $\beta_1$ when we omit $x_2$?]{.fragment}
+[$\mathop{\text{plim}}\left( \hat{\beta}_1 \right) \overset{?}{=} \beta_1$]{.fragment}
 
 ---
 
@@ -1268,7 +1088,7 @@ In other words, an [omitted variable will cause OLS to be inconsistent if **both
 
 1. The omitted variable [affects our outcome]{.b .pink }, _i.e._, $\beta_2 \neq 0$.
 
-2. The omitted variable correlates with included explanatory variables, _i.e._, $\mathop{\text{Cov}} \left( x_1,\,x_2 \right) \neq 0$.
+2. The omitted variable [correlates with included explanatory variables]{.b .purple}, _i.e._, $\mathop{\text{Cov}} \left( x_1,\,x_2 \right) \neq 0$.
 
 If both of these statements are true, then the OLS estimate $\hat{\beta}_1$ will not converge to $\beta_1$, even as $n$ approaches $\infty$.
 
@@ -1277,12 +1097,9 @@ If both of these statements are true, then the OLS estimate $\hat{\beta}_1$ will
 ## Omitted-variable bias, redux
 ### Signing the bias
 
-
-Sometimes we're stuck with omitted variable bias.<sup>[†]{.pink }</sup>
+Sometimes we're stuck with omitted variable bias.^[You will often hear the term "omitted-variable bias" when we're actually talking about inconsistency (rather than bias).]
 
 $$ \mathop{\text{plim}} \hat{\beta}_1 = \beta_1 + \beta_2 \dfrac{ \mathop{\text{Cov}} \left( x_1,\, x_2 \right)}{\mathop{\text{Var}} \left( x_1 \right)} $$
-
-^[[†]{.pink } You will often hear the term "omitted-variable bias" when we're actually talking about inconsistency (rather than bias).]
 
 When this happens, we can often at least know the direction of the inconsistency.
 
@@ -1290,7 +1107,6 @@ When this happens, we can often at least know the direction of the inconsistency
 
 ## Omitted-variable bias, redux
 ### Signing the bias
-
 
 Begin with
 
@@ -1437,7 +1253,6 @@ $$
 
 ## Measurement error
 
-
 [Measurement error]{.b .pink } in our explanatory variables presents another case in which OLS is inconsistent.
 
 Consider the population model: $y_i = \beta_0 + \beta_1 z_i + u_i$
@@ -1451,7 +1266,6 @@ $$ x_i = z_i + \omega_i $$
 
 ::: {.fragment}
 
-
 <br>
 OLS regression of $y$ and $x$ will produce inconsistent estimates for $\beta_1$.
 
@@ -1462,31 +1276,14 @@ OLS regression of $y$ and $x$ will produce inconsistent estimates for $\beta_1$.
 ## Measurement error
 ### Proof
 
-
 $y_i = \beta_0 + \beta_1 z_i + u_i$
+[<br> $\quad= \beta_0 + \beta_1 \left( x_i - \omega_i \right) + u_i$]{.fragment}
+[<br> $\quad= \beta_0 + \beta_1 x_i + \left( u_i - \beta_1 \omega_i \right)$]{.fragment}
+[<br> $\quad= \beta_0 + \beta_1 x_i + \varepsilon_i$]{.fragment}
+
+[where $\varepsilon_i = u_i - \beta_1 \omega_i$]{.fragment}
 
 ::: {.fragment}
-
-<br> $\quad= \beta_0 + \beta_1 \left( x_i - \omega_i \right) + u_i$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad= \beta_0 + \beta_1 x_i + \left( u_i - \beta_1 \omega_i \right)$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad= \beta_0 + \beta_1 x_i + \varepsilon_i$
-
-where $\varepsilon_i = u_i - \beta_1 \omega_i$
-
-:::
-
-::: {.fragment}
-
 
 What happens when we estimate $y_i = \hat{\beta}_0 + \hat{\beta}_1 x_i + e_i$?
 
@@ -1506,63 +1303,33 @@ The covariance of our noisy variable $x$ and the disturbance $\varepsilon$.
 
 $\mathop{\text{Cov}} \left( x,\, \varepsilon \right)$
 
-::: {.fragment}
+[$\quad= \mathop{\text{Cov}} \left( \left[ z + \omega \right],\, \left[ u - \beta_1 \omega \right] \right)$]{.fragment}
 
- $= \mathop{\text{Cov}} \left( \left[ z + \omega \right],\, \left[ u - \beta_1 \omega \right] \right)$
+[$\quad= \mathop{\text{Cov}} \left( z,\,u \right) -\beta_1 \mathop{\text{Cov}} \left( z,\,\omega \right) + \mathop{\text{Cov}} \left( \omega,\, u \right) - \beta_1 \mathop{\text{Var}} \left( \omega \right)$]{.fragment}
 
-:::
+[$\quad= 0 + 0 + 0 - \beta_1 \sigma_\omega^2$]{.fragment}
 
-::: {.fragment}
-
-<br> $\quad\quad\quad\quad\enspace= \mathop{\text{Cov}} \left( z,\,u \right) -\beta_1 \mathop{\text{Cov}} \left( z,\,\omega \right) + \mathop{\text{Cov}} \left( \omega,\, u \right) - \beta_1 \mathop{\text{Var}} \left( \omega \right)$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad\quad\quad\quad\enspace= 0 + 0 + 0 - \beta_1 \sigma_\omega^2$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad\quad\quad\quad\enspace= - \beta_1 \sigma_\omega^2$
-
-:::
+[$\quad= - \beta_1 \sigma_\omega^2$]{.fragment}
 
 ---
 
 ## Measurement error
 ### Proof
-
 
 Now for the denominator, $\mathop{\text{Var}} \left( x \right)$.
 
 $\mathop{\text{Var}} \left( x \right)$
 
-::: {.fragment}
+[$\quad = \mathop{\text{Var}} \left( z + \omega \right)$]{.fragment}
 
-$= \mathop{\text{Var}} \left( z + \omega \right)$
+[$\quad= \mathop{\text{Var}} \left( z \right) + \mathop{\text{Var}} \left( \omega \right) + 2\mathop{\text{Cov}} \left( z,\,\omega \right)$]{.fragment}
 
-:::
-
-::: {.fragment}
-
-<br> $\quad\quad\quad= \mathop{\text{Var}} \left( z \right) + \mathop{\text{Var}} \left( \omega \right) + 2\mathop{\text{Cov}} \left( z,\,\omega \right)$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad\quad\quad= \sigma_z^2 + \sigma_\omega^2$
-
-:::
+[$\quad= \sigma_z^2 + \sigma_\omega^2$]{.fragment}
 
 ---
 
 ## Measurement error
 ### Proof
-
 
 Putting the numerator and denominator back together,
 
@@ -1609,8 +1376,6 @@ What about **measurement in the outcome variable**?
 
 It doesn't really matter—it just increases our standard errors.
 
----
-
 ## Measurement error
 ### It's everywhere
 
@@ -1626,4 +1391,27 @@ It doesn't really matter—it just increases our standard errors.
 - Crime/police statistics
 - Air quality
 - Health data
-- Proxy *ability* with test scores
+- Ability
+
+## Conclusions
+
+### Wrapping up
+
+_Asymptotic_ properties highlight some interesting features:
+
+- [Consistency]{.b .purple} describes estimators' behavior as $n$ approaches $\infty$.
+- [Omitted-variable bias]{.b .pink} causes OLS to be inconsistent.
+
+$\implies$ Even if with [_infinite data_]{.purple}, you can get the [wrong answer]{.pink}.
+
+::: {.fragment}
+[Measurement error]{.b .slate} in explanatory variables also causes [inconsistency]{.b .pink}.
+:::
+
+::: {.fragment}
+Again, even if with [_infinite data_]{.purple}, you can get the [wrong answer]{.pink}.
+:::
+
+::: {.fragment}
+[Takeaway?]{.note} Assumptions and data quality matter more than size.
+:::

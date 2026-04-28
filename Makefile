@@ -59,9 +59,9 @@ notes/05-heteroskedasticity/slides.pdf : notes/05-heteroskedasticity/slides.html
 	decktape $<?fragments=true $@
 # Lecture 06
 notes/06-consistency/slides.html : notes/06-consistency/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+	quarto render '$<'
 notes/06-consistency/slides.pdf : notes/06-consistency/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 07
 notes/07-time-series/slides.html : notes/07-time-series/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
