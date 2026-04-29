@@ -99,7 +99,7 @@ Asymptotics and consistency
 
 - New problem set
 - _Next topic:_ Time series
-- Midterm on Feb. 12
+- Midterm next week (May 7th)
 
 ---
 

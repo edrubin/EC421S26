@@ -58,7 +58,7 @@ notes/05-heteroskedasticity/slides.html : notes/05-heteroskedasticity/slides.qmd
 notes/05-heteroskedasticity/slides.pdf : notes/05-heteroskedasticity/slides.html
 	decktape $<?fragments=true $@
 # Lecture 06
-notes/06-consistency/slides.html : notes/06-consistency/slides.rmd notes/my-css.css
+notes/06-consistency/slides.html : notes/06-consistency/slides.qmd notes/my-css.css
 	quarto render '$<'
 notes/06-consistency/slides.pdf : notes/06-consistency/slides.html
 	decktape $<?fragments=true $@
