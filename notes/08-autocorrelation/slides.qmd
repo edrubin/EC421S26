@@ -11,7 +11,7 @@ format:
     slide-level: 2
     theme: [../my.scss, default]
     highlight-style: gruvbox
-    embed-resources: true
+    # embed-resources: true
     slide-number: c/t
     incremental: false
     controls-layout: edges
@@ -19,10 +19,18 @@ format:
     preview-links: auto
     html-math-method: mathjax
     code-line-numbers: false
+knitr:
+  opts_chunk:
+    # comment: "#>"
+    fig-align: "center"
+    fig-height: 7
+    fig-width: 10.5
+    warning: false
+    message: false
+    fig-format: svg
 execute:
   warning: false
   message: false
-
 ---
 
 ## {.center}
@@ -38,6 +46,7 @@ execute:
 ```{r}
 #| label: "setup"
 #| include: false
+
 options(htmltools.dir.version = FALSE)
 library(pacman)
 p_load(
@@ -55,43 +64,7 @@ grey_light = "grey70"
 grey_mid = "grey50"
 grey_dark = "grey20"
 # Dark slate grey: #314f4f
-# Knitr options
-opts_chunk$set(
-  comment = "#>",
-  fig.align = "center",
-  fig.height = 7,
-  fig.width = 10.5,
-  warning = F,
-  message = F
-)
-opts_chunk$set(dev = "svg")
-options(device = function(file, width, height) {
-  svg(tempfile(), width = width, height = height)
-})
-# A blank theme for ggplot
-theme_empty <- theme_bw() + theme(
-  line = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_simple <- theme_bw() + theme(
-  line = element_blank(),
-  panel.grid = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text.x = element_text(size = 18, family = "STIXGeneral"),
-  axis.text.y = element_blank(),
-  axis.ticks = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
+# Some themes
 theme_axes_math <- theme_void() + theme(
   text = element_text(family = "MathJax_Math"),
   axis.title = element_text(size = 22),
@@ -119,7 +92,7 @@ theme_axes_serif <- theme_void() + theme(
   legend.position = "none"
 )
 theme_axes <- theme_void() + theme(
-  text = element_text(family = "Fira Sans Book"),
+  text = element_text(family = "Fira Sans Condensed"),
   axis.title = element_text(size = 18),
   axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
   axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
@@ -131,12 +104,10 @@ theme_axes <- theme_void() + theme(
   plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
   legend.position = "none"
 )
-theme_set(theme_gray(base_size = 20))
-# A few extras
 ```
 
 ```{css}
-#| echo: false
+/*| echo: false */
 
 @media print {
   .has-continuation {
@@ -147,13 +118,11 @@ theme_set(theme_gray(base_size = 20))
 
 ### Last Time
 
-- Introduction to time series
+Introduction to time series
 
 ### Today
 
 Autocorrelation
-
----
 
 ## [R]{.mono } showcase
 
@@ -189,9 +158,7 @@ The basic idea in [R]{.mono } is doing things to objects with functions.
 
 We write functions to make life easier. Instead of copying and pasting the same line of code a million times, you can write one function.
 
-In [R]{.mono }, you use the `function()` function to write functions.<sup>[†]{.pink }</sup>
-
-^[[†]{.pink } Meta.]
+In [R]{.mono }, you use the `function()` function to write functions.^[Meta.]
 
 ```{r}
 #| label: "ex-function-1"
@@ -378,7 +345,7 @@ geom_line(color = "grey85", size = 0.35) +
 geom_point(color = red_pink, size = 2.25) +
 ylab("u") +
 xlab("t") +
-# theme_pander(base_family = "Fira Sans Book", base_size = 20)
+# theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 theme_axes_math
 ```
 
@@ -397,7 +364,7 @@ geom_line(color = "grey85", size = 0.35) +
 geom_point(color = red_pink, size = 2.25) +
 ylab("y") +
 xlab("t") +
-# theme_pander(base_family = "Fira Sans Book", base_size = 20)
+# theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 theme_axes_math
 ```
 
@@ -438,7 +405,7 @@ geom_line(color = "grey85", size = 0.35) +
 geom_point(color = red_pink, size = 2.25) +
 ylab("u") +
 xlab("t") +
-# theme_pander(base_family = "Fira Sans Book", base_size = 20)
+# theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 theme_axes_math
 ```
 
@@ -457,7 +424,7 @@ geom_line(color = "grey85", size = 0.35) +
 geom_point(color = red_pink, size = 2.25) +
 ylab("y") +
 xlab("t") +
-# theme_pander(base_family = "Fira Sans Book", base_size = 20)
+# theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 theme_axes_math
 ```
 
@@ -524,11 +491,12 @@ For **static models** or **dynamic models with lagged explanatory variables**, i
 
 1. OLS is [**inefficient**.]{.pink }
 
-*Recall:* Same implications as heteroskedasticity.
+*Recall:* Same implications as heteroskedasticity and correlated disturbances.
+<br>[(Correlated disturbances are actually what we have with autocorrelation.)]{.it .slab .grey-vlight }
 
-Autocorrelation get trickier with lagged outcome variables.
-
----
+::: {.fragment}
+However, autocorrelation get trickier with lagged outcome variables.
+:::
 
 ## Autocorrelation
 ### OLS and lagged outcome variables
@@ -548,29 +516,12 @@ $$
 \end{align}
 $$
 
-::: {.fragment}
+[**Problem:** $\text{Births}_{t-1}$ (a regressor in the model for time $t$) and<br>$u_{t}$ (the disturbance for time $t$) both depend upon $u_{t-1}$.<br>*I.e.*, a regressor is correlated with its contemporaneous disturbance.]{.fragment}
 
 
-**Problem:**
+[**Q:** Why is this a problem?]{.fragment}
 
-:::
-
-::: {.fragment}
-
- Both $\text{Births}_{t-1}$ (a regressor in the model for time $t$) and $u_{t}$ (the disturbance for time $t$) depend upon $u_{t-1}$. *I.e.*, a regressor is correlated with its contemporaneous disturbance.
-
-:::
-
-::: {.fragment}
-
-
-**Q:** Why is this a problem?
-
-:::
-
-<br>[**A:** It violates [contemporaneous exogeneity]{.pink }]{.fragment}[, *i.e.*, $\mathop{\text{Cov}} \left( x_t,\,u_t \right) \neq 0$.]{.fragment}
-
----
+[**A:** It violates [contemporaneous exogeneity]{.pink }]{.fragment}[, *i.e.*, $\mathop{\text{Cov}} \left( x_t,\,u_t \right) \neq 0$.]{.fragment}
 
 ## Autocorrelation
 ### OLS and lagged outcome variables
@@ -632,8 +583,7 @@ $$
 When $\mathop{\text{Cov}} \left( x_t,\, u_t \right)\neq0$, we cannot separate the effect of $u_t$ on $y_t$ from the effect of $x_t$ on $y_t$. Thus, we get inconsistent estimates for $\beta_1$.
 
 ::: {.fragment}
-
- Similarly,
+Similarly,
 
 $$
 \begin{align}
@@ -641,21 +591,11 @@ $$
 \end{align}
 $$
 
-we cannot separate the effects of $u_t$ on $\text{Births}_t$ from $\text{Births}_{t-1}$ on $\text{Births}_{t}$, because both $u_t$ and $\text{Births}_{t-1}$ depend upon $u_{t-1}$.
-
+we cannot separate the effects of $u_t$ on $\text{Births}_t$ from $\text{Births}_{t-1}$ on $\text{Births}_{t}$, because both $u_t$ and $\text{Births}_{t-1}$ depend upon $u_{t-1}$. [$\textcolor{#e64173}{\hat{\beta}_2}$ [is **biased** (w/ OLS).]{.pink }]{.fragment}
 :::
-
-::: {.fragment}
-
- $\textcolor{#e64173}{\hat{\beta}_2}$ [is **biased** (w/ OLS).]{.pink }
-
-:::
-
----
 
 ## Autocorrelation and bias
 ### Simulation
-
 
 To see how this bias can look, let's run a simulation.
 
@@ -692,15 +632,12 @@ We are going to run 10,000 iterations with $T=100$.
 
 ::: {.fragment}
 
-<br>**A:** Bias. We would need to let $T\rightarrow\infty$ to consider consistency.
+**A:** Bias. We would need to let $T\rightarrow\infty$ to consider consistency.
 
 :::
 
----
-
 ## Autocorrelation and bias
 ### Simulation
-
 
 Outline of our simulation:
 
@@ -792,7 +729,7 @@ ggplot(data = readRDS("sim.rds") %>% filter(term == "lag(y2)"), aes(x = estimate
       select(estimate) %>% unlist() %>% mean(),
     linetype = "dashed") +
   geom_hline(yintercept = 0) +
-  theme_pander(base_family = "Fira Sans Book", base_size = 20) +
+  theme_pander(base_family = "Fira Sans Condensed", base_size = 20) +
   labs(x = "Estimate", y = "Density")
 ```
 
@@ -820,7 +757,7 @@ ggplot(data = readRDS("sim.rds") %>% filter(term == "x"), aes(x = estimate)) +
     linetype = "dashed") +
   geom_vline(xintercept = b1, linetype = "solid") +
   geom_hline(yintercept = 0) +
-  theme_pander(base_family = "Fira Sans Book", base_size = 20) +
+  theme_pander(base_family = "Fira Sans Condensed", base_size = 20) +
   labs(x = "Estimate", y = "Density")
 ```
 
@@ -902,17 +839,19 @@ $$
 5. Rejecting H[0]{.sub } implies significant evidence of autocorrelation.
 :::
 
----
+## {.center}
 
 For an example, let's return to our plot of negative autocorrelation.
 
----
+## {.center}
 
 [Negative autocorrelation]{.b .slate }: Disturbances $\left( u_t \right)$ over time
 ```{r}
 #| label: "negative-auto-u-2"
 #| echo: false
 #| fig-height: 7.25
+#| fig-width: 12
+
 # Number of observations
 T <- 1e2
 # Rho
@@ -943,7 +882,7 @@ geom_line(color = "grey85", size = 0.35) +
 geom_point(color = red_pink, size = 2.25) +
 ylab("u") +
 xlab("t") +
-# theme_pander(base_family = "Fira Sans Book", base_size = 20)
+# theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 theme_axes_math
 ```
 
@@ -1223,15 +1162,16 @@ $$
 5. Rejecting H[0]{.sub } implies significant evidence of AR(2).
 :::
 
----
-
 ## Testing for autocorrelation
 ### Dynamic models with lagged outcome variables
 
 
-For an example, let's consider the relationship between monthly presidential approval ratings and oil prices during President George W. Bush's<sup>[†]{.pink }</sup> presidency.
+For an example, let's consider the relationship between monthly presidential approval ratings and oil prices during President George W. Bush's^[[Fun with approval ratings](https://projects.fivethirtyeight.com/trump-approval-ratings/).] presidency.
 
-We will specify the process as ADL(1, 0) and test for an AR(2) process in our disturbances.
+We will 
+
+1. specify the process as ADL(1, 0),
+2. test for an AR(2) process in our disturbances.
 
 $$
 \begin{align}
@@ -1239,17 +1179,9 @@ $$
 \end{align}
 $$
 
-^[[†]{.pink } [Fun with approval ratings](https://projects.fivethirtyeight.com/trump-approval-ratings/).]
-
 ::: {.fragment}
-
-
-*Note:* We're ignoring any other violations of exogeneity for the moment.
-
-
+[Note:]{.note} We're ignoring any other violations of exogeneity for the moment.
 :::
-
----
 
 ## Hidden {visibility="hidden"}
 
@@ -1257,89 +1189,114 @@ $$
 #| label: "approval-0"
 #| include: false
 # Load dataset
-approval_df <- read_csv("approval.csv") %>% mutate(
-  time = year + (month - 1) / 12
-) %>%
+approval_df =
+  read_csv("approval.csv") |>
+  mutate(
+    time = year + (month - 1) / 12
+  ) |>
   janitor::clean_names() %>%
   rename(price_oil = avg_price) %>%
   mutate(ap = approve)
 ```
 
----
+## {.center}
 
 [Monthly presidential approval ratings, 2001–2006]{.b .slate }
 ```{r}
 #| label: "approval-1"
 #| echo: false
+#| fig-width: 12
+
 ggplot(data = approval_df, aes(x = time, y = ap)) +
   geom_line(size = 0.5, alpha = 0.3) +
   geom_point(size = 2.5, color = red_pink) +
   xlab("Date") +
   ylab("Rating") +
-  theme_axes_serif
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
----
+## {.center}
 
 [Approval rating vs. its one-month lag, 2001–2006]{.b .slate }
 ```{r}
 #| label: "approval-2"
 #| echo: false
+#| fig-width: 12
+
 ggplot(data = approval_df, aes(x = lag(approve), y = ap)) +
-  geom_smooth(method = lm, se = F, linetype = "dashed", color = "darkslategrey") +
+  geom_smooth(method = lm, se = FALSE, linetype = "dashed", linewidth = .8, color = "darkslategrey") +
   geom_point(size = 2.5, color = red_pink) +
   xlab("Previous") +
   ylab("Current") +
-  theme_axes_serif
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
----
+## {.center}
 
 [Approval rating vs. its two-month lag, 2001–2006]{.b .slate }
 ```{r}
 #| label: "approval-3"
 #| echo: false
+#| fig-width: 12
+
 ggplot(data = approval_df, aes(x = lag(ap, 2), y = ap)) +
-  geom_smooth(method = lm, se = F, linetype = "dashed", color = "darkslategrey") +
+  geom_smooth(method = lm, se = FALSE, linetype = "dashed", linewidth = .8, color = "darkslategrey") +
   geom_point(size = 2.5, color = red_pink) +
   xlab("Previous") +
   ylab("Current") +
-  theme_axes_serif
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
----
+## {.center}
 
 [Oil prices, 2001–2006]{.b .slate }
 ```{r}
 #| label: "approval-4"
 #| echo: false
+#| fig-width: 12
+
 ggplot(data = approval_df, aes(x = time, y = price_oil)) +
-  geom_line(size = 0.5, alpha = 0.3) +
+  geom_line(linewidth = 0.5, alpha = 0.3) +
   geom_point(size = 2.5, color = red_pink) +
   xlab("Date") +
-  ylab("$") +
-  theme_axes_serif
+  ylab("Oil price ($)") +
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
----
+## {.center}
 
 [Approval rating vs. oil prices, 2001–2006]{.b .slate }
 ```{r}
 #| label: "approval-5"
 #| echo: false
+#| fig-width: 12
+
 ggplot(data = approval_df, aes(x = price_oil, y = ap)) +
-  geom_smooth(method = lm, se = F, linetype = "dashed", color = "darkslategrey") +
+  geom_smooth(method = lm, se = F, linetype = "dashed", linewidth = .8, color = "darkslategrey") +
   geom_point(size = 2.5, color = red_pink) +
   xlab("Oil price ($)") +
   ylab("Rating") +
-  theme_axes_serif
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
----
+## {.center}
+
+[Approval rating vs. oil prices, 2001–2006]{.b .slate } [with quadratic fit]{.grey-vlight }
+```{r}
+#| label: "approval-6"
+#| echo: false
+#| fig-width: 12
+
+ggplot(data = approval_df, aes(x = price_oil, y = ap)) +
+  geom_smooth(method = lm, formula = y ~ x + I(x^2), se = F, linetype = "dashed", linewidth = .8, color = "darkslategrey") +
+  geom_point(size = 2.5, color = red_pink) +
+  xlab("Oil price ($)") +
+  ylab("Rating") +
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 20)
+```
 
 ## Testing for autocorrelation
 ### Example: Approval ratings and oil prices
-
 
 **Step 1:** Estimate our ADL(1, 0) model with OLS.
 
@@ -1377,29 +1334,20 @@ approval_df$e <- c(NA, residuals(ols_est))
 :::
 
 ::: {.fragment}
-
-
 *E.g.*,
 <br>[{1, 2, 3, 4, 5, 6, 7, 8, 9} = x]{.mono }
-
 :::
 
 ::: {.fragment}
-
-<br>[{[?]{.pink }, 1, 2, 3, 4, 5, 6, 7, 8} = lag(x)]{.mono }
-
+[{[?]{.pink }, 1, 2, 3, 4, 5, 6, 7, 8} = lag(x)]{.mono }
 :::
 
 ::: {.fragment}
-
-<br>[{[?]{.pink }, [?]{.pink }, 1, 2, 3, 4, 5, 6, 7} = lag(x, 2)]{.mono }
-
+[{[?]{.pink }, [?]{.pink }, 1, 2, 3, 4, 5, 6, 7} = lag(x, 2)]{.mono }
 :::
 
 ::: {.fragment}
-
-<br>[{[?]{.pink }, [?]{.pink }, [?]{.pink }, 1, 2, 3, 4, 5, 6} = lag(x, 3)]{.mono }
-
+[{[?]{.pink }, [?]{.pink }, [?]{.pink }, 1, 2, 3, 4, 5, 6} = lag(x, 3)]{.mono }
 :::
 
 ---
@@ -1489,13 +1437,8 @@ Here, we're telling `waldtest` to test
 - the model we specified in `bg_reg` (our [unrestricted model]{.b .pink })
 - against a model without `lag(e)` and `lag(e, 2)` (our [restricted model]{.b .pink })
 
----
-
 ## Testing for autocorrelation
 ### Example: Approval ratings and oil prices
-
-
-count: false
 
 **Step 4:** $F$ (or $\text{LM}$) test for $\rho_1=\rho_2=0$.
 
@@ -1512,22 +1455,17 @@ p_load(lmtest)
 waldtest(bg_reg, c("lag(e)", "lag(e, 2)"))
 ```
 
----
-
 ## Testing for autocorrelation
 ### Example: Approval ratings and oil prices
 
-
 **Step 5:** Conclusion of hypothesis test
 
-With a *p*-value of ∼`r waldtest(bg_reg, c("lag(e)", "lag(e, 2)"))$"Pr(>F)"[2] %>% round(3)`, [we fail to reject the null hypothesis.]{.b .pink }
+With a *p*-value of $\sim$ `r waldtest(bg_reg, c("lag(e)", "lag(e, 2)"))$"Pr(>F)"[2] %>% round(3)`, [we fail to reject the null hypothesis.]{.b .pink }
 
 - We cannot reject $\rho_1=\rho_2=0$.
-
 - We cannot reject "no autocorrelation".
 
 ::: {.fragment}
-
 
 ```{r}
 #| label: "bg5"
@@ -1544,27 +1482,18 @@ However, [we tested for a specific type of autocorrelation]{.b .pink }: AR(2).
 We might get different answers with different tests.
 
 The *p*-value for AR(1) is `r waldtest(bg_reg_ar1, c("lag(e)"))$"Pr(>F)"[2] %>% round(4)`—suggestive of first-order autocorrelation.
-
 :::
-
----
 
 ## {.center}
 
 [Living with autocorrelation]{.bigger .it .slab}
 
----
-
 ## Autocorrelation
 ### Working with it
 
-
 Suppose we believe autocorrelation is present. What do we do?
 
-::: {.fragment}
-
-
-I'll give you three options.<sup>[†]{.pink }</sup>
+I'll give you three options.^[You should take [EC 422]{.mono } to go much deeper into time-series analysis/forecasting.]
 
 1. [Misspecification]{.b .pink }
 
@@ -1572,15 +1501,10 @@ I'll give you three options.<sup>[†]{.pink }</sup>
 
 1. [FGLS]{.b .pink }
 
-^[[†]{.pink } You should take [EC 422]{.mono } to go much deeper into time-series analysis/forecasting.]
-
-:::
-
----
+These solutions should look familiar.
 
 ## Autocorrelation
 ### Option 1: Misspecification
-
 
 [Misspecification]{.b .pink } with autocorrelation is very similar to our discussion with heteroskedasticity.
 
@@ -1588,11 +1512,8 @@ By incorrectly specifying your model, you can create autocorrelation.
 
 Omitting variables that are correlated through time will cause your disturbances to be correlated through time.
 
----
-
 ## Autocorrelation
 ### Option 1: Misspecification
-
 
 **Example:** Suppose births depend upon income and previous births
 $$
@@ -1636,11 +1557,8 @@ which is likely autocorrelated, since income is correlated in time.
 
 :::
 
----
-
 ## Autocorrelation
 ### Option 1: Misspecification
-
 
 **"Proof"**
 
@@ -1687,24 +1605,103 @@ $\neq 0$ (in general) even if $u_t$ is exogenous and without autocorrelation.
 ## Autocorrelation
 ### Option 2: Newey-West standard errors
 
+We can just focus on estimating consistent standard errors (fixing inference) in the presence of autocorrelation.
+<br>[As we did with the heteroskedasticity-robust standard errors.]{.it .grey-vlight } 
 
-As was also the case with heteroskedasticity, you can still estimate consistent standard errors (and inference) in the presence of autocorrelation.
+These standard errors are called [serial-correlation robust standard errors]{.b .purple} (or *Newey-West standard errors*).^[We are not going to derive the estimator for these standard errors.]
 
-These standard errors are called *serial-correlation robust standard errors* (or *Newey-West standard errors*).
+::: {.fragment}
+In `R`, we can use `fixest`'s `feols` function to estimate these standard errors.
+```{r}
+#| label: "nw1"
+#| echo: true
+#| eval: false
 
-We are not going to derive the estimator for these standard errors.
+fixest::feols(
+  approve ~ l(approve) + price_oil,
+  data = approval_df,
+  panel.id = ~ country + time_months,
+  se = "NW"
+)
+```
+:::
 
----
+## {.center}
+
+```{r}
+#| label: "nw2"
+#| echo: false
+
+# Compare the two sets of standard errors from fixest
+approval_df = arrange(approval_df, time)
+approval_df =
+  approval_df |>
+  mutate(
+    country = 'usa',
+    time_months = 1:n()
+  )
+# Estimate the model with OLS standard errors
+est_iid =
+  fixest::feols(
+    approve ~ l(approve) + price_oil,
+    data = approval_df,
+    panel.id = ~ country + time_months,
+    se = "iid"
+  )
+# Estimate the model with Newey-West standard errors
+est_nw =
+  fixest::feols(
+    approve ~ l(approve) + price_oil,
+    data = approval_df,
+    panel.id = ~ country + time_months,
+    se = "NW"
+  )
+```
+
+::: {.columns}
+::: {.column width="50%"}
+```{r}
+#| label: "nw3"
+#| echo: true
+#| eval: false
+
+# Estimate with NW SEs
+fixest::feols(
+  approve ~ l(approve) + price_oil,
+  data = approval_df,
+  panel.id = ~ country + time_months,
+  se = 'NW'
+)
+```
+:::
+::: {.column width="50%"}
+[`l` denotes a _lag_ in `fixest`.]{.fragment fragment-index=0}
+
+[`panel.id` identifies the individual and time dimensions of our data.]{.fragment fragment-index=1}
+
+[`se = 'NW'` for _Newey-West_ stnd. errors.]{.fragment fragment-index=2}
+:::
+:::
+
+## {.center}
+
+```{r}
+#| label: "nw4"
+#| echo: true
+#| eval: true
+
+# Compare the two sets of standard errors from fixest
+fixest::etable(est_iid, est_nw)
+```
+
+The _p_-values on the price of oil coefficient: 0.062 vs. 0.023.
 
 ## Autocorrelation
 ### Option 3: FGLS
 
-
 If we do not have a lagged outcome variable, then [feasible generalized least squares]{.pink } ([FGLS]{.b .pink }) can give us efficient and consistent standard errors.
 
 ::: {.fragment}
-
-
 Let's start with a simple static model that includes an AR(1) disturbance $u_t$.
 
 $$
@@ -1713,12 +1710,9 @@ $$
   u_t &= \rho u_{t-1} + \varepsilon_t \tag{2}
 \end{align}
 $$
-
 :::
 
 ::: {.fragment}
-
-
 Now our old trick: Write out $(1)$ for period $t-1$ (and then multiple by $\rho$)
 $$
 \begin{align}
@@ -1726,21 +1720,14 @@ $$
   \rho \text{Births}_{t-1} &= \rho \beta_0 + \rho \beta_1 \text{Income}_{t-1} + \rho u_{t-1} \tag{4}
 \end{align}
 $$
-
 :::
 
 ::: {.fragment}
-
-
 And now subtract $(4)$ from $(1)$…
-
 :::
-
----
 
 ## Autocorrelation
 ### Option 3: FGLS
-
 
 $$
 \begin{align}
@@ -1765,13 +1752,8 @@ $$
 
 :::
 
----
-
 ## Autocorrelation
 ### Option 3: FGLS
-
-
-count: false
 
 $$
 \begin{align}
@@ -1792,8 +1774,6 @@ $$
 $$
 that happens to be [free of autocorrelation]{.b .pink }.
 
----
-
 ## Autocorrelation
 ### Option 3: FGLS
 
@@ -1810,7 +1790,7 @@ $$
 
 ::: {.fragment}
 
-<br>**A:** FGLS (of course)…
+**A:** FGLS (of course)…
 
 :::
 
@@ -1825,9 +1805,38 @@ $$
 
 :::
 
----
+## Autocorrelation
+### _Summary:_ Main ideas
 
-## Table of contents
+[Autocorrelation]{.b .pink } means the disturbances correlated through time,
+  $$\mathop{\text{Cov}}\left(u_t, u_s\right) \neq 0 \quad \text{for } t \neq s.$$
+
+- For **static time-series models**, OLS _coefficient_ estimates are [unbiased]{.b .pink }^[Assuming exogeneity],<br>but OLS _standard errors_ are [biased]{.b .pink } and OLS is [inefficient]{.b .pink }.
+
+- For **lagged outcome variables**, OLS coefficient estimates<br>are [biased and inconsistent]{.b .orange }.
+
+::: {.fragment}
+Once again, violating assumptions can lead to bad decisions.
+:::
+
+## Autocorrelation
+### _Summary:_ Testing/living with autocorrelation
+
+Tests for autocorrelation involve regressing residuals on their lags.
+
+- In **static models**: regress residuals on their lags.
+
+- In **dynamic models with lagged outcomes**: use [Breusch-Godfrey]{.b .purple }<br>regress residuals on the original regressors _plus_ lagged residuals.
+
+Potential solutions/responses (akin to _heteroskedasticity_):
+
+- Consider whether the model is [misspecified]{.b .pink }.
+
+- Use [Newey-West]{.b .pink } standard errors.
+
+- For static models with AR disturbances, [FGLS]{.b .pink } can transform the model to remove autocorrelation.
+
+##
 
 ::: columns
 ::: {.column width="42%"}
@@ -1836,10 +1845,8 @@ $$
 ::: {.smallest}
 1. [Schedule](#schedule)
 2. [[R]{.mono } showcase](#r_showcase)
-
    - [[ggplot2]{.mono }](#ggplot2)
    - [Writing functions](#functions)
-
 3. [Review: Time series](#review)
 :::
 :::
@@ -1850,18 +1857,13 @@ $$
 1. [Introduction](#intro)
 2. [In static models](#static_models)
 3. [OLS and bias/consistency](#ols_static)
-
    - [Static models](#ols_static)
    - [Dynamic models with lagged $y$](#ols_adl)
-
 4. [Simulation: Bias](#ar2_simulation)
 5. [Testing for autocorrelation](#testing)
-
    - [Static models](#testing_static)
    - [Dynamic models with lagged $y$](#testing_adl)
-
 6. [Working with autocorrelation](#fixes)
-
    - [Misspecification](#misspecification)
    - [Newey-West standard errors](#newey)
    - [FGLS](#gls)

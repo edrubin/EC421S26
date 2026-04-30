@@ -19,10 +19,18 @@ format:
     preview-links: auto
     html-math-method: mathjax
     code-line-numbers: false
+knitr:
+  opts_chunk:
+    # comment: "#>"
+    fig-align: "center"
+    fig-height: 7
+    fig-width: 10.5
+    warning: false
+    message: false
+    fig-format: svg
 execute:
   warning: false
   message: false
-
 ---
 
 ## {.center}
@@ -36,7 +44,7 @@ execute:
 ```{r}
 #| label: "setup"
 #| include: false
-options(htmltools.dir.version = FALSE)
+
 library(pacman)
 p_load(
   broom, here, tidyverse,
@@ -45,93 +53,15 @@ p_load(
   dplyr, magrittr, knitr, parallel
 )
 # Define pink color
-red_pink <- "#e64173"
-turquoise <- "#20B2AA"
-grey_light <- "grey70"
-grey_mid <- "grey50"
-grey_dark <- "grey20"
-# Dark slate grey: #314f4f
-# Knitr options
-opts_chunk$set(
-  comment = "#>",
-  fig.align = "center",
-  fig.height = 7,
-  fig.width = 10.5,
-  warning = F,
-  message = F
-)
-opts_chunk$set(dev = "svg")
-options(device = function(file, width, height) {
-  svg(tempfile(), width = width, height = height)
-})
-# A blank theme for ggplot
-theme_empty <- theme_bw() + theme(
-  line = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  plot.margin = structure(c(0, 0, -0.5, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_simple <- theme_bw() + theme(
-  line = element_blank(),
-  panel.grid = element_blank(),
-  rect = element_blank(),
-  strip.text = element_blank(),
-  axis.text.x = element_text(size = 18, family = "STIXGeneral"),
-  axis.text.y = element_blank(),
-  axis.ticks = element_blank(),
-  plot.title = element_blank(),
-  axis.title = element_blank(),
-  # plot.margin = structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_math <- theme_void() + theme(
-  text = element_text(family = "MathJax_Math"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes_serif <- theme_void() + theme(
-  text = element_text(family = "MathJax_Main"),
-  axis.title = element_text(size = 22),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = "grey70",
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-theme_axes <- theme_void() + theme(
-  text = element_text(family = "Fira Sans Book"),
-  axis.title = element_text(size = 18),
-  axis.title.x = element_text(hjust = .95, margin = margin(0.15, 0, 0, 0, unit = "lines")),
-  axis.title.y = element_text(vjust = .95, margin = margin(0, 0.15, 0, 0, unit = "lines")),
-  axis.line = element_line(
-    color = grey_light,
-    size = 0.25,
-    arrow = arrow(angle = 30, length = unit(0.15, "inches")
-  )),
-  plot.margin = structure(c(1, 0, 1, 0), unit = "lines", valid.unit = 3L, class = "unit"),
-  legend.position = "none"
-)
-# A few extras
+red_pink = "#e64173"
+turquoise = "#20B2AA"
+grey_light = "grey70"
+grey_mid = "grey50"
+grey_dark = "grey20"
 ```
 
 ```{css}
-#| echo: false
+/*| echo: false */
 
 @media print {
   .has-continuation {
@@ -150,7 +80,8 @@ Time series
 
 ### Soon
 
-Problem set and midterm
++ midterm [review](https://github.com/edrubin/EC421S26#midterm-exam) (Tuesday; bring questions)
++ midterm
 
 ---
 
@@ -186,32 +117,28 @@ Problem set and midterm
 
 [Time-series data]{.bigger .it .slab}
 
----
-
 ## Time-series data
 ### Introduction
 
 
 Up to this point, we focused on [cross-sectional data]{.b .slate }.
 
-- Sampled *across* a population (_e.g._, people, counties, countries).
-- Sampled at *one moment* in time (_e.g._, Jan. 1, 2015).
-- We had $n$ *individuals*, each indexed $i$ in $\left\{1,\,\ldots,\, n \right\}$.
+- Sampled _across_ a population (_e.g._, people, counties, countries).
+- Sampled at _one moment_ in time (_e.g._, Jan. 1, 2015).
+- We had $n$ _individuals_, each indexed $i$ in $\left\{1,\,\ldots,\, n \right\}$.
 
 ::: {.fragment}
 
 
 Today, we focus on a different type of data: [time-series data]{.b .pink }.
 
-- Sampled within [one unit/individual]{.pink } (_e.g._, Oregon).
+- Sampled _within_ [one unit/individual]{.pink } (_e.g._, Oregon).
 - Observe [multiple times]{.pink } for the same unit (_e.g._, Oregon: 1990–2020).
 - We have $\textcolor{#e64173}{T}$ [time periods]{.pink }, each indexed $t$ in $\left\{1,\,\ldots,\, T \right\}$.
 
 :::
 
----
-
-## {.clear}
+## {.center}
 
 [US monthly births, 1933–2015]{.b .pink }: Classic time-series graph
 <br>
@@ -219,6 +146,8 @@ Today, we focus on a different type of data: [time-series data]{.b .pink }.
 #| label: "ts-ex-births"
 #| echo: false
 #| fig-height: 7.25
+#| fig-width: 12
+
 # Load births data; drop totals; create time variable
 birth_df <- read_csv("usa_birth_1933_2015.csv") %>%
   janitor::clean_names() %>%
@@ -252,12 +181,12 @@ ggplot(data = birth_df,
 geom_line(color = red_pink) +
 ylab("Births (100K)") +
 xlab("Time") +
-theme_pander(base_family = "Fira Sans Book", base_size = 20)
+theme_pander(base_family = "Fira Sans Condensed", base_size = 20)
 ```
 
 ---
 
-## {.clear}
+## {.center}
 
 [US monthly births, 1933–2015]{.b .pink }: Newfangled time-series graph
 <br>
@@ -265,6 +194,8 @@ theme_pander(base_family = "Fira Sans Book", base_size = 20)
 #| label: "ts-ex2-births"
 #| echo: false
 #| fig-height: 7.25
+#| fig-width: 12
+
 # Plot newfangled time-series graph of birth rates
 ggplot(data = birth_df %>% filter(year < 2050),
   aes(
@@ -275,7 +206,7 @@ ggplot(data = birth_df %>% filter(year < 2050),
 geom_tile() +
 xlab("Year") +
 ylab("Month") +
-theme_pander(base_family = "Fira Sans Book", base_size = 20) +
+theme_pander(base_family = "Fira Sans Condensed", base_size = 20) +
 scale_fill_viridis("Births (100K)", option = "magma", limits = c(lo, hi)/1e5) +
 scale_color_viridis("Births (100K)", option = "magma", limits = c(lo, hi)/1e5) +
 theme(
@@ -292,7 +223,7 @@ theme(
 
 ---
 
-## {.clear}
+## {.center}
 
 [US monthly births per 30 days, 1933–2015]{.b .pink }: Newfangled time-series graph
 <br>
@@ -300,6 +231,9 @@ theme(
 #| label: "ts-ex3-births"
 #| echo: false
 #| fig-height: 7.25
+#| fig-width: 12
+
+
 # Plot newfangled time-series graph of birth rates
 ggplot(data = birth_df %>% filter(year < 2050),
   aes(
@@ -310,7 +244,7 @@ ggplot(data = birth_df %>% filter(year < 2050),
 geom_tile() +
 xlab("Year") +
 ylab("Month") +
-theme_pander(base_family = "Fira Sans Book", base_size = 20) +
+theme_pander(base_family = "Fira Sans Condensed", base_size = 20) +
 scale_fill_viridis("Births (100K)", option = "magma", limits = c(lo, hi)/1e5) +
 scale_color_viridis("Births (100K)", option = "magma", limits = c(lo, hi)/1e5) +
 theme(
@@ -393,11 +327,12 @@ where $t-1$ denotes the time period prior to $t$ (*lagged* income or births).
 
 1. **Normality of disturbances**, _i.e._, $u_t\overset{\text{iid}}{\sim}\mathop{N}\left( 0,\,\sigma^2 \right)$.
 
+[(We already know that we can relax the last two assumptions.)]{.it .slab .grey-vlight }
+
 ---
 
 ## Time-series models
 ### Model options
-
 
 Time-series modeling boils down to two classes of models.
 
@@ -405,14 +340,9 @@ Time-series modeling boils down to two classes of models.
 
 2. [Dynamic models:]{.b .purple } Allow for persistent effects.
 
-::: {.fragment}
+    - Models with [lagged explanatory]{.b .purple } variables
 
-
-  - Models with [lagged explanatory]{.b .purple } variables
-
-  - [Autoregressive, distributed-lag]{.b .purple } (ADL) models
-
-:::
+    - [Autoregressive, distributed-lag]{.b .purple } (ADL) models
 
 ---
 
@@ -468,7 +398,7 @@ Can be a very restrictive way to consider time-series data.
 
 **Option 2a:** [Dynamic models]{.b .purple } with [lagged explanatory variables]{.purple }
 
-These models allow the outcome to depend upon the [explanatory variable(s) in other periods]{.purple }.
+The outcome can depend on [explanatory variable(s) in other periods]{.purple }.
 
 $$
 \begin{align}
@@ -486,7 +416,7 @@ Here, income [immediately]{.b .pink } affects the number of births *and* affects
 
 ::: {.fragment}
 
- In other words: Births today depend today's income and *lags* of income—_e.g._, last month's income, last year's income, ...
+_In other words:_ Births today depend today's income and *lags* of income—_e.g._, last month's income, last year's income, ...
 
 :::
 
@@ -512,7 +442,7 @@ Estimate *total* effects by summing lags' coefficients, _e.g._, $\beta_1 + \beta
 
 **Option 2b:** [Autoregressive distributed-lag (ADL) models]{.b .purple }
 
-These models allow the outcome to depend upon the [explanatory variable(s) and/or the outcome variable in prior periods]{.purple }.
+The outcome depends on the [explanatory variable(s) and/or the outcome variable in prior periods]{.purple }.
 
 $$
 \begin{align}
@@ -677,16 +607,14 @@ $$
 ::: {.fragment}
 
 
-By including just **one lag of the dependent variable**—as in a ADL(1, 0)—we implicitly include for *many lags* of the explanatory variables and disturbances.<sup>[†]{.pink }</sup>
-
-^[[†]{.pink } These lags enter into the equation in a very specific way—not the most flexible specification.]
+By including just **one lag of the dependent variable**—as in a ADL(1, 0)—we implicitly include for *many lags* of the explanatory variables and disturbances. ^[These lags enter into the equation in a very specific way---not the most flexible specification.]
 
 :::
 
 ---
 
 ## Autoregressive distributed-lag models
-### The partial-adjustment model
+### Example: The partial-adjustment model
 
 
 There are times that actually want to model an individual's [desired amount]{.b .pink }, rather than her [*actual* amount]{.b .purple }[, but we are unable to observe the [desired level]{.pink }.]{.fragment}
@@ -701,10 +629,7 @@ There are times that actually want to model an individual's [desired amount]{.b 
 ---
 
 ## Autoregressive distributed-lag models
-### The partial-adjustment model
-
-
-*Example*
+### Example: The partial-adjustment model
 
 We want to know how the [desired number of cigarettes]{.b .pink }, $\textcolor{#e64173}{\widetilde{\text{Cig}}_t}$ , changes with the current period's cigarette tax, _e.g._,
 
@@ -729,10 +654,7 @@ $$
 ---
 
 ## Autoregressive distributed-lag models
-### The partial-adjustment model
-
-
-*Example, continued*
+### Example: The partial-adjustment model
 
 $$
 \begin{align}
@@ -791,22 +713,15 @@ We can split this assumption into two parts.
 
 :::
 
-::: {.fragment}
+::: {.incremental}
 
+1. The disturbance $u_t$ is independent of the explanatory variables<br>in the **same period** (_i.e._, $X_t$).
 
-1. The disturbance $u_t$ is independent of the explanatory variables in the **same period** (_i.e._, $X_t$).
-
-:::
-
-::: {.fragment}
-
-
-1. The disturbance $u_t$ is independent of the explanatory variables in the **other periods** (_i.e._, $X_s$ for $s\neq t$).
+1. The disturbance $u_t$ is independent of the explanatory variables<br>in the **other periods** (_i.e._, $X_s$ for $s\neq t$).
 
 :::
 
 ::: {.fragment}
-
 
 We need both of these parts to be true for OLS to be unbiased.
 
@@ -827,7 +742,7 @@ $$
 \end{align}
 $$
 
-_I.e._, to guarantee the numerator equals zero, we need $\mathop{\boldsymbol{E}}\left[ u_t | X \right] = 0$—for both $\mathop{\boldsymbol{E}}\left[ u_t | X_t \right] = 0$ *and* $\mathop{\boldsymbol{E}}\left[ u_t | X_{s} \right] = 0$ $(s\neq t)$.
+_I.e._, to guarantee the numerator equals zero, we need $\mathop{\boldsymbol{E}}\left[ u_t | X \right] = 0$,<br>for both $\mathop{\boldsymbol{E}}\left[ u_t | X_t \right] = 0$ *and* $\mathop{\boldsymbol{E}}\left[ u_t | X_{s} \right] = 0$ $(s\neq t)$.
 
 ::: {.fragment}
 
@@ -969,21 +884,15 @@ $\hspace{8em}=\beta_1\hspace{1em}$ **if** $\textcolor{#e64173}{\mathop{\text{Cov
 
 :::
 
----
-
 ## OLS in time series
 ### Consistent coefficients
 
 
 Thus, if we assume [contemporaneous exogeneity]{.b .pink }, **OLS is consistent** for the coefficients, *even for models with lagged dependent variables*.
 
----
-
 ## {.center}
 
 [The end.]{.bigger .it .slab}
-
----
 
 ## Table of contents
 
@@ -1005,8 +914,8 @@ Thus, if we assume [contemporaneous exogeneity]{.b .pink }, **OLS is consistent*
 1. [Assumptions](#assumptions)
 1. [Static *vs.* dynamic models](#static_dynamic)
 1. ["ADL" models](#adl)
-  - [Underlying complexity](#adl_complexity)
-  - [Partial-adjustment models](#adl_partial)
+    - [Underlying complexity](#adl_complexity)
+    - [Partial-adjustment models](#adl_partial)
 1. [Unbiasedness of OLS](#ols_unbiased)
 1. [Consistency of OLS](#ols_consistency)
 1. *Extra:* [ADL in equilibrium](#adl_eq)
@@ -1015,9 +924,7 @@ Thus, if we assume [contemporaneous exogeneity]{.b .pink }, **OLS is consistent*
 
 ::::
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
 
 
@@ -1036,9 +943,7 @@ In this ADL(1, 0) model, $\beta_1$ gives the [short-run effect]{.b .pink } of in
 
 :::
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
 
 
@@ -1083,9 +988,7 @@ $$
 
 :::
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
 
 
@@ -1103,9 +1006,7 @@ $$
 \end{align}
 $$
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
 
 
@@ -1135,11 +1036,8 @@ In equilibrium: $\text{Income}_t=\text{Income}_{t-k}=\text{Income}^\star$ for al
 
 :::
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
-
 
 Substituting $\text{Income}_{t}=\text{Income}^\star$ for all $k$<br>(and assuming no disturbances in equilibrium):
 
@@ -1155,13 +1053,8 @@ $$
 
 :::
 
----
-
-## Autoregressive distributed-lag models
+## Autoregressive distributed-lag models {visibility="uncounted"}
 ### Equilibrium effects
-
-
-count: false
 
 Substituting $\text{Income}_{t}=\text{Income}^\star$ for all $k$<br>(and assuming no disturbances in equilibrium):
 $$
@@ -1174,6 +1067,4 @@ $$
 \end{align}
 $$
 
-So long as $-1<\beta_2<1$.<sup>[†]{.pink }</sup>
-
-^[[†]{.pink } This simplification comes from $\sum_{k=0}^\infty p^k = \dfrac{1}{p}$ for $-1<k<1$.]
+So long as $-1<\beta_2<1$.^[This simplification comes from $\sum_{k=0}^\infty p^k = \dfrac{1}{p}$ for $-1<k<1$.]

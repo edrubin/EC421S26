@@ -63,15 +63,15 @@ notes/06-consistency/slides.html : notes/06-consistency/slides.qmd notes/my-css.
 notes/06-consistency/slides.pdf : notes/06-consistency/slides.html
 	decktape $<?fragments=true $@
 # Lecture 07
-notes/07-time-series/slides.html : notes/07-time-series/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/07-time-series/slides.html : notes/07-time-series/slides.qmd notes/my-css.css
+	quarto render '$<'
 notes/07-time-series/slides.pdf : notes/07-time-series/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 08
-notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.qmd notes/my-css.css
+	quarto render '$<'
 notes/08-autocorrelation/slides.pdf : notes/08-autocorrelation/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 09
 notes/09-nonstationarity/slides.html : notes/09-nonstationarity/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
