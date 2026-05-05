@@ -22,7 +22,7 @@
 \usepackage{fontspec}
 % \setmainfont{Charter}
 % \setmainfont{Open Sans}
-\setmainfont{Proxima Nova}
+\IfFontExistsTF{Proxima Nova}{\setmainfont{Proxima Nova}}{\setmainfont{Open Sans}}
 % \setmainfont{Roboto}
 
 % Spacing
