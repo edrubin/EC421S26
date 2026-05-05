@@ -8,7 +8,7 @@
 notes/*/slides_cache/*
 
 # Non-review test files
-midterm/exam/*
+midterm/exam/exam*
 final/exam/*
 
 # Misc files
