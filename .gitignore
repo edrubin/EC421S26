@@ -3,12 +3,12 @@
 *INST
 
 # Temporary holds: Assignments
-problem-sets/001/001-questions.qmd
 
 # Notes cache
 notes/*/slides_cache/*
 
 # Non-review test files
+midterm/exam/*
 final/exam/*
 
 # Misc files

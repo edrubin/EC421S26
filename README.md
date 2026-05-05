@@ -25,7 +25,7 @@ Below are the tentatively planned topics for the problem sets.
 
 **Problem Set 1: Heteroskedasticity, Clustering, and Omitted-Variable Bias**
 <br>Due *before* 11:59PM on Wednesday, 29 April 2026.
-<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/data-ps1.csv) | solutions
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/001-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/data-ps1.csv) | [solutions](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/001-solutions.html)
 
 *Help:* [Starter Quarto document](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/quarto-start.qmd) and [Guide to Projects in RStudio](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/rstudio-projects.html)
 
