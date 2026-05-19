@@ -1,0 +1,317 @@
+---
+title: ''
+editor:
+  render-on-save: true
+format:
+  pdf:
+    documentclass: exam
+    papersize: letter
+    fontsize: 10pt
+    include-in-header:
+      - ./my-header.tex
+      - ./my-macros.tex
+    toc: false
+    number-sections: true
+    colorlinks: false
+---
+
+
+\noindent\makebox[0.75\textwidth]{Name:\enspace\hrulefill}
+
+\vspace{5mm}
+
+\begin{center}
+    \LARGE{\textbf{In-class midterm, EC421, Spring 2026}}
+    \\ \large{155 points possible}
+\end{center}
+
+\vspace{5mm}
+
+```{r, setup, include=FALSE}
+# Packages
+library(pacman)
+p_load(fastverse, extrafont, latex2exp, ggplot2, scales)
+```
+
+## True or false (75 points; 30 questions)
+
+**Note** In this section, select the correct answer (true or false). You do not need to explain your answer.
+
+\begin{questions}
+
+\tf{T} A \textit{population parameter} is fixed, while a \textit{sample estimate} can change from sample to sample.
+
+\tf{F} A \textit{standard error} is the average difference between the observed outcome ($y_i$) and the fitted value from a regression ($\hat{y}_i$).
+
+\tf{T} Ordinary least squares (OLS) requires that the regressors have variability.
+
+\tf{T} If $E[u_i \mid X_i] = 0$, then the disturbance satisfies the OLS assumption of \textit{exogeneity}.
+
+\tf{F} A large \textit{p}-value is strong evidence against the null hypothesis.
+
+\tf{T} An LM test can jointly test several coefficients at the same time.
+
+\tf{T} Adding a regressor to an OLS regression will never decrease $R^2$.
+
+\tf{F} Adjusted $R^2$ must increase whenever we add another regressor to a model.
+
+\tf{T} In a multiple regression, the coefficient on $x_1$ describes the relationship between $x_1$ and $y$ \textit{after accounting for their relationships with the other regressors}.
+
+\tf{F} The model below allows the effect of education on wages to differ by whether the individual is female:
+$$
+  \text{Wages}_i = \beta_0 + \beta_1 \text{Education}_i + \beta_2 \text{Female}_i + u_i
+$$
+
+\newpage
+
+\tf{T} In the model below, the effect of education on wages depends on the individual's level of education:
+$$
+  \text{Wages}_i = \beta_0 + \beta_1 \text{Education}_i + \beta_2 \text{Education}_i^2 + u_i
+$$
+
+\tf{T} In the model below, the effect of experience on wages differs between union and non-union workers:
+$$
+  \text{Wages}_i = \beta_0 + \beta_1 \text{Experience}_i + \beta_2 \text{Union}_i + \beta_3 \text{Experience}_i \times \text{Union}_i + u_i
+$$
+
+\tf{T} In the following log-log model, a one-percent increase in $x$ corresponds to a $\beta_1$ percent increase in $y$:
+$$
+  \log(y_i) = \beta_0 + \beta_1 \log(x_i) + u_i
+$$
+
+\tf{F} Omitted-variable bias occurs whenever we omit a variable from a regression.
+
+\tf{T} Classical measurement error in an \textit{explanatory variable} biases the coefficient on that explanatory variable toward zero.
+
+\tf{F} Classical measurement error in the \textit{outcome variable} generally biases OLS slope coefficients toward zero.
+
+\tf{T} \textit{Homoskedasticity} means the individuals' disturbances have the same variance.
+
+\tf{F} Heteroskedasticity causes OLS coefficient estimates to be biased---even when exogeneity holds.
+
+\tf{T} Heteroskedasticity can make "classical" OLS standard errors biased.
+
+\tf{T} Residuals can be used to estimate unobservable disturbances and their variances.
+
+\tf{T} The Goldfeld-Quandt test compares residual variance across two subsets of the data.
+
+\tf{F} The White test regresses the squared outcome, $y_i^2$, on the regressors, their squares, and their interactions.
+
+\tf{T} Suppose the \textit{p}-value for the White test is 0.01. We should conclude there is statistically significant evidence of heteroskedasticity.
+
+\tf{F} The Goldfeld-Quandt test is designed to flexibly detect multiple patterns of heteroskedasticity.
+
+\tf{T} Weighted least squares (WLS) gives less weight to observations whose disturbances have larger variances.
+
+\tf{F} Heteroskedasticity-robust standard errors also adjust the OLS coefficient estimates.
+
+\tf{T} If disturbances are correlated within groups, then clustered standard errors can be appropriate.
+
+\tf{F} Consistency describes whether an estimator is correct \textit{on average} in a fixed sample size.
+
+\tf{F} If $\text{plim}\,\hat{\beta}_1 \neq \beta_1$, then $\hat{\beta}_1$ is consistent for $\beta_1$.
+
+\tf{T} Omitted-variable bias means exogeneity is violated.
+
+\end{questions}
+
+## Multiple choice (20 points; 5 questions)
+
+**Note** In this section, check ($\checkmark$ or $\times$) \textbf{all} correct answers. You do not need to explain your answer.
+
+\begin{questions}
+
+\setcounter{question}{30}
+
+\mc \\ Which of the following are part of the standard assumptions/requirements for OLS regression?
+
+\vspace{\stretch{0}}
+\begin{checkboxes}
+  \CorrectChoice $E[u_i \mid X_i] = 0$
+  \CorrectChoice There is no perfect collinearity among the regressors.
+  \choice $\text{Var}(u_i \mid X_i) = 0$
+  \CorrectChoice $\text{Cov}(u_i, u_j \mid X) = 0$ for $i \neq j$
+\end{checkboxes}
+
+\newpage
+
+\mc \\ Which of the following generally cause OLS coefficient estimates to be biased or inconsistent?
+
+\vspace{\stretch{0}}
+\begin{checkboxes}
+  \CorrectChoice $E[u_i \mid X_i] \neq 0$
+  \choice Heteroskedastic disturbances, with exogeneity still satisfied.
+  \CorrectChoice An omitted variable that affects $y_i$ and correlates with an included regressor.
+  \CorrectChoice Classical measurement error in an explanatory variable.
+\end{checkboxes}
+\vspace{\stretch{1}}
+
+\mc \\ Suppose we estimate
+$$
+  \text{(Test Score)}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i.
+$$
+Which items belong in the regression for the White test (as dependent or independent variables)?
+
+\vspace{\stretch{0}}
+\begin{checkboxes}
+  \CorrectChoice $e_i^2$
+  \CorrectChoice $\text{Ratio}_i^2$
+  \CorrectChoice $\text{Ratio}_i \times \text{Income}_i$
+  \choice $\text{(Test Score)}_i^2$
+\end{checkboxes}
+\vspace{\stretch{1}}
+
+\mc \\ In the presence of heteroskedasticity, which of the following are reasonable responses?
+
+\vspace{\stretch{0}}
+\begin{checkboxes}
+  \CorrectChoice Check the model specification.
+  \CorrectChoice Use heteroskedasticity-robust standard errors for inference.
+  \CorrectChoice Use WLS if you know the form of the heteroskedasticity.
+  \CorrectChoice Use log transformations.
+\end{checkboxes}
+\vspace{\stretch{1}}
+
+\newpage
+
+\mc \\ Consider the model
+$$
+  \log(\text{Wage}_i) = \beta_0 + \beta_1 \text{College}_i + \beta_2 \text{Experience}_i + \beta_3 \text{College}_i \times \text{Experience}_i + u_i,
+$$
+where $\text{College}_i$ is a binary variable and $\text{Experience}_i$ is the number of years of experience. Which descriptions are correct?
+
+\vspace{\stretch{0}}
+\begin{checkboxes}
+  \CorrectChoice $\beta_2$ tells us how an additional year of experience translates into a percent increase for the wages of non-college workers.
+  \CorrectChoice $\beta_3$ describes how the effect of experience differs for college workers relative to non-college workers.
+  \choice $\beta_1$ gives the effect of college graduation.
+  \choice $\beta_3$ describes how an additional year of experience translates into a percent increase for the wages of college workers.
+
+\end{checkboxes}
+
+\end{questions}
+
+## Short answer (60 points; 12 questions)
+
+\textbf{Note} In this section, briefly answer the questions/prompts in 1--3 short (and complete) sentences. \newline We will deduct points for excessively long answers.
+
+\begin{questions}
+
+\setcounter{question}{35}
+
+\short Define the concept of a \textit{standard error}.
+
+\begin{solution}
+  A standard error is the standard deviation of an estimator's sampling distribution. It measures how much the estimate varies because of sampling uncertainty.
+\end{solution}
+
+\newpage
+
+\short Explain the difference between a \textit{disturbance} and a \textit{residual}.
+
+\begin{solution}
+  A disturbance is the unobserved part of the population model, while a residual is the observed prediction error from the fitted regression. We use residuals to learn about disturbances because the disturbances themselves are not observed.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Explain the meaning of \textit{correlated disturbances} and discuss their implications for OLS inference.
+
+\begin{solution}
+  Correlated disturbances occur when the error terms are not independent, meaning that the disturbances from one observation are correlated with the disturbances from another. This correlation violates our assumption of independence and can lead to (very) biased standard errors.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short We want to estimate the effect of class size on test scores using
+$$
+  \text{Score}_i = \beta_0 + \beta_1 \text{(Class Size)}_i + \beta_2 \text{(Family Income)}_i + u_i,
+$$
+but we do not observe family income. Suppose family income has a positive effect on test scores and schools with larger classes tend to have lower family incomes. Use the omitted-variable-bias formula below to sign the bias from omitting family income. Is OLS more likely to overestimate or underestimate the class-size coefficient when we omit family income? Explain your answer.
+$$
+  \text{plim}\,\hat{\beta}_1 = \beta_1 + \beta_2 \frac{\text{Cov}(x_1,\,x_2)}{\text{Var}(x_1)}
+$$
+
+\begin{solution}
+  The omitted variable is family income, so $\beta_2 > 0$. Because class size and family income are negatively correlated, $\text{Cov}(\text{Class Size}, \text{Family Income}) < 0$. Since the variance term is positive, the bias is negative, so OLS is biased downward for the class-size coefficient---we will underestimate the true effect of class size on test scores.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Suppose we estimate
+$$
+  \text{Score}_i = \beta_0 + \beta_1 \text{Ratio}_i + \beta_2 \text{Income}_i + u_i
+$$
+and obtain $\hat{\beta}_1 = -3.5$ with standard error $0.5$. Explain whether the estimate is likely to be statistically significant at the 5-percent level.
+
+\begin{solution}
+  The test statistic is $t = (-3.5 - 0)/0.5 = -7$. This value is much larger than critical values we would expect to see under the null hypothesis, so we reject the null hypothesis at the 5-percent level.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short Can increasing the sample size solve the omitted-variable-bias problem above? Explain.
+
+\begin{solution}
+  No. Increasing the sample size does not remove the omitted-variable bias, as the bias is still present even with a large sample size. In fact, the formula we derived above is the probability limit of the OLS estimator, so increasing the sample size does not change the bias (even as the sample size approaches infinity).
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short What are the main consequences of heteroskedasticity for OLS (1) coefficient estimates, (2) efficiency, and (3) inference?
+
+\begin{solution}
+  If exogeneity holds, heteroskedasticity does not bias the OLS coefficient estimates. However, OLS is no longer the most efficient linear unbiased estimator, and plain OLS standard errors can be biased, which makes conventional hypothesis tests and confidence intervals unreliable.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Compare the Goldfeld-Quandt test and the White test for heteroskedasticity.
+
+\begin{solution}
+  The Goldfeld-Quandt test compares residual variance across two ordered groups, so it works well for specific patterns of heteroskedasticity but can miss other patterns. The White test uses an auxiliary regression of squared residuals on regressors, squares, and interactions, making it more general but also less targeted.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short Consider the model
+$$
+  \text{Health}_i = \beta_0 + \beta_1 \text{Exercise}_i + \beta_2 \text{Senior}_i + \beta_3 \text{Exercise}_i \times \text{Senior}_i + u_i,
+$$
+where $\text{Health}_i$ is a health index, $\text{Exercise}_i$ is hours of exercise per week, and $\text{Senior}_i$ equals 1 for senior citizens and 0 otherwise. Suppose $\beta_0 = 60$, $\beta_1 = 3$, $\beta_2 = -12$, and $\beta_3 = -1$. Interpret $\beta_1$ and $\beta_3$ \textit{using the equation and the provided numbers}.
+
+\begin{solution}
+  For non-seniors, one additional hour of exercise per week is associated with a 3-point increase in the health index. The interaction coefficient means the exercise slope is 1 point smaller for seniors, so the exercise slope for seniors is $3 - 1 = 2$ points.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\short Suppose you work for a restaurant company with franchise locations across the country. You have data on the current sales revenue, prices, and advertising expenditures for each franchise. Your boss wants you to estimate the effects of pricing and advertising on sales using the regression model below.
+$$
+  \text{Sales}_i = \beta_0 + \beta_1 \text{Price}_i + \beta_2 \text{Advertising}_i + u_i
+$$
+What econometric concerns should you raise about this regression model?
+
+\begin{solution}
+  There are a number of issues we could raise with the model: omitted variable bias and endogeneity, heteroskedasticity, correlated disturbances, even measurement error.
+\end{solution}
+
+\vspace{\stretch{1}}
+
+\newpage
+
+\short Draw a plot that shows disturbances that are exogenous and heteroskedastic.
+
+\vspace{\stretch{1}}
+
+\short Draw a plot that shows disturbances that are endogenous and homoskedastic.
+
+\vspace{\stretch{1}}
+
+\end{questions}

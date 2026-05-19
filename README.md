@@ -102,6 +102,8 @@ Here are some exams from previous years:
 
 ## Midterm exam
 
+Here are the [midterm](https://raw.githack.com/edrubin/EC421S26/master/midterm/exam/exam.pdf) and its [key](https://raw.githack.com/edrubin/EC421S26/master/midterm/exam/exam-key.pdf).
+
 Materials to prepare for the in-class midterm exam:
 
 - [notes from in-class review](https://github.com/edrubin/EC421S26/blob/master/midterm/prep/inclass-review.pdf);
