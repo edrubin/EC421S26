@@ -25,12 +25,7 @@ execute:
 
 ---
 
-## {.center}
-
-
-[Prologue]{.bigger .it .slab}
-
----
+## Prologue {.center .bigger .it .slab}
 
 ## Schedule
 
@@ -158,13 +153,7 @@ A brief introduction to nonstationarity
 
 Assignment!
 
----
-
-## {.center}
-
-[Nonstationarity]{.bigger .it .slab}
-
----
+## Nonstationarity {.center .bigger .it .slab}
 
 ## Nonstationarity
 
@@ -250,20 +239,7 @@ $$
 
 :::
 
-::: {.fragment}
-
-
-Why?
-
-:::
-
-::: {.fragment}
-
-
-
- $\mathop{\text{Var}} \left( x_t \right) = t \sigma_\varepsilon^2$, which [violates stationary variance]{.pink }.
-
-:::
+[Why?]{.fragment} [$\mathop{\text{Var}} \left( x_t \right) = t \sigma_\varepsilon^2$, which [violates stationary variance]{.pink }.]{.fragment}
 
 ::: {.fragment}
 
@@ -284,120 +260,113 @@ $$
 
 :::
 
----
-## {.centered}
+## What's the big deal? {.center}
 
-**Q:** What's the big deal with this violation?
+## One 100-period random walk {.slate}
 
----
+```{r}
+#| label: "gen-walks"
+#| echo: false
 
-[One 100-period random walk]{.b .slate }
+# Set seed
+set.seed(1246)
+# Generate data
+walk_df =
+  lapply(
+    X = 1:1e3,
+    FUN = function(i) {
+    tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = as.character(i))
+    }
+  ) |>
+  bind_rows()
+# Find range of x values
+x_range = range(walk_df$x)
+```
+
 ```{r}
 #| label: "walk1"
 #| echo: false
-set.seed(1246)
-walk1 <- tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = "1")
-walk2 <- tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = "2")
-walk3 <- tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = "3")
-walk4 <- tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = "4")
-walk5 <- tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = "5")
-ggplot(data = walk1, aes(x = t, y = x)) +
+
+ggplot(data = walk_df |> filter(walk == "1"), aes(x = t, y = x)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[Two 100-period random walks]{.b .slate }
+## Two 100-period random walks {.slate}
 ```{r}
 #| label: "walk2"
 #| echo: false
-ggplot(data = bind_rows(walk1, walk2), aes(x = t, y = x, color = walk)) +
+ggplot(data = walk_df |> filter(walk %in% 1:2), aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[Three 100-period random walks]{.b .slate }
+## Three 100-period random walks {.slate}
 ```{r}
 #| label: "walk3"
 #| echo: false
-ggplot(data = bind_rows(walk1, walk2, walk3), aes(x = t, y = x, color = walk)) +
+ggplot(data = walk_df |> filter(walk %in% 1:3), aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[Four 100-period random walks]{.b .slate }
+## Four 100-period random walks {.slate}
 ```{r}
 #| label: "walk4"
 #| echo: false
-ggplot(data = bind_rows(walk1, walk2, walk3, walk4), aes(x = t, y = x, color = walk)) +
+ggplot(data = walk_df |> filter(walk %in% 1:4), aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[Five 100-period random walks]{.b .slate }
+## Five 100-period random walks {.slate}
 ```{r}
 #| label: "walk5"
 #| echo: false
-ggplot(data = bind_rows(walk1, walk2, walk3, walk4, walk5), aes(x = t, y = x, color = walk)) +
+ggplot(data = walk_df |> filter(walk %in% 1:5), aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[Fifty 100-period random walks]{.b .slate }
+## Fifty 100-period random walks {.slate}
 ```{r}
 #| label: "walk50"
 #| echo: false
 #| cache: true
-# Set seed
-set.seed(1246)
-# Generate data
-walk_df <- lapply(X = 1:50, FUN = function(i) {
-  tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = as.character(i))
-}) %>% bind_rows()
 # Plot
-ggplot(data = walk_df, aes(x = t, y = x, color = walk)) +
+ggplot(data = walk_df |> filter(walk %in% 1:50), aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path(size = 0.25) +
   scale_color_viridis(option = "magma", discrete = T, end = 0.95) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
-
-[1,000 100-period random walks]{.b .slate }
+## 1,000 100-period random walks {.slate}
 ```{r}
 #| label: "walk1000"
 #| echo: false
 #| cache: true
-# Set seed
-set.seed(1246)
-# Generate data
-walk_df <- lapply(X = 1:1e3, FUN = function(i) {
-  tibble(x = cumsum(rnorm(1e2)), t = 1:1e2, walk = as.character(i))
-}) %>% bind_rows()
 # Plot
 ggplot(data = walk_df, aes(x = t, y = x, color = walk)) +
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path(size = 0.25) +
   scale_color_viridis(option = "magma", discrete = T, end = 0.95) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
@@ -411,9 +380,10 @@ ggplot(data = walk_df, aes(x = t, y = x, color = walk)) +
 ::: {.fragment}
 
 
->**Defintion:** [Spurious]{.b .pink }
->- not being what it purports to be; false or fake
->- apparently but not actually valid
+**Defintion:** [Spurious]{.b .pink }
+
+> - not being what it purports to be; false or fake
+> - apparently but not actually valid
 
 :::
 
@@ -424,9 +394,9 @@ Back in 1974, Granger and Newbold showed that when they **generated random walks
 
 :::
 
----
+## Granger and Newbold simulation example {.slate}
 
-[Granger and Newbold simulation example:]{.b .slate } _t_ statistic ≈ `r lm(filter(walk_df, walk == 1)$x ~ filter(walk_df, walk == 2)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
+_t_ statistic ≈ `r lm(filter(walk_df, walk == 1)$x ~ filter(walk_df, walk == 2)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
 
 ```{r}
 #| label: "gb12"
@@ -435,12 +405,13 @@ ggplot(data = walk_df %>% filter(walk %in% c(1:2)), aes(x = t, y = x, color = wa
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
+## Granger and Newbold simulation example {.slate}
 
-[Granger and Newbold simulation example:]{.b .slate } _t_ statistic ≈ `r lm(filter(walk_df, walk == 3)$x ~ filter(walk_df, walk == 4)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
+_t_ statistic ≈ `r lm(filter(walk_df, walk == 3)$x ~ filter(walk_df, walk == 4)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
 
 ```{r}
 #| label: "gb34"
@@ -449,12 +420,13 @@ ggplot(data = walk_df %>% filter(walk %in% c(3:4)), aes(x = t, y = x, color = wa
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
----
+## Granger and Newbold simulation example {.slate}
 
-[Granger and Newbold simulation example:]{.b .slate } _t_ statistic ≈ `r lm(filter(walk_df, walk == 5)$x ~ filter(walk_df, walk == 6)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
+_t_ statistic ≈ `r lm(filter(walk_df, walk == 5)$x ~ filter(walk_df, walk == 6)$x) %>% summary %>% coef %>% extract(2,3) %>% round(2)`
 
 ```{r}
 #| label: "gb56"
@@ -463,6 +435,7 @@ ggplot(data = walk_df %>% filter(walk %in% c(5:6)), aes(x = t, y = x, color = wa
   geom_hline(yintercept = 0, color = "grey85", size = 1.25) +
   geom_path() +
   scale_color_viridis(option = "magma", discrete = T, begin = 0.15, end = 0.85) +
+  coord_cartesian(ylim = 1.05 * x_range) +
   theme_axes_math
 ```
 
@@ -590,7 +563,7 @@ using a *t* test that $|\beta_1|<1$.^[[†]{.pink } People often just test $\bet
 
 ## Summary and conclusion
 
-- [Stationary time series]{.b .pink } behave predictably: stable mean, variance, and covariance.
+[Stationary time series]{.b .purple } behave predictably: stable mean, variance, and covariance.
 
 - [Nonstationary processes]{.b .pink }, like random walks, can produce [spurious regression results]{.b .pink }.
 
