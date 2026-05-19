@@ -154,6 +154,10 @@ Autocorrelation
 
 A brief introduction to nonstationarity
 
+### Upcoming
+
+Assignment!
+
 ---
 
 ## {.center}
@@ -200,9 +204,8 @@ Requirements for [stationarity]{.b .pink } (a *stationary* time-series process):
 1. The [mean]{.b .pink } of the distribution is independent of time, _i.e._,
 
    $$
-   \mathop{\boldsymbol{E}}\left[ x_t \right]  = \mathop{\boldsymbol{E}}\left[ x_{t-k} \right]
+   \mathop{\boldsymbol{E}}\left[ x_t \right]  = \mathop{\boldsymbol{E}}\left[ x_{t-k} \right] \text{ for all } k
    $$
-   for all $k$
 
 :::
 
@@ -212,9 +215,8 @@ Requirements for [stationarity]{.b .pink } (a *stationary* time-series process):
 2. The [variance]{.b .pink } of the distribution is independent of time, _i.e._,
 
    $$
-   \mathop{\text{Var}} \left( x_t \right) = \mathop{\text{Var}} \left( x_{t-k} \right)
+   \mathop{\text{Var}} \left( x_t \right) = \mathop{\text{Var}} \left( x_{t-k} \right) \text{ for all } k
    $$
-   for all $k$
 
 :::
 
@@ -223,9 +225,8 @@ Requirements for [stationarity]{.b .pink } (a *stationary* time-series process):
 3. The [covariance]{.b .pink } between $x_t$ and $x_{t-k}$ depends only on $k$—[not on]{.pink } $\textcolor{#e64173}{t}$, _i.e._,
 
    $$
-   \mathop{\text{Cov}} \left( x_t,\,x_{t-k} \right) = \mathop{\text{Cov}} \left( x_s,\, x_{s-k} \right)
+   \mathop{\text{Cov}} \left( x_t,\,x_{t-k} \right) = \mathop{\text{Cov}} \left( x_s,\, x_{s-k} \right) \text{ for all} t \text{ and } s
    $$
-   for all $t$ and $s$
 
 :::
 
@@ -284,6 +285,7 @@ $$
 :::
 
 ---
+## {.centered}
 
 **Q:** What's the big deal with this violation?
 
@@ -580,11 +582,22 @@ H[a]{.sub }: $y_t = y_{t-1} + \varepsilon_t$ ([random walk]{.b .pink })
 ::: {.fragment}
 
 
-using a *t* test that $|\beta_1|<1$.<sup>[†]{.pink }</sup>
-
-^[[†]{.pink } People often just test $\beta_1<1$.]
+using a *t* test that $|\beta_1|<1$.^[[†]{.pink } People often just test $\beta_1<1$.]
 
 :::
+
+---
+
+## Summary and conclusion
+
+- [Stationary time series]{.b .pink } behave predictably: stable mean, variance, and covariance.
+
+- [Nonstationary processes]{.b .pink }, like random walks, can produce [spurious regression results]{.b .pink }.
+
+- Differencing can help when the process is [difference stationary]{.b .pink }.
+
+- [Bottom line:]{.b .slate } test/think carefully before trusting OLS with time series.
+
 
 ---
 
@@ -610,17 +623,3 @@ using a *t* test that $|\beta_1|<1$.<sup>[†]{.pink }</sup>
 :::
 :::
 :::
-
----
-
-## Hidden {visibility="hidden"}
-
-```{r}
-#| label: "print-pdfs"
-#| echo: false
-#| eval: false
-pagedown::chrome_print(
-  input = "09-nonstationarity.html",
-  timeout = 60
-)
-```
