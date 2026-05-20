@@ -1,19 +1,93 @@
 /*-- scss:defaults --*/
 
-.ans {
-  font-weight: 600;
-  color: #e64173 !important;
+// Define colors
+$pink: #e64173;
+$slate: #314f4f;
+$turquoise: #44c1c4;
+$purple: #6a5acd;
+$orange: #ffa500;
+$yellow: #d8bd44;
+$green: #7cae96;
+$grey: #8aa19e;
+$lightgrey: #dcdcdc;
+$blue: #54778b;
+$red: #fb6107;
+
+/*-- scss:rules --*/
+
+// Define color classes
+.pink {
+    color: $pink !important;
+}
+.slate {
+    color: $slate !important;
+}
+.turquoise {
+    color: $turquoise !important;
+}
+.purple {
+    color: $purple !important;
+}
+.orange {
+    color: $orange !important;
+}
+.yellow {
+    color: $yellow !important;
+}
+.green {
+    color: $green !important;
+}
+.grey {
+    color: $grey !important;
+}
+.lightgrey {
+    color: $lightgrey !important;
+}
+.blue {
+    color: $blue !important;
+}
+.red {
+    color: $red !important;
 }
 
-.answer {
-  background: #fafafa;
-  padding: 1em;
-  margin: .3em;
-  border-radius: 7px;
-  border-style: none;
-  border-color: #fafafa;
+// Define special classes
+.b {
+    font-weight: 600;
+}
+.ans {
+    font-weight: 600;
+    color: $pink !important;
 }
 
 .mono {
-  font-family: monospace;
+    font-family: monospace;
+}
+
+.answer {
+    background: #fcfcfc;
+    padding: 1em;
+    margin: 0.5em;
+    border-radius: 10px;
+    border-style: none;
+}
+
+// Custom color for line numbers in code blocks
+pre.numberSource code > span > a:first-child::before {
+    color: #ccc !important;
+}
+
+/* Numbering */
+body {
+    counter-reset: num;
+}
+.num {
+    counter-increment: num;
+    color: $purple !important;
+    font-weight: 600;
+}
+.num::before {
+    content: counter(num, decimal-leading-zero);
+}
+.num::after {
+    content: "\00a0\00a0";
 }

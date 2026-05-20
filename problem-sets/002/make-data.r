@@ -1,69 +1,104 @@
 # Setup ----------------------------------------------------------------------------------
-  # Required packages
-  library(pacman)
-  p_load(fastverse, lubridate, stringr, fixest, here)
+# Install fred package
+# pak::pkg_install('sboysel/fredr')
+# Load packages
+pacman::p_load(here, data.table, fredr)
 
-# Load data ------------------------------------------------------------------------------
-  # Unemployment
-  ue = here('problem-sets', '002', 'data-raw', 'UNRATE.csv') |> fread()
-  # CPI
-  cpi = here('problem-sets', '002', 'data-raw', 'CPIAUCSL.csv') |> fread()
-  # GDP
-  gdp = here('problem-sets', '002', 'data-raw', 'A939RX0Q048SBEA.csv') |> fread()
-  # Recession probability
-  rec = here('problem-sets', '002', 'data-raw', 'RECPROUSM156N.csv') |> fread()
-
-# Clean data -----------------------------------------------------------------------------
-  # Clean names
-  setnames(ue, c('date', 'unemp_rate'))
-  setnames(cpi, c('date', 'cpi'))
-  setnames(gdp, c('date', 'gdppc'))
-  setnames(rec, c('date', 'rec_prob'))
-  # Aggregate ue, cpi, and rec to quarterly
-  ue[, q := quarter(date)]
-  cpi[, q := quarter(date)]
-  rec[, q := quarter(date)]
-  ue =
-    ue[, .(
-      date = min(date),
-      unemp_rate = mean(unemp_rate, na.rm = TRUE) |> round(2)
-    ), by = .(year(date), q)]
-  cpi =
-    cpi[, .(
-      date = min(date),
-      cpi = mean(cpi, na.rm = TRUE) |> round(2)
-    ), by = .(year(date), q)]
-  rec =
-    rec[, .(
-      date = min(date),
-      rec_prob = mean(rec_prob, na.rm = TRUE) |> round(2)
-    ), by = .(year(date), q)]
-  cpi[, c('q', 'year') := NULL]
-  rec[, c('q', 'year') := NULL]
-  ue[, year := NULL]
-  # Merge datasets
-  full_dt =
-    gdp |>
-    merge(ue, by = 'date', all.x = TRUE) |>
-    merge(cpi, by = 'date', all.x = TRUE) |>
-    merge(rec, by = 'date', all.x = TRUE)
-  # Keep 1970 onward
-  full_dt = full_dt[year(date) >= 1970]
-  # Add time trend
-  full_dt[, time := 1:.N]
-  # Add unit column for panel
-  full_dt[, country := 'US']
-  # Reorder columns
-  setcolorder(
-    full_dt,
-    c('time', 'date', 'q', 'country', 'unemp_rate', 'cpi', 'gdppc', 'rec_prob')
+# Download data --------------------------------------------------------------------------
+# Download housing starts
+housing =
+  fredr(
+    series_id = 'HOUST',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
   )
-  # Rescale GDP
-  full_dt[, gdppc := gdppc / 1e3]
-
-# Save cleaned dataset -------------------------------------------------------------------
-  # Save
-  fwrite(
-    full_dt,
-    here('problem-sets', '002', 'data-ps2.csv')
+# Download 30-year mortgage rate
+mortgage =
+  fredr(
+    series_id = 'MORTGAGE30US',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
   )
+# Download CPI
+cpi =
+  fredr(
+    series_id = 'CPIAUCSL',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
+  )
+# Download industrial production
+ind =
+  fredr(
+    series_id = 'INDPRO',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
+  )
+# Download unemployment rate
+unemp =
+  fredr(
+    series_id = 'UNRATE',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
+  )
+# Download NBER recession indicator
+recession =
+  fredr(
+    series_id = 'USREC',
+    observation_start = as.Date('1990-01-01'),
+    observation_end = as.Date('2025-12-31'),
+    frequency = 'm'
+  )
+# All to data.table
+setDT(housing)
+setDT(mortgage)
+setDT(cpi)
+setDT(ind)
+setDT(unemp)
+setDT(recession)
+
+# Join data and save ---------------------------------------------------------------------
+# Merge datasets
+full_dt =
+  merge(
+    x = housing[, .(date, housing = value)],
+    y = mortgage[, .(date, mortgage_rate = value)],
+    by = 'date',
+    all = TRUE
+  ) |>
+  merge(
+    y = cpi[, .(date, cpi = value)],
+    by = 'date',
+    all = TRUE
+  ) |>
+  merge(
+    y = ind[, .(date, industry = value)],
+    by = 'date',
+    all = TRUE
+  ) |>
+  merge(
+    y = unemp[, .(date, unemp = value)],
+    by = 'date',
+    all = TRUE
+  ) |>
+  merge(
+    y = recession[, .(date, recession = value)],
+    by = 'date',
+    all = TRUE
+  )
+# Add "time"
+setorder(full_dt, date)
+full_dt[, time := seq_len(.N)]
+# Add "country"
+full_dt[, country := 'US']
+# Re-arrange columns
+setcolorder(full_dt, c('date', 'time', 'country'))
+# Save
+fwrite(
+  x = full_dt,
+  file = here('problem-sets', '002', 'data-ps2.csv')
+)

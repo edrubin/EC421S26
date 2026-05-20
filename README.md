@@ -30,8 +30,8 @@ Below are the tentatively planned topics for the problem sets.
 *Help:* [Starter Quarto document](https://github.com/edrubin/EC421S26/blob/master/problem-sets/001/quarto-start.qmd) and [Guide to Projects in RStudio](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/001/rstudio-projects.html)
 
 **Problem Set 2: Time-Series Data, Analyses, and Nonstationarity**
-<br>Due: TBD
-<br>Files: assignment | data | solutions
+<br>Due: *before* 11:59PM on Tuesday, 26 May 2026.
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/002/002-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/002/data-ps2.csv) | solutions
 
 **Problem Set 3: Causality, Instrumental Variables, and 2SLS**
 <br>Due: TBD
