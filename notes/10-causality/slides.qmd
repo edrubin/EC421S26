@@ -171,24 +171,18 @@ $$
 $$
 
 ::: {.fragment}
-
 1. [Prediction:]{.b .purple} Accurately and dependably [predict/forecast]{.purple} $\textcolor{#6A5ACD}{y}$ using on some set of explanatory variables—doesn't need to be $x_1$ through $x_k$. Focuses on $\textcolor{#6A5ACD}{\hat{y}}$. $\beta_j$ doesn't really matter.
-
 :::
 
 ::: {.fragment}
-
-1. [Causal estimation:]{.b .pink}[[†]{.pink}]{.super} Estimate the actual data-generating process—learning about the true, population model that explains [how]{.pink} $\textcolor{#e64173}{y}$ [changes when we change]{.pink} $\textcolor{#e64173}{x_j}$—focuses on $\textcolor{#e64173}{\beta_j}$. Accuracy of $\hat{y}$ is not important.
-
+1. [Causal estimation:]{.b .pink}^[Often called *causal identification*.] Estimate the actual data-generating process—learning about the true, population model that explains [how]{.pink} $\textcolor{#e64173}{y}$ [changes when we change]{.pink} $\textcolor{#e64173}{x_j}$—focuses on $\textcolor{#e64173}{\beta_j}$. Accuracy of $\hat{y}$ is not important.
 :::
 
-^[[†]{.pink} Often called *causal identification*.]
+---
 
-::: {.fragment}
+##
 
-For the rest of the term, we will focus on [causally estimating]{.b .pink} $\textcolor{#e64173}{\beta_j}$.
-
-:::
+[For the rest of the term, we will focus on [causally estimating]{.b .pink} $\textcolor{#e64173}{\beta_j}$.]{.middle}
 
 ---
 
@@ -230,15 +224,10 @@ As you saw in the data-analysis exercise, determining and estimating the true mo
 :::
 
 ::: {.fragment}
-
 Many of these challenges relate to [exogeneity]{.b .slate}, _i.e._, $\textcolor{#314f4f}{\mathop{\boldsymbol{E}}\left[ u_i | X \right] = 0}$.
-
 :::
-
 ::: {.fragment}
-
-<br>Causality requires us to [hold all else constant]{.b .slate} (*ceterus paribus*).
-
+Causality requires us to [hold all else constant]{.b .slate} (*ceterus paribus*).
 :::
 
 ---
@@ -265,7 +254,6 @@ Generally, [*causal*]{.b .pink} relationships are complex and challenging to ans
 ::: {.fragment}
 
 - What [causes]{.pink} some countries to grow and others to decline?
-- What [caused]{.pink} the capital riot?
 - Did lax regulation[cause]{.pink} Texas's recent energy problems?
 - [How]{.pink} does the number of police officers affect crime?
 - What is the [effect]{.pink} of better air quality on test scores?
@@ -300,67 +288,35 @@ Although correlation is not causation, [causation *requires* correlation]{.b .pi
 
 ::: {.fragment}
 
-> Correlation plus exogeneity is causation.
+> Correlation _with exogeneity_ is causation.
 
 :::
 
 ---
 
-## {.clear}
+##
 
-Let's work through a few examples.
+[Let's work through a few examples.]{.middle}
 
 ---
 
 ## Causation {#fertilizer}
 
-### Example: The causal effect of fertilizer[[†]{.pink}]{.super}
+### Example: The causal effect of fertilizer
 
-^[[†]{.pink} Many of the early statistical and econometric studies involved agricultural field trials.]
+Suppose we want to know the causal effect of fertilizer on corn yield.^[Many of the early statistical and econometric studies involved agricultural field trials.]
 
-Suppose we want to know the causal effect of fertilizer on corn yield.
 
-::: {.fragment}
+[**Q:** Could we simply regress yield on fertilizer?]{.fragment}
+[<br>**A:** Probably not (if we want the causal effect).]{.fragment}
 
-**Q:** Could we simply regress yield on fertilizer?
+[**Q:** Why not?]{.fragment}
+[<br>**A:** Omitted-variable bias: Farmers may apply less fertilizer in areas that are already worse on other dimensions that affect yield (soil, slope, water).<br>[Violates *all else equal* (exogeneity). Biased and/or spurious results.]{.pink}]{.fragment}
 
-:::
 
-::: {.fragment}
-
-<br>**A:** Probably not (if we want the causal effect).
-
-:::
-
-::: {.fragment}
-
-<br><br>**Q:** Why not?
-
-:::
-
-::: {.fragment}
-
-<br>**A:** Omitted-variable bias: Farmers may apply less fertilizer in areas that are already worse on other dimensions that affect yield (soil, slope, water).<br>[Violates *all else equal* (exogeneity). Biased and/or spurious results.]{.pink}
-
-:::
-
-::: {.fragment}
-
-<br><br>**Q:** So what *should* we do?
-
-:::
-
-::: {.fragment}
-
-<br>**A:** [Run an experiment!]{.b .pink}
-
-:::
-
-::: {.fragment}
-
-💩
-
-:::
+[**Q:** So what *should* we do?]{.fragment}
+[<br>**A:** [Run an experiment!]{.b .pink}]{.fragment}
+[💩]{.fragment}
 
 ---
 
@@ -370,42 +326,24 @@ Suppose we want to know the causal effect of fertilizer on corn yield.
 
 Randomized experiments help us maintain *all else equal* (exogeneity).
 
-::: {.fragment}
-
-We often call these experiments [*randomized control trials*]{.b .pink} (RCTs).[[†]{.pink}]{.super}
-
-:::
-
-^[[†]{.pink} Econometrics (and statistics) borrows this language from biostatistics and pharmaceutical trials.]
+We often call these experiments [*randomized control trials*]{.b .pink} (RCTs).^[Econometrics (and statistics) borrows this language from biostatistics and pharmaceutical trials.]
 
 ::: {.fragment}
-
 Imagine an RCT where we have two groups:
-
-:::
-
-::: {.fragment}
 
 - [Treatment:]{.b .slate} We apply fertilizer.
 - [Control:]{.b .slate} We do not apply fertilizer.
-
 :::
 
 ::: {.fragment}
-
 By randomizing plots of land into [treatment]{.b .slate} or [control]{.b .slate}, we will, on average, include all kinds of land (soild, slope, water, *etc.*) in both groups.
 
-:::
-
-::: {.fragment}
-
 *All else equal*!
-
 :::
 
 ---
 
-## {.clear}
+##
 
 [54 equal-sized plots]{.b .slate}
 
@@ -432,7 +370,7 @@ coord_equal()
 
 ---
 
-## {.clear}
+##
 
 [54 equal-sized plots]{.b .slate}
 
@@ -451,7 +389,7 @@ coord_equal()
 
 ---
 
-## {.clear}
+##
 
 [54 equal-sized plots]{.b .slate}
 
@@ -811,7 +749,7 @@ This change in earnings gives the [causal effect]{.b .slate} of education on ear
 
 ::: {.fragment}
 
-The point (2) above also illustrates the difficulty in learning about educations while *holding all else constant*.
+The point (2) above also illustrates the difficulty in learning about education while *holding all else constant*.
 
 :::
 
@@ -901,43 +839,35 @@ coord_equal()
 ## Causality {#ideal}
 ### The ideal experiment
 
-The [ideal experiment]{.b .pink} would be subtly different.
+The absolute, best-case scenario would be somewhat different.
 
-Rather than comparing units randomized as [treatment]{.pink} vs. [control]{.pink}, the ideal experiment would compare treatment and control [for the same, exact unit]{.b .pink}.
+Rather than comparing units randomized as [treatment]{.pink} vs. [control]{.pink}, we would compare treatment and control [for the same, exact unit]{.b .pink}.
 
 ::: {.fragment}
-
 $$
 \begin{align}
   y_{\text{Treatment},i} - y_{\text{Control},i}
 \end{align}
 $$
-
 :::
 
 ::: {.fragment}
-
 which we will write (for simplicity) as
-
 :::
 
 ::: {.fragment}
-
 $$
 \begin{align}
   y_{1,i} - y_{0,i}
 \end{align}
 $$
-
 :::
 
 ::: {.fragment}
-
-This [*ideal experiment*]{.pink} is clearly infeasible[[†]{.pink}]{.super}, but it creates nice notation for causality (the Rubin causal model/Neyman potential outcomes framework).
-
+This comparison is clearly infeasible^[Without (1) God-like abilities and multiple universes or (2) a time machine.], but it creates nice notation for causality (the Rubin causal model/Neyman potential outcomes framework).
 :::
 
-^[[†]{.pink} Without (1) God-like abilities and multiple universes or (2) a time machine.]
+
 
 ---
 
@@ -1205,64 +1135,40 @@ $$
 
 ---
 
-## {.clear}
+##
 
 **Q[3.0]{.sub}:** Is $\textcolor{#e64173}{\mathop{Avg}\left( y_i\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_i\mid D_i =0 \right)}$ a *good* estimator for $\tau$?
 
-::: {.fragment}
+[Difference in groups' means]{.fragment}
 
-Difference in groups' means
+[ $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( y_i\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_i\mid D_i =0 \right)}$]{.fragment}
 
-:::
+[ $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( y_{1,i}\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$]{.fragment}
 
-::: {.fragment}
+[ $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( \textcolor{#000000}{\tau \: +} \: \textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$]{.fragment}
 
-<br> $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( y_i\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_i\mid D_i =0 \right)}$
+[ $\quad \textcolor{#ffffff}{\Bigg|}=\tau + \textcolor{#e64173}{\mathop{Avg}\left(\textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$]{.fragment}
 
-:::
+[ $\quad \textcolor{#ffffff}{\Bigg|}= \text{Average causal effect} + \textcolor{#FFA500}{\text{Selection bias}}$]{.fragment}
 
-::: {.fragment}
-
-<br> $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( y_{1,i}\mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad \textcolor{#ffffff}{\Bigg|}=\textcolor{#e64173}{\mathop{Avg}\left( \textcolor{#000000}{\tau \: +} \: \textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad \textcolor{#ffffff}{\Bigg|}=\tau + \textcolor{#e64173}{\mathop{Avg}\left(\textcolor{#6A5ACD}{y_{0,i}} \mid D_i = 1 \right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( y_{0,i}\mid D_i =0 \right)}$
-
-:::
-
-::: {.fragment}
-
-<br> $\quad \textcolor{#ffffff}{\Bigg|}= \text{Average causal effect} + \textcolor{#FFA500}{\text{Selection bias}}$
-
-:::
-
-::: {.fragment}
+## Selection into treatment
 
 So our proposed group-difference estimator give us the sum of
-
-:::
-
-::: {.fragment}
 
 1. $\tau$, the [causal, average treatment effect]{.b .slate} that we want
 2. [Selection bias:]{.b .orange} How much trt. and control groups differ (on average).
 
-:::
+Randomization shuts down selection bias (on average).
+
+Without randomization, we need to be careful.
 
 ---
 
-## {.clear}
+##
 
-[Next time:]{.b .slate}
+::: {.middle}
+[Next time:]{.b .slate} Solving selection bias.
+:::
 
 ---
 
@@ -1296,17 +1202,3 @@ So our proposed group-difference estimator give us the sum of
 :::
 :::
 :::
-
----
-
-## Hidden {visibility="hidden"}
-
-```{r}
-#| label: "print-pdfs"
-#| echo: false
-#| eval: false
-pagedown::chrome_print(
-  input = "10-causality.html",
-  timeout = 60
-)
-```

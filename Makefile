@@ -58,30 +58,30 @@ notes/05-heteroskedasticity/slides.html : notes/05-heteroskedasticity/slides.qmd
 notes/05-heteroskedasticity/slides.pdf : notes/05-heteroskedasticity/slides.html
 	decktape $<?fragments=true $@
 # Lecture 06
-notes/06-consistency/slides.html : notes/06-consistency/slides.qmd notes/my-css.css
+notes/06-consistency/slides.html : notes/06-consistency/slides.qmd notes/my.scss
 	quarto render '$<'
 notes/06-consistency/slides.pdf : notes/06-consistency/slides.html
 	decktape $<?fragments=true $@
 # Lecture 07
-notes/07-time-series/slides.html : notes/07-time-series/slides.qmd notes/my-css.css
+notes/07-time-series/slides.html : notes/07-time-series/slides.qmd notes/my.scss
 	quarto render '$<'
 notes/07-time-series/slides.pdf : notes/07-time-series/slides.html
 	decktape $<?fragments=true $@
 # Lecture 08
-notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.qmd notes/my-css.css
+notes/08-autocorrelation/slides.html : notes/08-autocorrelation/slides.qmd notes/my.scss
 	quarto render '$<'
 notes/08-autocorrelation/slides.pdf : notes/08-autocorrelation/slides.html
 	decktape $<?fragments=true $@
 # Lecture 09
-notes/09-nonstationarity/slides.html : notes/09-nonstationarity/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/09-nonstationarity/slides.html : notes/09-nonstationarity/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/09-nonstationarity/slides.pdf : notes/09-nonstationarity/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 10
-notes/10-causality/slides.html : notes/10-causality/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/10-causality/slides.html : notes/10-causality/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/10-causality/slides.pdf : notes/10-causality/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 # Lecture 11
 notes/11-iv/slides.html : notes/11-iv/slides.rmd notes/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
