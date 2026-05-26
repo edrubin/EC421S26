@@ -88,10 +88,10 @@ notes/11-iv/slides.html : notes/11-iv/slides.rmd notes/my-css.css
 notes/11-iv/slides.pdf : notes/11-iv/slides.html
 	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
 # Lecture 12
-notes/12-panels/slides.html : notes/12-panels/slides.rmd notes/my-css.css
-	Rscript -e "rmarkdown::render('$<')"
+notes/12-panels/slides.html : notes/12-panels/slides.qmd notes/my.scss
+	quarto render '$<'
 notes/12-panels/slides.pdf : notes/12-panels/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+	decktape $<?fragments=true $@
 
 # Define links: Midterm material -----------------------------------------------
 midterm/prep/midterm-topics.html : midterm/prep/midterm-topics.qmd

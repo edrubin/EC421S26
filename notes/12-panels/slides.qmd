@@ -273,7 +273,7 @@ example_panel |> data.table::as.data.table()
 Consider the following panel of six observations:
 
 ::: columns
-::: {.column width="50%"}
+::: {.column width="40%"}
 ```{r}
 #| label: "example-panel-2"
 #| echo: false
@@ -281,7 +281,7 @@ Consider the following panel of six observations:
 example_panel |> data.table::as.data.table()
 ```
 :::
-::: {.column width="50%"}
+::: {.column width="60%"}
 We observe the [same unit]{.orange} repeatedly.
 :::
 :::
@@ -297,7 +297,7 @@ We can compare unit A to itself [over time]{.b .purple}, not just A to B<br>(pot
 Consider the following panel of six observations:
 
 ::: columns
-::: {.column width="50%"}
+::: {.column width="40%"}
 ```{r}
 #| label: "example-panel-3-6"
 #| echo: false
@@ -305,7 +305,7 @@ Consider the following panel of six observations:
 example_panel |> data.table::as.data.table()
 ```
 :::
-::: {.column width="50%"}
+::: {.column width="60%"}
 Similarly, we observe the [period]{.purple} across [units]{.orange}.
 :::
 :::
@@ -412,14 +412,14 @@ If $\mathop{\text{Cov}}\left( x_{it}, \textcolor{#FFA500}{\alpha_i} \right) \neq
 
 ::: {.fragment}
 
-[Standard OLS estimates]{.attn}
+["Standard" OLS estimates]{.attn} using variation that reflects
 
 :::
 
 ::: {.fragment}
 
 - [between-unit differences]{.it} $\textcolor{#FFA500}{\alpha_i}$,
-- [actual changes]{.it} in $x_{it}$. [(We want to isolate this last part.)]{.note}
+- [within-unit actual changes]{.it} in $x_{it}$. [(We want to isolate this last part.)]{.note}
 
 :::
 
@@ -503,31 +503,18 @@ For intuition, focus on unit-level fixed effects.
 $$y_{it} = \beta_0 + \beta_1 x_{it} + \alpha_i + u_{it}$$
 
 ::: {.fragment}
-
 Take the average of this equation for unit $i$ across all periods...
 $$\overline{y}_i = \beta_0 + \beta_1 \overline{x}_i + \alpha_i + \overline{u}_i$$
-
 :::
 
 ::: {.fragment}
-
 Finally, subtract the unit mean from both sides of the original equation.
 <br>(This step is what our unit-level fixed effects are doing.)
 $$y_{it} - \overline{y}_i = \beta_1 \left( x_{it} - \overline{x}_i \right) + \left( u_{it} - \overline{u}_i \right)$$
-
+[(The same logic applies to time FEs.)]{.grey-vlight .it}
 :::
 
-::: {.fragment}
-
-[So what?]{.b .pink}
-
-:::
-
-::: {.fragment}
-
-<br>[(The same logic applies to time FEs.)]{.grey-vlight .it}
-
-:::
+[So what?]{.b .pink .fragment}
 
 ---
 
@@ -566,23 +553,12 @@ $$\text{Employment}_{it} = \beta_1 \text{(Min. Wage)}_{it} + \alpha_i + \lambda_
 with a [state]{.orange} ($\textcolor{#FFA500}{i}$) by [year]{.purple} ($\textcolor{#6A5ACD}{t}$) panel of employment and min. wage data.
 
 ::: {.fragment}
-
 - $\alpha_i$ absorbs time-invariant, cross-state differences;
 - $\lambda_t$ absorbs national shocks in year $t$.
-
 :::
 
-::: {.fragment}
-
-[Q]{.qa} Should we worry that some states have higher min. wage than others?
-
-:::
-
-::: {.fragment}
-
-<br>[A]{.qa} No. $\alpha_i$ absorbs those differences. The FE estimator estimates using within-state variation in min. wage.
-
-:::
+[[Q]{.qa} Should we worry that some states have higher min. wage than others?]{.fragment}
+[<br>[A]{.qa} No. $\alpha_i$ absorbs those differences. The FE estimator estimates using within-state variation in min. wage.]{.fragment}
 
 ---
 
@@ -647,7 +623,7 @@ With FEs, $\textcolor{#e64173}{\hat{\beta}_1}$ comes from [states that change th
 
 ---
 
-## {.clear}
+## {.middle}
 
 Let's see a graphical example.<br>[(Simulated data but real FE issues.)]{.grey-vlight}
 
@@ -818,8 +794,10 @@ To specify FEs: use `lm` syntax along with `|` followed by the FEs.
 #| label: "fe-code"
 #| echo: true
 #| eval: false
+#| code-line-numbers: '2'
+
 feols(
-{{ teen_emp ~ min_wage | state + year, }}
+  teen_emp ~ min_wage | state + year,
   cluster = ~ state,
   data = mw_df
 )
@@ -896,7 +874,7 @@ etable(est_ols, est_fe, digits = 3)
 etable(est_ols, est_fe, digits = 3)
 ```
 
-[Q]{.qa} What is [*within* $R^2$]{.b .pink}?<br>[[A]{.qa} It is the $R^2$ of the regression [after accounting for the FEs]{.pink}: how much of the outcome's variation regressors explain, *after controlling for FEs*.]{.fragment}
+[Q]{.qa} What is [*within* $R^2$]{.b .pink}? [(You may need to scroll down.)]{.grey-light}<br>[[A]{.qa} It is the $R^2$ of the regression [after accounting for the FEs]{.pink}: how much of the outcome's variation regressors explain, *after controlling for FEs*.]{.fragment}
 
 ---
 
@@ -921,9 +899,7 @@ The FE model has as high $\textcolor{#e64173}{R^2}$ because fixed effects explai
 Fixed effects help one key problem: [time-invariant omitted variables]{.b .pink}.
 
 ::: {.fragment}
-
 But FEs [do not]{.b .slate} solve *all* causal problems, *e.g.*,
-
 :::
 
 ::: {.fragment}
@@ -942,68 +918,36 @@ As with *all* econometric tools, careful use is required.
 
 :::
 
----
-
 ## Difference-in-differences {#did_intuition}
-
 ### Core idea
 
-[Difference-in-differences]{.attn}
+[Difference-in-differences]{.attn}^[Also called *double-differences* or *diff-in-diff*. Increasingly combined with *two-way fixed effects (TWFE)*.] (DiD) compares obs. across two dimensions:
 
-^[[†]{.pink} Also called *double-differences* or *diff-in-diff*. Increasingly combined with *two-way fixed effects (TWFE)*.]
-
-DiD compares observations across two dimensions:
-
-1. [Group:]{.b .purple} comparing
-  - [treated]{.purple .it} individuals (potentially affected by the policy)
-  - [control]{.purple .it} individuals (unaffected by the policy)
-2. [Time:]{.b .orange} comparing
-  - [before]{.orange .it} the policy takes effect [(pre-treatment)]{.grey-vlight .it}
-  - [after]{.orange .it} the policy takes effect [(post-treatment)]{.grey-vlight .it}
-
----
+1. [Group]{.b .purple} comparing
+    - [treated]{.purple .it} individuals (potentially affected by the policy)
+    - [control]{.purple .it} individuals (unaffected by the policy)
+2. [Time]{.b .orange} comparing
+    - [before]{.orange .it} the policy takes effect [(pre-treatment)]{.grey-vlight .it}
+    - [after]{.orange .it} the policy takes effect [(post-treatment)]{.grey-vlight .it}
 
 ## Difference-in-differences
-
 ### Intuition
 
 DiD functions by taking the difference between two differences:
 
 ::: {.fragment}
-
 1. Δ[Y̅[Pre]{.sub .orange .tran50}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) <br> the average difference between [trt.]{.purple} and [control]{.purple .tran50} [before]{.b .orange .tran50} the policy, <br> accounting for pre-existing differences between the groups;
-
 :::
 
 ::: {.fragment}
-
 2. Δ[Y̅[Post]{.sub .orange}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) <br> the average difference between [trt.]{.purple} and [control]{.purple .tran50} [after]{.b .orange} the policy, <br> which includes pre-existing differences *and* the [treatment effect]{.pink}.
-
 :::
 
 ::: {.fragment}
-
-The [DiD estimate]{.attn} is the difference between these differences
+The [DiD estimate]{.attn} is the difference between these differences,<br>
+$\textcolor{#e64173}{\hat{\tau}}=$ Δ[Y̅[Post]{.sub .orange}]{.b} $-$ Δ[Y̅[Pre]{.sub .orange .tran50}]{.b}
 <br>
-
-:::
-
-::: {.fragment}
-
-[τ̂]{.pink}
-
-:::
-
-::: {.fragment}
-
-<br>
-
-:::
-
-::: {.fragment}
-
-[I.e.,]{.note}
-
+[I.e.,]{.note} how much did the [trt]{.purple} - [control]{.purple .tran50} difference change from [pre]{.orange .tran50} to [post]{.orange}?
 :::
 
 ---
@@ -1029,47 +973,7 @@ setcolorder(
 setnames(did_dt, c('Group', 'Period', 'Mean', 'trt', 'post'))
 # Simplify means
 did_dt[, Mean := Mean |> round(3)]
-# Show the table
-did_dt[, 1:3]
 ```
-
----
-
-## {.clear}
-
-[Ex.]{.mono .b .slate}
-
-```{r}
-#| label: "did-cell-table2"
-#| echo: false
-#| highlight-output: [3, 4]
-did_dt[, 1:3]
-```
-
-1. Δ[Y̅[Pre]{.sub .orange .tran50}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) $=$ `r did_dt$Mean[2:1] |> diff()`.
-
----
-
-## {.clear}
-
-[Ex.]{.mono .b .slate}
-
-```{r}
-#| label: "did-cell-table3"
-#| echo: false
-#| highlight-output: [5, 6]
-did_dt[, 1:3]
-```
-
-1. Δ[Y̅[Pre]{.sub .orange .tran50}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) $=$ `r did_dt$Mean[2:1] |> diff()`.
-
-2. Δ[Y̅[Post]{.sub .orange}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) $=$ `r did_dt$Mean[4:3] |> diff()`
-
----
-
-## {.clear}
-
-[Ex.]{.mono .b .slate}
 
 ```{r}
 #| label: "did-cell-table4"
@@ -1077,59 +981,41 @@ did_dt[, 1:3]
 did_dt[, 1:3]
 ```
 
+::: {.fragment}
 1. Δ[Y̅[Pre]{.sub .orange .tran50}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) $=$ `r did_dt$Mean[2:1] |> diff()`.
+:::
 
+::: {.fragment}
 2. Δ[Y̅[Post]{.sub .orange}]{.b} $=$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) $=$ `r did_dt$Mean[4:3] |> diff()`
+:::
 
-The [DiD estimate]{.attn}—the difference between these differences
+::: {.fragment}
+The [DiD estimate]{.attn} (the difference between these differences)
 <br>
-
-[τ̂]{.pink}
+$\textcolor{#e64173}{\hat{\tau}}=$ `r (did_dt$Mean[4:3] |> diff()) - (did_dt$Mean[2:1] |> diff())`
+:::
 
 ---
 
 ## {.clear}
 
-[Note]{.note}
+[Note]{.note} You can also write the DiD estimator as two other differences,
 
-[τ̂]{.pink}[[τ̂]{.white}]{.fragment}
+$\textcolor{#e64173}{\hat{\tau}}=$ Δ[Y̅[Post]{.sub .orange}]{.b} $-$ Δ[Y̅[Pre]{.sub .orange .tran50}]{.b}
 
-::: {.fragment}
-
+$\textcolor{white}{\hat{\tau}}=$ $\big[$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) $\big]$
 $-$
 $\big[$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) $\big]$
 
-:::
+$\textcolor{white}{\hat{\tau}}=$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) $-$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $+$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50})
 
-::: {.fragment}
+$\textcolor{white}{\hat{\tau}}=$ $\big[$ [Y̅]{.b}([Trt]{.purple}; [Post]{.orange}) $-$ [Y̅]{.b}([Trt]{.purple}; [Pre]{.orange .tran50}) $\big]$ $-$ $\big[$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Post]{.orange}) $-$ [Y̅]{.b}([Ctrl]{.purple .tran50}; [Pre]{.orange .tran50}) $\big]$
 
-[τ̂]{.white}
+$\textcolor{white}{\hat{\tau}}=$ Δ[Y̅[Trt]{.sub .purple}]{.b} $-$ Δ[Y̅[Ctrl]{.sub .purple .tran50}]{.b}
 
-:::
-
-::: {.fragment}
-
-[τ̂]{.white}
-
-:::
-
-::: {.fragment}
-
-[τ̂]{.white}
-
-:::
-
-::: {.fragment}
-
-[I.e.,]{.note}
-
-:::
-
-::: {.fragment}
+[I.e.,]{.note} the change in the [treated group]{.purple} ([post]{.orange} $-$ [pre]{.orange .tran50}) relative to <br> the change in the [control group]{.purple .tran50}.
 
 We're using the [control group's [change]{.b}]{.purple .tran50} as a [counterfactual]{.b} for <br> the [treated group's [change]{.b}]{.purple} had it not received treatment.
-
-:::
 
 ---
 
@@ -1147,16 +1033,9 @@ DiD estimates [(both questions = same answer)]{.grey-vlight .it}
 1. How did NJ-PA empl. diff. change after the policy, relative to before?
 2. How did NJ's empl. change after the policy relative to PA's change?
 
-::: {.fragment}
-
-[Key assumption:]{.note}
-
-:::
-
----
+[Key assumption:]{.note} [PA needs to be a good counterfactual for NJ. In the absence of the policy, NJ and PA would have followed the same empl. trends.]{.fragment}
 
 ## Difference-in-differences
-
 ### DiD as a regression
 
 With two groups and two periods
@@ -1166,24 +1045,10 @@ where $\textcolor{#6A5ACD}{\text{Trt}_i}$ and $\textcolor{#FFA500}{\text{Post}_t
 The interaction asks if if the [post]{.orange} change in the [treated group]{.purple} differs from the [post]{.orange} change in the [control group]{.purple .tran50}: the [treatment effect]{.attn}.
 
 ::: {.fragment}
-
 With panel data, we often write
-
-:::
-
-::: {.fragment}
-
 $$y_{it} = \alpha_i + \lambda_t + \delta D_{it} + u_{it}$$
-
+where $D_{it}=1$ only for [treated]{.purple} units [after]{.orange} treatment starts.
 :::
-
-::: {.fragment}
-
-where $D_{it}=1$ only for treated units after treatment starts.
-
-:::
-
----
 
 ## {.clear}
 
@@ -1215,11 +1080,7 @@ ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
   )
 ```
 
-[DiD in pictures]{.b .slate}
-
-<br>
-
-[(Treatment starts between periods 5 and 6.)]{.grey-vlight .it}
+[DiD in pictures]{.b .slate} [(Treatment starts between periods 5 and 6.)]{.grey-vlight .it}
 
 ---
 
@@ -1252,8 +1113,6 @@ ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
 ```
 
 Here we have [group]{.b .purple}-by-[time]{.b .orange} means.
-
----
 
 ## {.clear}
 
@@ -1302,8 +1161,6 @@ ggplot(did_plot_dt, aes(x = period, y = mean_y, color = Group)) +
 ```
 
 The [DiD estimate]{.attn} compares the [pre-trt]{.b .orange .tran50} difference to the [post-trt]{.b .orange} diff.
-
----
 
 ## {.clear}
 
@@ -1419,7 +1276,7 @@ The interaction btn [post]{.orange} and [treat]{.purple} is the [DiD estimate]{.
 
 ### The key DiD assumption
 
-DiD relies upon a critical assumption often called [parallel trends]{.attn}:
+DiD relies upon a critical assumption often called [parallel trends]{.attn}
 
 > In the absence of treatment, treated and control units would have followed the [same average trend]{.pink}.
 
@@ -1471,17 +1328,8 @@ DiD is especially useful when
 - [ctrl group]{.purple .tran50} provide a plausible counterfactual for [trt group]{.purple},
 - the [treatment effect]{.pink} is tied to a discrete policy or event.
 
-::: {.fragment}
-
-[Q]{.qa} What are the other options?
-
-:::
-
-::: {.fragment}
-
-<br>[A]{.qa} Synthetic control and friends build a weighted average of control units to better match the treated unit's pre-treatment path.
-
-:::
+[[Q]{.qa} What are the other options?]{.fragment}
+[<br>[A]{.qa} Synthetic control and friends build a weighted average of control units to better match the treated unit's pre-treatment path.]{.fragment}
 
 ---
 
