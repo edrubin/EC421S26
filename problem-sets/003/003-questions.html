@@ -8,7 +8,7 @@
 
 <meta name="author" content="Edward Rubin">
 
-<title>Problem Set 3: Causality, IV, and Final Review</title>
+<title>Problem Set 3: Causality, panels, DiD, and Final Review</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -2313,9 +2313,8 @@ window.Quarto = {
    
   <ul>
   <li><a href="#instructions" id="toc-instructions" class="nav-link active" data-scroll-target="#instructions"><span class="header-section-number">1</span> Instructions</a></li>
-  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">2</span> Setup</a></li>
-  <li><a href="#section-1-causality-and-iv" id="toc-section-1-causality-and-iv" class="nav-link" data-scroll-target="#section-1-causality-and-iv"><span class="header-section-number">3</span> Section 1: Causality and IV</a></li>
-  <li><a href="#section-2-final-review" id="toc-section-2-final-review" class="nav-link" data-scroll-target="#section-2-final-review"><span class="header-section-number">4</span> Section 2: Final Review</a></li>
+  <li><a href="#panel-data-and-difference-in-differences" id="toc-panel-data-and-difference-in-differences" class="nav-link" data-scroll-target="#panel-data-and-difference-in-differences"><span class="header-section-number">2</span> Panel Data and Difference-in-Differences</a></li>
+  <li><a href="#course-review" id="toc-course-review" class="nav-link" data-scroll-target="#course-review"><span class="header-section-number">3</span> Course Review</a></li>
   </ul>
 </nav>
 </div>
@@ -2323,7 +2322,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Problem Set 3: Causality, IV, and Final Review</h1>
+<h1 class="title">Problem Set 3: Causality, panels, DiD, and Final Review</h1>
 <p class="subtitle lead">EC 421: Introduction to Econometrics</p>
 </div>
 
@@ -2350,245 +2349,272 @@ window.Quarto = {
 <section id="instructions" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="instructions"><span class="header-section-number">1</span> Instructions</h2>
 <p><span style="text-decoration: underline;"><strong>Optional!!!</strong></span> This problem set is entirely <strong>optional</strong>. If you submit it, it will replace your lowest problem set grade (unless it is lower than your lowest grade). If you do not submit this assignment, your grade will be unchanged. Either way, I encourage you to work through the problems to prepare for the final exam.</p>
-<p><span style="text-decoration: underline;"><strong>Due</strong></span> Upload your answer on Canvas <em>before</em> 11:59PM on Wednesday, 11 March 2026.</p>
-<p><span style="text-decoration: underline;"><strong>Important</strong></span> You must submit your answers as an HTML or PDF file, built from an RMarkdown (<code>.Rmd</code>) or Quarto (<code>.qmd</code>) file. <strong>Do not submit the <code>.Rmd</code> or <code>.qmd</code> file.</strong> You will not receive credit for it.</p>
-<p>If we ask you to create a figure or run a regression, then the figure or regression results should be in the document that you submit (not just the code—we want the actual figure or regression output with coefficients, standard errors, <em>etc.</em>).</p>
-<p><span style="text-decoration: underline;"><strong>Integrity</strong></span> If you are suspected of cheating, then you will receive a zero—for the assignment and possibly for the course.</p>
-<p><span style="text-decoration: underline;"><strong>README!</strong></span> The data for this problem set are stored in <code>data-ps3.csv</code>. They build on the county-level life-expectancy dataset from Problem Set 1 and add two new tax-related variables from the original county-characteristics source:</p>
+<p><span style="text-decoration: underline;"><strong>Due</strong></span> Upload your answer on Canvas <em>before</em> 11:59PM on Tuesday, 02 June 2026.</p>
+<p><span style="text-decoration: underline;"><strong>Important</strong></span> <strong>Submit</strong> your answers as an <strong>HTML or PDF file</strong>. The submitted file should be built from an RMarkdown (<code>.rmd</code>) or Quarto (<code>.qmd</code>) file. Do not submit the <code>.rmd</code> or <code>.qmd</code> file. You will not receive credit for it.</p>
+<p>If we ask you to create a figure or run a regression, then the figure or regression results should be in the document that you submit (not just the code - we want the actual figure or regression output with coefficients, standard errors, <em>etc.</em>).</p>
+<p><span style="text-decoration: underline;"><strong>Integrity</strong></span> If you are suspected of cheating, then you will receive a zero - for the assignment and possibly for the course. We may report you to the dean. Cheating includes copying from your classmates, from the internet, and from previous assignments.</p>
+<p><span style="text-decoration: underline;"><strong>README!</strong></span> The data for this problem set are stored in <code>data-ps3.csv</code>. They come from David Card and Alan Krueger’s study of the 1992 New Jersey minimum-wage increase and fast-food employment in New Jersey and eastern Pennsylvania. The original data are available from <a href="https://davidcard.berkeley.edu/data_sets.html">David Card’s data page</a>, and the paper is <a href="https://davidcard.berkeley.edu/papers/njmin-aer.pdf">Card and Krueger (1994), <em>American Economic Review</em></a>.</p>
+<p>The main idea of the study is simple: On April 1, 1992, New Jersey’s minimum wage increased from $4.25 to $5.05 per hour. Pennsylvania’s minimum wage stayed at $4.25. Card and Krueger surveyed fast-food restaurants in both states before and after the New Jersey increase.</p>
+<p>The dataset in this problem set is a cleaned, balanced restaurant panel. Each restaurant appears twice: once before the policy change and once after the policy change.</p>
 <table class="caption-top table">
 <caption>Variable names and descriptions</caption>
 <colgroup>
-<col style="width: 36%">
-<col style="width: 25%">
-<col style="width: 37%">
+<col style="width: 53%">
+<col style="width: 46%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable name</th>
-<th style="text-align: left;">Variable type</th>
-<th style="text-align: left;">Variable description</th>
+<th style="text-align: left;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><code>county_name</code></td>
-<td style="text-align: left;">character</td>
-<td style="text-align: left;">County name</td>
+<td style="text-align: left;"><code>store_id</code></td>
+<td style="text-align: left;">Restaurant identifier</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>county_code</code></td>
-<td style="text-align: left;">integer</td>
-<td style="text-align: left;">County FIPS code</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;"><code>state_abb</code></td>
-<td style="text-align: left;">character</td>
-<td style="text-align: left;">State abbreviation</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>income_quartile</code></td>
-<td style="text-align: left;">character</td>
-<td style="text-align: left;">Income quartile (1 or 4)</td>
+<td style="text-align: left;">State abbreviation (<code>NJ</code> or <code>PA</code>)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>life_exp</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Life expectancy (years)</td>
+<td style="text-align: left;"><code>state_name</code></td>
+<td style="text-align: left;">State name</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pct_uninsured</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent uninsured</td>
+<td style="text-align: left;"><code>nj</code></td>
+<td style="text-align: left;">Indicator equal to 1 for New Jersey restaurants and 0 for Pennsylvania restaurants</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>poverty_rate</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Share below poverty line</td>
+<td style="text-align: left;"><code>chain_name</code></td>
+<td style="text-align: left;">Restaurant chain</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pct_religious</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent religious</td>
+<td style="text-align: left;"><code>market</code></td>
+<td style="text-align: left;">Local market/geographic area</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>pct_black</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent Black</td>
+<td style="text-align: left;"><code>company_owned</code></td>
+<td style="text-align: left;">Indicator equal to 1 if the restaurant is company owned</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pct_hispanic</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent Hispanic</td>
+<td style="text-align: left;"><code>affected_pct</code></td>
+<td style="text-align: left;">Pre-treatment share of workers affected by the NJ minimum-wage increase</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>unemployment_rate</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Unemployment rate</td>
+<td style="text-align: left;"><code>period</code></td>
+<td style="text-align: left;"><code>Before</code> or <code>After</code> the NJ minimum-wage increase</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>median_hh_inc</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Median household income</td>
+<td style="text-align: left;"><code>post</code></td>
+<td style="text-align: left;">Indicator equal to 1 for the post-treatment period</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>is_urban</code></td>
-<td style="text-align: left;">integer</td>
-<td style="text-align: left;">Urban county indicator (1 or 0)</td>
+<td style="text-align: left;"><code>nj_after</code></td>
+<td style="text-align: left;">Indicator equal to 1 for New Jersey restaurants after the policy change</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pop</code></td>
-<td style="text-align: left;">integer</td>
-<td style="text-align: left;">County population</td>
+<td style="text-align: left;"><code>min_wage</code></td>
+<td style="text-align: left;">Relevant state minimum wage in dollars</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>pop_density</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Population density</td>
+<td style="text-align: left;"><code>fte_employment</code></td>
+<td style="text-align: left;">Full-time-equivalent employment: full-time workers + managers + 0.5 x part-time workers</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pct_smoke</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent who smoke</td>
+<td style="text-align: left;"><code>starting_wage</code></td>
+<td style="text-align: left;">Starting wage in dollars per hour</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>pct_obese</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent obese (BMI)</td>
+<td style="text-align: left;"><code>hours_open</code></td>
+<td style="text-align: left;">Hours open per day</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>pct_exercise</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Percent who exercise</td>
+<td style="text-align: left;"><code>soda_price</code></td>
+<td style="text-align: left;">Price of a medium soda</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>tax_rate</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Local tax rate</td>
+<td style="text-align: left;"><code>fries_price</code></td>
+<td style="text-align: left;">Price of small fries</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>tax_prog</code></td>
-<td style="text-align: left;">numeric</td>
-<td style="text-align: left;">Tax progressivity</td>
+<td style="text-align: left;"><code>entree_price</code></td>
+<td style="text-align: left;">Price of an entree</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>registers</code></td>
+<td style="text-align: left;">Number of cash registers</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>registers_11am</code></td>
+<td style="text-align: left;">Number of cash registers open at 11am</td>
 </tr>
 </tbody>
 </table>
-<p>Recall that the data came from a study titled <em>The Association Between Income and Life Expectancy in the United States, 2001-2014</em> (by Raj Chetty, Augustin Bergeron, David Cutler, Benjamin Scuderi, Michael Stepner, and Nicholas Turner).</p>
-<p>You can find more information about the life-expectancy variables <a href="https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_11_readme.pdf">here</a> and the county characteristics <a href="https://opportunityinsights.org/wp-content/uploads/2018/04/health_ineq_online_table_12_readme.pdf">here</a>.</p>
 <p><span style="text-decoration: underline;"><strong>Objective</strong></span> This problem set has three goals:</p>
 <ol type="1">
-<li>Practice reasoning carefully about causality in observational data.</li>
-<li>Implement and interpret instrumental-variables and two-stage least squares estimators in <code>R</code>.</li>
-<li>Review the main ideas from lecture to prepare for the final exam.</li>
+<li>Practice using panel data.</li>
+<li>Estimate and interpret fixed-effects and difference-in-differences models.</li>
+<li>Review the main ideas from the course to prepare for the final exam.</li>
 </ol>
 </section>
-<section id="setup" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="setup"><span class="header-section-number">2</span> Setup</h2>
+<section id="panel-data-and-difference-in-differences" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="panel-data-and-difference-in-differences"><span class="header-section-number">2</span> Panel Data and Difference-in-Differences</h2>
+<p>In this section, we will study whether New Jersey’s 1992 minimum-wage increase affected employment at fast-food restaurants.</p>
 <p><strong>[00]</strong> Load your <code>R</code> packages and the dataset (<code>data-ps3.csv</code>). You will likely want <code>tidyverse</code>, <code>scales</code>, <code>fixest</code>, and <code>here</code>.</p>
-</section>
-<section id="section-1-causality-and-iv" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="section-1-causality-and-iv"><span class="header-section-number">3</span> Section 1: Causality and IV</h2>
-<p>In this section, we will study the relationship between smoking and life expectancy. A natural starting point is the regression</p>
-<p><span class="math display">\[
-  \text{(Life expectancy)}_i = \beta_0 + \beta_1 \text{(Smoking share)}_i + u_i,
-\]</span></p>
-<p>but there are obvious reasons to worry that smoking is endogenous—even at the county level. We will therefore compare OLS and IV estimates.</p>
-<p><strong>[01]</strong> Explain why smoking is likely endogenous in this regression. Give specific reasons and discuss the direction of bias if you can.</p>
-<p><strong>[02]</strong> Use <code>R</code> to report</p>
+<p><strong>[01]</strong> Use <code>R</code> to report</p>
 <ul>
-<li>the total number of observations,</li>
-<li>the number of counties,</li>
-<li>the means of <code>tax_rate</code> and <code>tax_prog</code>,</li>
-<li>for each of the two income quartiles (<code>1</code> and <code>4</code>): the means of <code>life_exp</code>, <code>pct_smoke</code>.</li>
+<li>the number of observations,</li>
+<li>the number of restaurants,</li>
+<li>the number of states,</li>
+<li>the number of New Jersey restaurants,</li>
+<li>the number of Pennsylvania restaurants,</li>
+<li>the number of observations in each period (<code>Before</code> and <code>After</code>).</li>
 </ul>
-<p><em>Hint:</em> You can use <code>group_by</code> and <code>summarise</code> to get summary statistics <em>grouped</em> by another variable.</p>
-<p><strong>[03]</strong> Create a figure that helps you visualize the raw relationship between smoking and life expectancy. Make the figure informative. At a minimum, it should</p>
-<ul>
-<li>put <code>pct_smoke</code> on the horizontal axis,</li>
-<li>put <code>life_exp</code> on the vertical axis,</li>
-<li>distinguish the two income quartiles somehow (<em>e.g.</em>, make two separate plots or color by quartile),</li>
-</ul>
-<p><strong>Bonus:</strong> Include fitted regression lines in your plot.</p>
-<p><em>Hint:</em> In <code>ggplot2</code>, you can use <code>geom_smooth(method = &#39;lm&#39;)</code> to add a fitted regression line to a scatter plot.</p>
-<p>Briefly describe what you see.</p>
-<p><strong>[04]</strong> Estimate the following model by OLS using heteroskedasticity-robust standard errors:</p>
-<span class="math display">\[\begin{aligned}
-  \text{(Life expectancy)}_i = \beta_0
-  &amp;+ \beta_1 \text{(Smoking share)}_i + \beta_2 \text{(Poverty rate)}_i \\
-  &amp;+ \beta_3 \text{(Black share)}_i + \beta_4 \text{(Hispanic share)}_i \\
-  &amp;+ \beta_5 \text{(Urban indicator)}_i + \beta_6 1\{ \text{(Income quartile)}_i = 4 \} \\
-  &amp;+ u_i
-\end{aligned}\]</span>
-<p>where <span class="math inline">\(1\{ \text{(Income quartile)}_i = 1 \}\)</span> is an indicator for being in the lowest income quartile (with the lowest quartile as the reference group).</p>
-<ol type="a">
-<li>Report the results (<em>e.g.</em>, in a table).</li>
-<li>Then interpret the coefficient on <code>pct_smoke</code>.</li>
+<p>Then explain why these data are panel data.</p>
+<p><strong>[02]</strong> Identify the four pieces of the difference-in-differences setup:</p>
+<ol type="1">
+<li>the treated group,</li>
+<li>the control group,</li>
+<li>the pre-treatment period,</li>
+<li>the post-treatment period.</li>
 </ol>
-<p><em>Hint:</em> You have a few options for how to implement this regression’s indicator variable:</p>
+<p>Then explain why Pennsylvania might be a useful control group for New Jersey.</p>
+<p><strong>[03]</strong> Create a table of means by state (<code>state_abb</code>) and period (<code>post</code>). Your table should report</p>
 <ul>
-<li><p>create a new variable in the dataset that is <code>1</code> when <code>income_quartile == 1</code> and <code>0</code> otherwise, and then include that variable in the regression (<em>e.g.</em>, using <code>mutate(income_quartile == 1)</code>),</p></li>
-<li><p>use <code>fixest</code>’s built-in <code>i</code> function inside of the regression where you define the reference level (the level to be dropped, here: 4) <em>e.g.</em>, <code>y ~ x + i(income_quartile, ref = 4)</code>.</p></li>
+<li>the number of restaurants,</li>
+<li>mean full-time-equivalent employment (<code>fte_employment</code>),</li>
+<li>mean starting wage (<code>starting_wage</code>),</li>
+<li>mean relevant minimum wage (<code>min_wage</code>).</li>
 </ul>
-<p><strong>[05]</strong> Suppose we want to use the local tax rate <code>tax_rate</code> and local tax progressivity <code>tax_prog</code> as instruments.</p>
-<p>Estimate the first-stage regression using <code>tax_rate</code> and <code>tax_prog</code> as instruments for <code>pct_smoke</code>—keeping the same controls as in <strong>[04]</strong>. Use heteroskedasticity-robust standard errors.</p>
-<p>Do the two tax variables appear relevant? Report the results of the regression and explain your answer about the relevance of your instruments.</p>
-<p><strong>Bonus:</strong> Use the <code>wald</code> function from <code>fixest</code> to jointly test the significance of the two variables.</p>
-<p><strong>[06]</strong> Estimate the reduced-form regression by replacing <code>pct_smoke</code> in <strong>[04]</strong> with the two tax variables.</p>
+<p>Briefly summarize the pattern you see.</p>
+<p><strong>[04]</strong> Create a figure that shows mean full-time-equivalent employment before and after the policy change for New Jersey and Pennsylvania.</p>
+<p>At a minimum, your figure should</p>
 <ul>
-<li>Report your results.</li>
-<li>Do we need <em>exogeneity</em> to interpret the reduced-form coefficients as causal effects of the tax variables on life expectancy?</li>
-<li>How do you interpret the reduced-form coefficients?</li>
+<li>put <code>period</code> or <code>post</code> on the horizontal axis,</li>
+<li>put mean <code>fte_employment</code> on the vertical axis,</li>
+<li>show separate lines or colors for New Jersey and Pennsylvania.</li>
 </ul>
-<p><strong>[07]</strong> Estimate the causal effect of smoking on life expectancy using two-stage least squares (2SLS), instrumenting <code>pct_smoke</code> with <code>taxrate</code> and <code>tax_st_diff_top20</code>. Keep the same controls as in <strong>[04]</strong> and use heteroskedasticity-robust standard errors.</p>
-<p>Report your 2SLS results.</p>
-<p>You may use <code>feols</code> from <code>fixest</code>, <code>iv_robust</code> from <code>estimatr</code>, or any other package you like.</p>
-<p><strong>[08]</strong> Compare your OLS and 2SLS (IV) estimates for smoking. Which one would you trust more for causal inference here, and why? Be explicit about 2SLS’s assumptions.</p>
-<p><strong>[09]</strong> Beyond exogeneity issues, the <em>relevance</em> of your instrument(s) is a huge concern when using instrumental variables or two-stage least squares. Use the probability limit of the instrumental variables estimator to discuss how a weak instrument could substantially bias the estimator. <span class="math display">\[\text{plim} \hat{\beta}^\text{IV} = \beta + \dfrac{\text{Cov}(z,\, u)}{\text{Cov}(z,\, x)}\]</span> for instrument <span class="math inline">\(z\)</span>, endogenous regressor <span class="math inline">\(x\)</span>, and disturbance <span class="math inline">\(u\)</span>.</p>
-<p><strong>[10]</strong> <em>On the topic of weak instruments:</em> We should probably account for the fact that our disturbance likely correlates within state.</p>
-<p>Re-run the first-stage regression but with standard errors that are robust to the disturbance to correlate (cluster) at the state level (<em>e.g.</em>, <code>cluster = ~state.abb</code>).</p>
-<p>Do the tax variables still appear relevant? Report your results and explain your answer.</p>
+<p>Briefly describe what the figure suggests.</p>
+<p><strong>[05]</strong> Estimate the following pooled OLS regression:</p>
+<p><span class="math display">\[
+  \text{FTE employment}_{it} = \beta_0 + \beta_1 \text{Minimum wage}_{it} + u_{it}.
+\]</span></p>
+<p>Use standard errors clustered at the restaurant level.</p>
+<ol type="a">
+<li><p>Report your results.</p></li>
+<li><p>Interpret the coefficient on <code>min_wage</code>.</p></li>
+<li><p>Why might this pooled OLS estimate be misleading?</p></li>
+</ol>
+<p><strong>[06]</strong> Estimate the fixed-effects regression</p>
+<p><span class="math display">\[
+  \text{FTE employment}_{it}
+  = \beta_1 \text{Minimum wage}_{it} + \alpha_i + u_{it},
+\]</span></p>
+<p>where <span class="math inline">\(\alpha_i\)</span> represents restaurant fixed effects. Use standard errors clustered at the restaurant level.</p>
+<ol type="a">
+<li><p>Report your results.</p></li>
+<li><p>What do the restaurant fixed effects control for?</p></li>
+<li><p>What variation identifies <span class="math inline">\(\beta_1\)</span> in this model?</p></li>
+</ol>
+<p><strong>[07]</strong> Now estimate a two-way fixed-effects regression:</p>
+<p><span class="math display">\[
+  \text{FTE employment}_{it}
+  = \beta_1 \text{Minimum wage}_{it} + \alpha_i + \lambda_t + u_{it},
+\]</span></p>
+<p>where <span class="math inline">\(\alpha_i\)</span> represents restaurant fixed effects and <span class="math inline">\(\lambda_t\)</span> represents period fixed effects. Use standard errors clustered at the restaurant level.</p>
+<ol type="a">
+<li><p>Report the pooled OLS, restaurant fixed-effects, and two-way fixed-effects estimates in one table.</p></li>
+<li><p>What do the period fixed effects control for?</p></li>
+<li><p>Why is the two-way fixed-effects model closer to a difference-in-differences design than the restaurant fixed-effects model in <strong>[06]</strong>?</p></li>
+</ol>
+<p><strong>[08]</strong> Calculate the difference-in-differences estimate by hand from the group-by-period means.</p>
+<p>Specifically, calculate</p>
+<p><span class="math display">\[
+\left(
+  \overline{Y}_\text{NJ, After} - \overline{Y}_\text{NJ, Before}
+\right)
+-
+\left(
+  \overline{Y}_\text{PA, After} - \overline{Y}_\text{PA, Before}
+\right).
+\]</span></p>
+<p>Interpret the result.</p>
+<p><strong>[09]</strong> Estimate the difference-in-differences regression</p>
+<p><span class="math display">\[
+  \text{FTE employment}_{it}
+  = \alpha_i + \lambda_t + \delta \text{NJ After}_{it} + u_{it},
+\]</span></p>
+<p>where <code>nj_after</code> equals 1 for New Jersey restaurants after the minimum-wage increase and equals 0 otherwise. Use standard errors clustered at the restaurant level.</p>
+<ol type="a">
+<li><p>Report your results.</p></li>
+<li><p>Confirm that the coefficient on <code>nj_after</code> matches your by-hand DiD estimate from <strong>[08]</strong>.</p></li>
+<li><p>Interpret the coefficient on <code>nj_after</code>.</p></li>
+</ol>
+<p><strong>[10]</strong> Before interpreting the DiD estimate as causal, answer the following:</p>
+<ol type="a">
+<li><p>What is the parallel-trends assumption in this setting?</p></li>
+<li><p>Give two realistic threats to parallel trends here.</p></li>
+<li><p>Why do we cluster standard errors at the restaurant level?</p></li>
+</ol>
+<p><strong>[11]</strong> Estimate a DiD regression with <code>starting_wage</code> as the outcome:</p>
+<p><span class="math display">\[
+  \text{Starting wage}_{it}
+  = \alpha_i + \lambda_t + \delta \text{NJ After}_{it} + u_{it}.
+\]</span></p>
+<p>Use standard errors clustered at the restaurant level.</p>
+<ol type="a">
+<li><p>Report your results.</p></li>
+<li><p>Why is this regression a useful check before studying employment?</p></li>
+</ol>
 </section>
-<section id="section-2-final-review" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="section-2-final-review"><span class="header-section-number">4</span> Section 2: Final Review</h2>
+<section id="course-review" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="course-review"><span class="header-section-number">3</span> Course Review</h2>
 <p>This section is mostly conceptual. Keep your answers concise but precise.</p>
-<p><strong>[11]</strong> Define the concept of <strong>exogeneity</strong> in the context of regression analysis. Why is it important for causal inference?</p>
-<p><strong>[12]</strong> In one or two sentences each, define</p>
-<ul>
-<li>a population model,</li>
-<li>a sample model,</li>
-<li>a parameter,</li>
-<li>an estimator,</li>
-<li>an estimate,</li>
-<li>a standard error.</li>
-</ul>
+<p><strong>[12]</strong> Define <strong>exogeneity</strong> in a regression model. What happens to OLS if exogeneity fails?</p>
 <p><strong>[13]</strong> Explain the two conditions required for omitted-variable bias. If the omitted variable increases <span class="math inline">\(y\)</span> and is positively correlated with an included regressor <span class="math inline">\(x_j\)</span>, what direction is the bias in the OLS estimate of <span class="math inline">\(\beta_j\)</span>?</p>
-<p><strong>[14]</strong> Consider the regression</p>
-<p><span class="math display">\[\text{Wage}_i = \beta_0 + \beta_1 \text{Female}_i + \beta_2 \text{Education}_i + \beta_3 (\text{Female}_i \times \text{Education}_i) + u_i\]</span></p>
-<p>Interpret <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_3\)</span>.</p>
-<p><strong>[15]</strong> Suppose heteroskedasticity is present, but the exogeneity assumption still holds. What happens to</p>
+<p><strong>[14]</strong> Suppose heteroskedasticity is present, but exogeneity still holds. What happens to</p>
 <ul>
 <li>the OLS coefficient estimates,</li>
 <li>the usual OLS standard errors,</li>
 <li>OLS efficiency?</li>
 </ul>
-<p><strong>[16]</strong> Give the best econometric tool for each setting below and explain why in one sentence.</p>
-<ol type="1">
-<li>You believe OLS coefficients are fine, but you do not know the form of the heteroskedasticity.</li>
-<li>Observations may be correlated within states, classrooms, or firms.</li>
-<li>You want to correct your standard errors because the distrubance correlates with itself through time.</li>
-<li>You want a heteroskedasticity test that is less tied to a specific functional-form assumption.</li>
-</ol>
-<p><strong>[17]</strong> What does it mean for an estimator to be consistent? Can an estimator be biased but consistent? Can an estimator be unbiased but inconsistent?</p>
+<p>What is one common fix?</p>
+<p><strong>[15]</strong> Explain the difference between heteroskedasticity-robust standard errors, clustered standard errors, and Newey-West standard errors. When would you use each?</p>
+<p><strong>[16]</strong> Consider the model</p>
+<p><span class="math display">\[
+  \log(\text{Wage}_i)
+  = \beta_0 + \beta_1 \text{Female}_i
+  + \beta_2 \text{Education}_i
+  + \beta_3(\text{Female}_i \times \text{Education}_i)
+  + u_i.
+\]</span></p>
+<p>Interpret <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, and <span class="math inline">\(\beta_3\)</span>.</p>
+<p><strong>[17]</strong> Define consistency. Can an estimator be biased but consistent? Can an estimator be unbiased but inconsistent?</p>
 <p><strong>[18]</strong> What happens to the OLS slope estimate when an explanatory variable is measured with classical measurement error? Why is this often called attenuation bias?</p>
-<p><strong>[19]</strong> How does autocorrelation affect OLS in</p>
+<p><strong>[19]</strong> What is the difference between a static time-series model and a dynamic time-series model? Write down an example of each.</p>
+<p><strong>[20]</strong> Consider the dynamic model</p>
+<p><span class="math display">\[
+  \text{Sales}_t
+  = \beta_0
+  + \beta_1 \text{Advertising}_t
+  + \beta_2 \text{Advertising}_{t-1}
+  + \beta_3 \text{Advertising}_{t-2}
+  + u_t.
+\]</span></p>
+<p>What is the immediate effect of a one-unit increase in advertising? What is the total effect over three periods?</p>
+<p><strong>[21]</strong> How does autocorrelation affect OLS in</p>
 <ul>
-<li>a static time-series model, and</li>
+<li>a static time-series model,</li>
+<li>a dynamic model with lagged explanatory variables,</li>
 <li>a dynamic model with a lagged dependent variable?</li>
 </ul>
-<p><strong>[20]</strong> Define stationarity. Why can non-stationary series generate spurious regressions? Give</p>
-<ul>
-<li>one case where differencing is appropriate,</li>
-<li>the null hypothesis in a Dickey-Fuller or augmented Dickey-Fuller test.</li>
-</ul>
+<p><strong>[22]</strong> What are the null and alternative hypotheses in a Breusch-Godfrey test? If the test rejects the null, what should you conclude?</p>
+<p><strong>[23]</strong> Define stationarity. Why can nonstationary variables create spurious regressions?</p>
+<p><strong>[24]</strong> Explain the fundamental problem of causal inference using potential outcomes. How does random assignment help?</p>
+<p><strong>[25]</strong> Compare cross-sectional data, time-series data, and panel data. Give one example of each.</p>
+<p><strong>[26]</strong> In panel data, what do unit fixed effects absorb? What do time fixed effects absorb? What problems do fixed effects <em>not</em> solve?</p>
+<p><strong>[27]</strong> Explain the parallel-trends assumption in DiD. Give two examples of ways it could fail.</p>
 </section>
 
 </main>

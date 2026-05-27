@@ -33,13 +33,9 @@ Below are the tentatively planned topics for the problem sets.
 <br>Due: *before* 11:59PM on Tuesday, 26 May 2026.
 <br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/002/002-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/002/data-ps2.csv) | solutions
 
-**Problem Set 3: Causality, Instrumental Variables, and 2SLS**
-<br>Due: TBD
-<br>Files: assignment | data | solutions
-
-**Problem Set 4: Panel Data, DiD, and Course Review**
-<br>Due: TBD
-<br>Files: assignment | data | solutions
+**Problem Set 3: Panel Data, DiD, and Course Review**
+<br>Due: *before* 11:59PM on Tuesday, 02 June 2026.
+<br>Files: [assignment](https://raw.githack.com/edrubin/EC421S26/master/problem-sets/003/003-questions.html) | [data](https://github.com/edrubin/EC421S26/blob/master/problem-sets/003/data-ps3.csv) | solutions
 
 
 ## Lecture slides
