@@ -11,7 +11,7 @@ format:
     - cosmo
     - ed.scss
 editor:
-  render-on-save: false
+  render-on-save: true
 params:
   showanswers: true
 ---
@@ -62,14 +62,25 @@ The table below describes each variable.
 ::::{.answer}
 [Answer]{.ans} I'm using `read_csv()` from the `tidyverse` package to load the data.
 
-```{r}
-#| label: 'setup'
 
+``` r
 # Load packages using 'pacman'
 library(pacman)
 p_load(tidyverse, patchwork, scales, fixest, here)
 # Load the data
 ps_df = here('problem-sets', '002', 'data-ps2.csv') %>% read_csv()
+```
+
+```
+## Rows: 432 Columns: 9
+## ── Column specification ─────────────────────────────────────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr  (1): country
+## dbl  (7): time, housing, mortgage_rate, cpi, industry, unemp, recession
+## date (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 ::::
 :::
@@ -80,17 +91,40 @@ Note that (1) each row represents a month and (2) the data are already sorted by
 
 :::{.content-hidden unless-meta="params.showanswers"}
 ::::{.answer}
-[Answer]{.ans} The data cover `r ps_df$date[1]` to `r ps_df$date |> tail(1)`. There are `r nrow(ps_df)` months in the sample.
+[Answer]{.ans} The data cover 1990-01-01 to 2025-12-01. There are 432 months in the sample.
 
-```{r}
-#| label: 'counts'
 
+``` r
 # First observation
 ps_df |> head(1)
+```
+
+```
+## # A tibble: 1 × 9
+##   date        time country housing mortgage_rate   cpi industry unemp recession
+##   <date>     <dbl> <chr>     <dbl>         <dbl> <dbl>    <dbl> <dbl>     <dbl>
+## 1 1990-01-01     1 US         1551           9.9  128.     61.7   5.4         0
+```
+
+``` r
 # Last observation
 ps_df |> tail(1)
+```
+
+```
+## # A tibble: 1 × 9
+##   date        time country housing mortgage_rate   cpi industry unemp recession
+##   <date>     <dbl> <chr>     <dbl>         <dbl> <dbl>    <dbl> <dbl>     <dbl>
+## 1 2025-12-01   432 US         1373          6.19  326.     102.   4.4         0
+```
+
+``` r
 # Number of months
 nrow(ps_df)
+```
+
+```
+## [1] 432
 ```
 ::::
 :::
@@ -99,13 +133,16 @@ nrow(ps_df)
 
 :::{.content-hidden unless-meta="params.showanswers"}
 ::::{.answer}
-[Answer]{.ans} I'm using `drop_na()` to drop missing values, then `nrow()` to count the number of observations. We have `r ps_df |> drop_na() |> nrow()` complete observations.
+[Answer]{.ans} I'm using `drop_na()` to drop missing values, then `nrow()` to count the number of observations. We have 431 complete observations.
 
-```{r}
-#| label: 'complete-counts'
 
+``` r
 # Drop rows missing values and count the number of observations
 ps_df |> drop_na() |> nrow()
+```
+
+```
+## [1] 431
 ```
 ::::
 :::
@@ -120,12 +157,12 @@ _Hint:_ Use `mean()` with `na.rm = TRUE` to compute the mean, ignoring missing v
 ::::{.answer}
 [Answer]{.ans} The variables are
 
-- `housing`: The average number of new housing constructions in a month was `r ps_df$housing |> mean(na.rm = TRUE) |> magrittr::multiply_by(1e3) |> scales::comma()`.
-- `mortgage_rate`: The average 30-year mortgage rate was `r ps_df$mortgage_rate |> mean(na.rm = TRUE) |> scales::comma(.01)` percent.
-- `cpi`: The average CPI during the sample period was `r ps_df$cpi |> mean(na.rm = TRUE) |> scales::comma(.01)` (relative to "100" in the base years 1982--1984).
-- `industry`: The average industry production index was `r ps_df$industry |> mean(na.rm = TRUE) |> scales::comma(.01)` (relative to 100 in the base year of 2017).
-- `unemp`: The average unemployment rate was `r ps_df$unemp |> mean(na.rm = TRUE) |> scales::comma(.01)` percent.
-- `recession`: The average of recession indicator was `r ps_df$recession |> mean(na.rm = TRUE) |> scales::percent(.01)`. Thus, `r ps_df$recession |> mean(na.rm = TRUE) |> scales::percent(.01)` of months were recession months.
+- `housing`: The average number of new housing constructions in a month was 1,325,692.
+- `mortgage_rate`: The average 30-year mortgage rate was 6.02 percent.
+- `cpi`: The average CPI during the sample period was 209.99 (relative to "100" in the base years 1982--1984).
+- `industry`: The average industry production index was 90.33 (relative to 100 in the base year of 2017).
+- `unemp`: The average unemployment rate was 5.68 percent.
+- `recession`: The average of recession indicator was 8.33%. Thus, 8.33% of months were recession months.
 ::::
 :::
 
@@ -148,11 +185,8 @@ Use properly labeled axes and titles.
 ::::{.answer}
 [Answer]{.ans} I'm using `ggplot2` to create the time-series plots.
 
-```{r}
-#| label: 'ts-plots'
-#| warning: false
-#| fig-height: 15
 
+``` r
 # Housing starts
 hs =
   ggplot(ps_df, aes(x = date, y = housing)) +
@@ -231,6 +265,8 @@ ue =
 # Combine the plots
 hs / mr / cpi / ind / ue
 ```
+
+![plot of chunk ts-plots](figure/ts-plots-1.png)
 ::::
 :::
 
@@ -295,9 +331,8 @@ The COVID-19 Pandemic (approx. 2020--2022) accompanied a much smaller and shorte
 ::::{.answer}
 [Answer]{.ans} Let's create the variables.
 
-```{r}
-#| label: 'create-variables'
 
+``` r
 # Start with lags; then compute desired variables
 ps_df =
   ps_df |>
@@ -323,11 +358,8 @@ ps_df =
 ::::{.answer}
 [Answer]{.ans}
 
-```{r}
-#| label: 'ts-plots-updated'
-#| warning: false
-#| fig-height: 15
 
+``` r
 # Housing starts growth
 hs =
   ggplot(ps_df, aes(x = date, y = diff_housing)) +
@@ -406,6 +438,8 @@ ue =
 # Combine the plots
 hs / mr / cpi / ind / ue
 ```
+
+![plot of chunk ts-plots-updated](figure/ts-plots-updated-1.png)
 ::::
 :::
 
@@ -413,7 +447,7 @@ hs / mr / cpi / ind / ue
 
 :::{.content-hidden unless-meta="params.showanswers"}
 ::::{.answer}
-[Answer]{.ans} For the most part, it seems like the transformations helped a lot. We might still be worried about variance- and covariance-based non-stationarity, but the transformations seem to have made the series more stable in terms of their means
+[Answer]{.ans} For the most part, it seems like the transformations helped a lot. We might still be worried about variance- and covariance-based non-stationarity, but the transformations seem to have made the series more stable in terms of their means.
 ::::
 :::
 
@@ -437,48 +471,49 @@ Report your estimates as a table.
 ::::{.answer}
 [Answer]{.ans}
 
-```{r}
-#| label: 'static-regression'
 
+``` r
 # The requested regression
 reg_static =
   feols(
     housing ~ mortgage_rate + industry + unemp,
     data = ps_df
   )
+```
+
+```
+## NOTE: 1 observation removed because of NA values (RHS: 1).
+```
+
+``` r
 # Display the regression results
 reg_static |> etable()
+```
+
+```
+##                         reg_static
+## Dependent Var.:            housing
+##                                   
+## Constant        2,371.7*** (317.4)
+## mortgage_rate        8.834 (14.60)
+## industry            -3.546 (2.156)
+## unemp            -137.2*** (10.93)
+## _______________ __________________
+## S.E. type                      IID
+## Observations                   431
+## R2                         0.38735
+## Adj. R2                    0.38305
+## ---
+## Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 ::::
 :::
 
 []{.num} Interpret the coefficients from the preceding regression.
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans}
-
-- `mortgage_rate`: a one-unit increase in mortgage rate (an increase in the mortgage rate by one percentage point) is associated with a `r coef(reg_static)[2] |> round(1)`-thousand increase in monthly housing starts (not statistically significant at the 5% level).
-- `industry`: a one-unit increase in industry production index is associated with a `r coef(reg_static)[3] |> abs() |> round(1)`-thousand reduction in monthly housing starts (not statistically significant at the 5% level).
-- `unemp`: a one-unit increase in unemployment (a one-percentage-point increase in the unemployment rate) is associated with a `r coef(reg_static)[4] |> abs() |> round(1)`-thousand reduction in monthly housing starts (statistically significant at the 5% level).
-::::
-:::
-
 []{.num} Why should we be concerned about non-stationarity in the context of this regression? Explain the concern and why it is relevant here.
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} The figures above are highly suggestive of non-stationarity in these data. If we regress one non-stationary variable on another, OLS may find spurious correlations.
-::::
-:::
-
 []{.num} How can you address the non-stationarity issue in this regression?
-
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} One way to address non-stationarity is to difference the variables and regress the differenced variables on each other. Another approach is to control for time trends, seasonality, and other non-stationary components in the data.
-::::
-:::
 
 []{.num} Let's now estimate _differenced_ version of the preceding model, _i.e._,
 
@@ -499,48 +534,49 @@ To be clear, this model uses the transformed variables from above: your outcome 
 ::::{.answer}
 [Answer]{.ans}
 
-```{r}
-#| label: 'static-regression-diff'
 
+``` r
 # The requested regression
 reg_static_diff =
   feols(
     diff_housing ~ diff_mr + diff_industry + diff_unemp,
     data = ps_df
   )
+```
+
+```
+## NOTE: 3 observations removed because of NA values (LHS: 1, RHS: 3).
+```
+
+``` r
 # Display the regression results
 reg_static_diff |> etable()
+```
+
+```
+##                  reg_static_diff
+## Dependent Var.:     diff_housing
+##                                 
+## Constant          -4.341 (4.635)
+## diff_mr          -41.60. (23.14)
+## diff_industry   38.39*** (7.361)
+## diff_unemp         12.20 (12.46)
+## _______________ ________________
+## S.E. type                    IID
+## Observations                 429
+## R2                       0.10082
+## Adj. R2                  0.09447
+## ---
+## Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 ::::
 :::
 
 []{.num} Interpret the coefficients from the differenced regression.
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} The key insight here is that the interpretation of the coefficients in the differenced regression is the same as in the static regression.
-
-- `mortgage_rate`: a one-unit increase in mortgage rate (an increase in the mortgage rate by one percentage point) is associated with a `r coef(reg_static_diff)[2] |> abs() |> round(1)`-thousand reduction in monthly housing starts (marginally statistically significant—the 5% level).
-- `industry`: a one-unit increase in industry production index is associated with a `r coef(reg_static_diff)[3] |> abs() |> round(1)`-thousand increase in monthly housing starts (statistically significant at the 5% level).
-- `unemp`: a one-unit increase in unemployment (a one-percentage-point increase in the unemployment rate) is associated with a `r coef(reg_static_diff)[4] |> abs() |> round(1)`-thousand increase in monthly housing starts (not statistically significant at the 5% level).
-::::
-:::
-
 []{.num} Are the coefficient estimates from the differenced regression meaningfully different from the original static (un-differenced) regression?
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} Yes! The magnitudes and signs of the coefficients have changed and _which_ coefficients are statistically significant have changed.
-::::
-:::
-
 []{.num} How would an autocorrelated disturbance affect OLS in this setting?
-
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} Autocorrelated disturbances _in static_ models can lead to biased standard-error estimates and inefficiency (still unbiased/consistent for estimating the coefficients).
-::::
-:::
 
 []{.num} Perform a test for first-order autocorrelation in the residuals of the differenced static model.
 
@@ -559,23 +595,30 @@ reg_static_diff |> etable()
 ::::{.answer}
 [Answer]{.ans}
 
-```{r}
-#| label: 'static-regression-diff-residuals'
 
+``` r
 # Add the residuals to the dataset
 ps_df$e = residuals(reg_static_diff, na.rm = FALSE)
 # Regress the residuals on their own lag
 reg_bg_ar1 =
   feols(
     e ~ l(e, 1),
-    data = ps_df[-1, ],
-    panel.id = ~ country + time,
-    vcov = 'iid'
+    data = ps_df |> na.omit(),
+    panel.id = ~ country + time
   )
+```
+
+```
+## NOTE: 2 observations removed because of NA values (RHS: 2).
+```
+
+``` r
 etable(reg_bg_ar1)
 ```
 
-We find **strong** evidence of autocorrelation—with a large, negative coefficient on the lag of the residuals (suggesting negative autocorrelation).
+```
+## Error in if (any(diag(vcov_mat) < 0) && vcov_fix) {: missing value where TRUE/FALSE needed
+```
 ::::
 :::
 
@@ -583,9 +626,8 @@ We find **strong** evidence of autocorrelation—with a large, negative coeffici
 
 Remember that you can use `vcov = 'nw'` with `feols` to obtain Newey-West standard errors, for example,
 
-```{r}
-#| eval: false
 
+``` r
 feols(
   y ~ x + l(x),
   data = fake_data,
@@ -593,30 +635,6 @@ feols(
   vcov = 'nw'
 )
 ```
-
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans}
-
-```{r}
-#| label: reg_static_diff_nw
-
-# Estimate the model with Newey-West standard errors
-reg_static_diff_nw =
-  feols(
-    diff_housing ~ diff_mr + diff_industry + diff_unemp,
-    data = ps_df,
-    vcov = 'nw',
-    panel.id = ~ country + time
-  )
-etable(
-  reg_static_diff,
-  reg_static_diff_nw
-)
-```
-The Newey-West standard errors are quite different from the default OLS standard errors: the effect of the mortgage rate is more significant (the standard error is about 20% smaller). The standard error on industry index is about 30% larger.
-::::
-:::
 
 []{.num} Suppose you were interested in adding lags for each of the three explanatory variables and estimate the model
 $$
@@ -632,12 +650,6 @@ $$
 $$
 How would autocorrelation affect OLS when estimating this new model?
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} Autocorrelation would have the same effect as in the static model: OLS would be biased for estimating the standard errors and inefficient (but still unbiased and consistent for estimating the coefficients).
-::::
-:::
-
 []{.num} Now suppose you instead add a lag for the outcome (`diff_housing`).
 $$
 \begin{aligned}
@@ -650,52 +662,43 @@ $$
 $$
 Is OLS unbiased in this case? Is it consistent? Explain your answer.
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} Because we now have a lagged outcome variable, OLS is biased for the _coefficients_. _If we have autocorrelation_, OLS will be inconsistent as well.
-::::
-:::
-
 []{.num} Consider the two regressions below (and their results). What do the regressions tell us about non-stationarity of `housing` and `diff_housing`?
 
-```{r}
+
+``` r
 #|label: 'reg-compare'
 
 feols(
   housing ~ l(housing, 1),
   data = ps_df,
-  panel.id = ~ country + time,
-  vcov = 'iid'
-) |> etable()
-feols(
-  diff_housing ~ l(diff_housing, 1),
-  data = ps_df,
-  panel.id = ~ country + time,
-  vcov = 'iid'
+  panel.id = ~ country + time
 ) |> etable()
 ```
 
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} Both regressions are akin to a Dickey-Fuller test.
+```
+## NOTE: 1 observation removed because of NA values (RHS: 1).
+```
 
-The first regression (on the level of housing starts) has a coefficient on the lag that is quite close to 1. We fail to reject _random walk_, meaning the _level_ of housing starts is very likely non-stationary.
+```
+## Error in if (any(diag(vcov_mat) < 0) && vcov_fix) {: missing value where TRUE/FALSE needed
+```
 
-The second regression (on the first difference of housing starts) has a coefficient on the lag that rejects 1: We reject _random walk_, meaning the _first difference_ of housing starts may be stationary (at least is _not_ a random walk).
-::::
-:::
+``` r
+feols(
+  diff_housing ~ l(diff_housing, 1),
+  data = ps_df,
+  panel.id = ~ country + time
+) |> etable()
+```
 
+```
+## NOTE: 2 observations removed because of NA values (LHS: 1, RHS: 2).
+```
+
+```
+## Error in if (any(diag(vcov_mat) < 0) && vcov_fix) {: missing value where TRUE/FALSE needed
+```
 
 ## Conclusion
 
 []{.num} Which of the models that we estimated and/or considered is the most appropriate for our setting—_i.e._, which model would you choose to use in practice? Or would you choose a different model altogether? Explain.
-
-:::{.content-hidden unless-meta="params.showanswers"}
-::::{.answer}
-[Answer]{.ans} The plots and preceding regressions suggest that the raw data are not stationary, while the differenced data look less problematic. Thus, I would go with a model that uses the first differences.
-
-Because we have significant evidence of autocorrelation, we probably want to stay away from models that use a lagged outcome variable.
-
-Thus, I would go with a model that uses the differenced data in either a static specification or a lagged-explanatory-variables-only specification.
-::::
-:::
