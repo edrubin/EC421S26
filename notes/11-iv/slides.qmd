@@ -129,37 +129,14 @@ Causality
 
 In our last lecture, we returned to the concept of [causality]{.b .pink}.
 
-::: {.fragment}
-
 We worked through the *Rubin causal model*, in which we defined
 
-:::
-
-::: {.fragment}
-
 - $\textcolor{#e64173}{y_{1i}:}$ the outcome for individual $i$ if she had received treatment
-
-:::
-
-::: {.fragment}
-
 - $\textcolor{#6A5ACD}{y_{0i}:}$ the outcome for individual $i$ if she had not received treatment
-
-:::
-
-::: {.fragment}
 
 and we referred to individuals who did not receive treatment as *control*.
 
-:::
-
-::: {.fragment}
-
-***If*** we were able to know both $\textcolor{#e64173}{y_{1i}}$ ***and*** $\textcolor{#6A5ACD}{y_{0i}}$, we could calculate the causal effect of treatment for individual $i$, _i.e._,
-
-:::
-
-::: {.fragment}
+*If* we were able to know both $\textcolor{#e64173}{y_{1i}}$ *and* $\textcolor{#6A5ACD}{y_{0i}}$, we could calculate the causal effect of treatment for individual $i$, _i.e._,
 
 $$
 \begin{align}
@@ -167,18 +144,12 @@ $$
 \end{align}
 $$
 
-:::
-
----
-
 ## Causality
 ### Review
 
 [Fundamental problem of causal inference:]{.b .slate}
 
-<br>We cannot simultaneously know $\textcolor{#e64173}{y_{1i}}$ and $\textcolor{#6A5ACD}{y_{0i}}$.
-
-::: {.fragment}
+We cannot simultaneously know $\textcolor{#e64173}{y_{1i}}$ and $\textcolor{#6A5ACD}{y_{0i}}$.
 
 Either we observe individual $i$ in the treatment group, _i.e._,
 $$
@@ -186,27 +157,13 @@ $$
   \tau_i = \textcolor{#e64173}{y_{1i}} - \textcolor{#6A5ACD}{?}
 \end{align}
 $$
-
-:::
-
-::: {.fragment}
-
 or we observe $i$ in the control group, _i.e._,
 $$
 \begin{align}
   \tau_i = \textcolor{#e64173}{?} - \textcolor{#6A5ACD}{y_{0i}}
 \end{align}
 $$
-
-:::
-
-::: {.fragment}
-
 but never both at the same time.
-
-:::
-
----
 
 ## Causality
 ### Review
@@ -324,43 +281,33 @@ Our [treatment]{.pink} variable is correlated with something that makese the two
 ::: columns
 ::: {.column width="50%"}
 ::: {.center}
-[Earn[1,Al]{.sub}]{.pink}
+[Earn[1,Al]{.sub}]{.pink} = [$60K]{.pink}
 
-<br>[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
+[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
 :::
 :::
 ::: {.column width="50%"}
-[Earn[1,Bri]{.sub}]{.pink}
+[Earn[1,Bri]{.sub}]{.pink} = [$140K]{.pink}
 
-<br>[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
+[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
 :::
 :::
 
 ::: {.fragment}
-
 They both have the same treatment effect (return to college)
-
 :::
 
 ::: {.fragment}
-
-<br> $\quad\quad\tau$[Al]{.sub} = [Earn[1,Al]{.sub}]{.pink} - [Earn[0,Al]{.sub}]{.purple} = [$60K]{.pink} - [$30K]{.purple} = $30K
-
+$\quad\quad\tau$[Al]{.sub} = [Earn[1,Al]{.sub}]{.pink} - [Earn[0,Al]{.sub}]{.purple} = [$60K]{.pink} - [$30K]{.purple} = $30K
 :::
 
 ::: {.fragment}
-
-<br> $\quad\quad\tau$[Bri]{.sub} = [Earn[1,Bri]{.sub}]{.pink} - [Earn[0,Bri]{.sub}]{.purple} = [$140K]{.pink} - [$100K]{.purple} = $30K
-
+$\quad\quad\tau$[Bri]{.sub} = [Earn[1,Bri]{.sub}]{.pink} - [Earn[0,Bri]{.sub}]{.purple} = [$140K]{.pink} - [$100K]{.purple} = $30K
 :::
 
 ::: {.fragment}
-
 but any real-world estimate would have serious selection issues since [Earn[0,Al]{.sub}]{.purple} ≠ [Earn[0,Bri]{.sub}.]{.purple}
-
 :::
-
----
 
 ## Causality
 ### Review
@@ -370,15 +317,15 @@ but any real-world estimate would have serious selection issues since [Earn[0,Al
 ::: columns
 ::: {.column width="50%"}
 ::: {.center}
-[Earn[1,Al]{.sub}]{.pink}
+[Earn[1,Al]{.sub}]{.pink} = [$60K]{.pink}
 
-<br>[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
+[Earn[0,Al]{.sub}]{.purple} = [$30K]{.purple}
 :::
 :::
 ::: {.column width="50%"}
-[Earn[1,Bri]{.sub}]{.pink}
+[Earn[1,Bri]{.sub}]{.pink} = [$140K]{.pink}
 
-<br>[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
+[Earn[0,Bri]{.sub}]{.purple} = [$110K]{.purple}
 :::
 :::
 
@@ -400,8 +347,6 @@ $\quad\quad\hat{\tau}$ = [Earn[1,Al]{.sub}]{.pink} - [Earn[0,Bri]{.sub}]{.purple
 
 :::
 
----
-
 ## Causality
 ### Review
 
@@ -412,102 +357,47 @@ We have (at least) two problems...
 2. If selection bias is present, our estimate for $\tau$ is biased, preventing us from understanding the causal effect of treatment.
 
 ::: {.fragment}
-
 [Solution:]{.b .slate}
 
+- [Option 1:]{.b .slate} [Distribute treatment]{.b .pink} in a way such that the treatment and control groups are essentially identical (experiments).
+
+- [Option 2:]{.b .slate} [Build a control]{.b .purple} group that *matches* the treatment group (life with observational data).
 :::
-
-::: {.fragment}
-
-- [Option 1:]{.b .slate} [Distribute treatment]{.b .pink} in a way such that the treatment and control groups are essentially identical
-
-:::
-
-::: {.fragment}
-
-(experiments).
-
-:::
-
-::: {.fragment}
-
-- [Option 2:]{.b .slate} [Build a control]{.b .purple} group that *matches* the treatment group
-
-:::
-
-::: {.fragment}
-
-<br>(life with observational data).
-
-:::
-
----
 
 ## Instrumental variables {#intro}
-
 ### Intro
-
-[Instrumental variables (IV)]{.b .pink}
-
-::: {.fragment}
 
 *Recall:* [Selection bias]{.b .orange} means our [treatment]{.pink} and [control]{.purple} groups differ on some unobserved/omitted dimension. ([Endogeneity]{.b .slate})
 
-:::
-
 ::: {.fragment}
-
-[Instrumental variables]{.b .pink}
-
-:::
-
-::: {.fragment}
+[Instrumental variables]{.b .pink} attempts to separate out
 
 - the [exogenous]{.b .slate} part of $x$, which gives us unbiased estimates
 - the [endogenous]{.b .slate} part of $x$, which biases our results
-
 :::
 
 ::: {.fragment}
-
 If we use only the exogenous (*good*) variation in $x$, then we can avoid selection bias/omitted-variable bias.
-
 :::
 
----
-
 ## Instrumental variables
-
 ### Introductory example
 
-*Example:* If we want to estimate the effect of veteran status on earnings,
+[Example]{.note} We want to estimate the effect of veteran status on earnings,
 $$
 \begin{align}
   \text{Earnings}_i = \beta_0 + \beta_1 \text{Veteran}_i + u_i \tag{1}
 \end{align}
 $$
 
-::: {.fragment}
-
-We would love to calculate $\textcolor{#e64173}{\text{Earnings}_{1i}} - \textcolor{#6A5ACD}{\text{Earnings}_{0i}}$, but we can't.
-
-:::
-
-::: {.fragment}
+We would like to calculate $\textcolor{#e64173}{\text{Earnings}_{1i}} - \textcolor{#6A5ACD}{\text{Earnings}_{0i}}$, but we can't.
 
 And OLS will likely be biased for $(1)$ due to selection/omitted-variable bias.
 
-:::
-
----
-
 ## Instrumental variables
-
 ### Introductory example
 
 Imagine that we can split veteran status into an exogenous part and an endogenous part...
-
-::: {.fragment}
 
 $$
 \begin{align}
@@ -519,69 +409,45 @@ $$
 \end{align}
 $$
 
-:::
-
-::: {.fragment}
-
 We could use this exogenous variation in veteran status to consistently estimate $\beta_1$.
 
-:::
-
 ::: {.fragment}
-
 **Q:** What would exogenous variation in veteran status mean?
-
 :::
-
----
 
 ## Instrumental variables
-
 ### Introductory example
 
 **Q:** What would exogenous variation in veteran status mean?
 
 ::: {.fragment}
-
 **A[1]{.sub}:** Choices to enlist in the military that are essentially random—or at least uncorrelated with omitted variables and the disturbance.
-
 :::
 
 ::: {.fragment}
-
 **A[2]{.sub}:** [No selection bias:]{.b .orange}
 $$
 \begin{align}
   \textcolor{#e64173}{\mathop{Avg}\left(\text{Earnings}_{0i}\mid\text{Veteran}_i = 1\right)} - \textcolor{#6A5ACD}{\mathop{Avg}\left( \text{Earnings}_{0i} \mid \text{Veteran}_i = 0 \right)} = 0
 \end{align}
 $$
-
 :::
 
----
-
 ## Instrumental variables {#instruments}
-
 ### Instruments
 
 **Q:** How do we isolate this *exogenous variation* in our explanatory variable?
 
 ::: {.fragment}
-
-<br>**A:** Find an instrument (an instrumental variable).
-
+**A:** Find an instrument (an instrumental variable).
 :::
 
 ::: {.fragment}
-
 **Q:** What's an instrument?
-
 :::
 
 ::: {.fragment}
-
-<br>**A:** An [instrument]{.b .pink} is a variable that is
-
+**A:** An [instrument]{.b .pink} is a variable that is
 :::
 
 ::: {.fragment}
@@ -591,10 +457,7 @@ $$
 
 :::
 
----
-
 ## Instrumental variables
-
 ### Instruments
 
 >**Q:** What's an instrument?
@@ -768,21 +631,14 @@ Let's recap...
 - Our instrument must be [uncorrelated with any other variable that affects the outcome]{.b .pink}.
 
 ::: {.fragment}
-
 [In other words:]{.b .slate}
-
 :::
 
 ::: {.fragment}
-
-<br>The instrument only affects our outcome through the endogenous variable.
-
+The instrument only affects our outcome through the endogenous variable.
 :::
 
----
-
 ## Instrumental variables
-
 ### Back to our example
 
 For [veteran status]{.pink} we considered three potential instruments:
@@ -799,6 +655,7 @@ For [veteran status]{.pink} we considered three potential instruments:
 ::: {.fragment}
 
 [Not relevant]{.b .slate}
+<br>[Exogenous]{.b .pink}
 
 :::
 :::
@@ -816,6 +673,7 @@ For [veteran status]{.pink} we considered three potential instruments:
 ::: {.fragment}
 
 [Probably relevant]{.b .pink}
+<br>[Endogenous]{.b .slate}
 
 :::
 :::
@@ -833,6 +691,7 @@ For [veteran status]{.pink} we considered three potential instruments:
 ::: {.fragment}
 
 [Relevant]{.b .pink}
+<br>[Exogenous]{.b .pink}
 
 :::
 :::
@@ -932,7 +791,7 @@ We just wrote out an expression for the effect of [the draft]{.b .pink} on [earn
 
 (Effect of [the draft]{.b .pink} on [earnings]{.b .orange}) =
 <br>  (Effect of [the draft]{.b .pink} on [veteran status]{.b .purple})×
-<br>  (Effect of [veteran status]{.b .purple} on [earnings]{.b .orange})[but we want to know the effect of [veteran status]{.b .purple} on [earnings]{.b .orange}.]{.fragment}
+<br>  (Effect of [veteran status]{.b .purple} on [earnings]{.b .orange})[<br>but we want to know the effect of [veteran status]{.b .purple} on [earnings]{.b .orange}.]{.fragment}
 
 ::: {.fragment}
 
@@ -1553,21 +1412,11 @@ Our magical [instrument]{.pink} isolates the exogenous variation in our [endogen
 :::
 
 ::: {.fragment}
-
-**Q:** What if we want more?
-
+**Q:** What if we want more? (_E.g._, more instruments or endog. variables)
 :::
 
 ::: {.fragment}
-
-(_E.g._, more instruments or endog. variables)
-
-:::
-
-::: {.fragment}
-
-<br>**A:** Too bad.
-
+**A:** Too bad.
 :::
 
 ---
@@ -1584,7 +1433,8 @@ So now we know how to "do" instrumental variables *when we have one endogenous v
 Our magical [instrument]{.pink} isolates the exogenous variation in our [endogenous variable]{.purple}.
 
 **Q:** What if we want more? (_E.g._, more instruments or endog. variables)
-<br>**A:** [Too bad.]{.st} Extend IV to [two-stage least squares (2SLS)]{.b .pink}.
+
+**A:** [Too bad.]{.st} Extend IV to [two-stage least squares (2SLS)]{.b .pink}.
 
 ---
 
