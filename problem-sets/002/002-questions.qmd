@@ -1,0 +1,580 @@
+---
+title: "Problem Set 2: Time Series"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+params:
+  showanswers: false
+---
+
+## Instructions
+
+[**Due**]{style="text-decoration: underline;"} Upload your answer on Canvas *before* midnight on Tuesday, 26 May 2026.
+
+[**Important**]{style="text-decoration: underline;"} **Submit** your answers as an **HTML or PDF file**. The submitted file should be built from an RMarkdown (`.rmd`) or Quarto (`.qmd`) file. Do not submit the `.rmd` or `.qmd` file. You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or the regression results should be in the document that you submit (not just the code—we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero—for the assignment and possibly for the course. We may report you to the dean. Cheating includes copying from your classmates, from the internet, and from previous assignments.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set come from the Federal Reserve Bank of St. Louis [FRED database](https://fred.stlouisfed.org/). The dataset contains **monthly** U.S. macroeconomic variables.
+
+The table below describes each variable.
+
+| Variable name | Description |
+|:--------------|:------------|
+| `date` | Month of sample (*e.g.*, '1990-01-01') |
+| `time` | *Time* in the dataset, by month (starting January 1990) |
+| `country` | Country (always 'US') |
+| `housing` | [New Privately-Owned Housing Units Started: Total Units (HOUST)](https://fred.stlouisfed.org/series/HOUST) (1,000s) |
+| `mortgage_rate` | [30-Year Fixed Rate Mortgage Average in the United States (MORTGAGE30US)](https://fred.stlouisfed.org/series/MORTGAGE30US) (percent) |
+| `cpi` | [Consumer Price Index (CPI) for All Urban Consumers: All Items in U.S. City Average (CPIAUCSL)](https://fred.stlouisfed.org/series/CPIAUCSL) (index: 1982–84 = 100) |
+| `industry` | [Industrial Production: Total Index](https://fred.stlouisfed.org/series/INDPRO) (index: 2017 = 100) |
+| `unemp` | [Unemployment Rate (UNRATE)](https://fred.stlouisfed.org/series/UNRATE) (percent) |
+| `recession` | [NBER-based Recession Indicators for the United States from the Period following the Peak through the Trough (USREC) ](https://fred.stlouisfed.org/series/USREC) (binary) |
+
+: Variable names and descriptions
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has four purposes:
+
+1. Strengthen your understanding of time-series properties (trend, persistence, stationarity).
+2. Practice dynamic regression modeling.
+3. Learn to implement and interpret Newey–West standard errors using `fixest`.
+4. Develop your judgment about which regression specifications are reasonable in macroeconomic time-series settings.
+
+---
+
+
+## Setup
+
+[]{.num} Load the dataset `data-ps2.csv`–and any `R` packages you need (at least `tidyverse`, `here`, and `fixest`).
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r}
+
+# Load packages using 'pacman'
+library(pacman)
+p_load(tidyverse, patchwork, scales, fixest, here)
+# Load the data
+ps_df = here('problem-sets', '002', 'data-ps2.csv') %>% read_csv()
+```
+::::
+:::
+
+[]{.num} What time period do the data cover? How many months are in the sample?
+
+Note that (1) each row represents a month and (2) the data are already sorted by date/time.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The data cover `r ps_df$date[1]` to `r ps_df$date |> tail(1)`. There are `r nrow(ps_df)` months in the sample.
+
+```{r}
+
+# First observation
+ps_df |> head(1)
+# Last observation
+ps_df |> tail(1)
+# Number of months
+nrow(ps_df)
+```
+::::
+:::
+
+[]{.num} How many "complete" observations are there in the sample? In other words, after dropping missing values, how many observations remain?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `drop_na()` to drop missing values, then `nrow()` to count the number of observations. We have `r ps_df |> drop_na() |> nrow()` complete observations.
+
+```{r}
+
+# Drop rows missing values and count the number of observations
+ps_df |> drop_na() |> nrow()
+```
+::::
+:::
+
+[]{.num} For each of the "economic" variables (ignoring `date`, `time`, and `country`), report the mean _and_ interpret it (putting it in the context of its units).
+
+Note that the variable-description table above describes each of the variables and links to the "FRED" page.
+
+_Hint:_ Use `mean()` with `na.rm = TRUE` to compute the mean, ignoring missing values.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The variables are
+
+- `housing`: The average number of new housing constructions in a month was `r ps_df$housing |> mean(na.rm = TRUE) |> magrittr::multiply_by(1e3) |> scales::comma()`.
+- `mortgage_rate`: The average 30-year mortgage rate was `r ps_df$mortgage_rate |> mean(na.rm = TRUE) |> scales::comma(.01)` percent.
+- `cpi`: The average CPI during the sample period was `r ps_df$cpi |> mean(na.rm = TRUE) |> scales::comma(.01)` (relative to "100" in the base years 1982--1984).
+- `industry`: The average industry production index was `r ps_df$industry |> mean(na.rm = TRUE) |> scales::comma(.01)` (relative to 100 in the base year of 2017).
+- `unemp`: The average unemployment rate was `r ps_df$unemp |> mean(na.rm = TRUE) |> scales::comma(.01)` percent.
+- `recession`: The average of recession indicator was `r ps_df$recession |> mean(na.rm = TRUE) |> scales::percent(.01)`. Thus, `r ps_df$recession |> mean(na.rm = TRUE) |> scales::percent(.01)` of months were recession months.
+::::
+:::
+
+
+## Time-series plots
+
+[]{.num} Create time-series plots for:
+
+- the number of monthly housing starts (`housing`),
+- the 30-year mortgage rate (`mortgage_rate`),
+- the CPI (`cpi`),
+- the industry production index (`industry`),
+- the unemployment rate (`unemp`).
+
+You should have five separate plots: one for each variable.
+
+Use properly labeled axes and titles.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} I'm using `ggplot2` to create the time-series plots.
+
+```{r}
+#| warning: false
+#| fig-height: 15
+
+# Housing starts
+hs =
+  ggplot(ps_df, aes(x = date, y = housing)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Housing starts',
+    x = 'Month of sample',
+    y = 'Number of starts (thousands)'
+  ) +
+  scale_y_continuous(labels = scales::comma_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# 30-year mortgage rate
+mr =
+  ggplot(ps_df, aes(x = date, y = mortgage_rate)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = '30-year mortgage rate',
+    x = 'Month of sample',
+    y = 'Mortgage rate (percent)'
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# CPI
+cpi =
+  ggplot(ps_df, aes(x = date, y = cpi)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Consumer Price Index (CPI)',
+    x = 'Month of sample',
+    y = '1982–84 = 100'
+  ) +
+  scale_y_continuous(labels = scales::comma_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Industrial production index
+ind =
+  ggplot(ps_df, aes(x = date, y = industry)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Industrial production index',
+    x = 'Month of sample',
+    y = 'Industrial production index (base year: 2017)'
+  ) +
+  scale_y_continuous(labels = scales::comma_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Unemployment
+ue =
+  ggplot(ps_df, aes(x = date, y = unemp)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Unemployment',
+    x = 'Month of sample',
+    y = 'Unemployment rate (percent)'
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Combine the plots
+hs / mr / cpi / ind / ue
+```
+::::
+:::
+
+[]{.num} For each variable, describe whether it appears to:
+
+- trend upward/downward with time,
+- follow any notable patterns or cycles,
+- exhibit strong persistence (*i.e.*, is strongly autocorrelated),
+- exhibit any other notable features.
+
+Be specific. Do not just say "yes" or "no."
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Here are my descriptions of the time-series properties of each variable:
+
+- For the number of monthly **housing starts**, there seems to be a clear upward trend over time, with the exception of the 2008/2009 housing crisis.
+- The **30-year mortgage rate** appears to trend downward over time—except for a large jump in the post-COVID period.
+- The **CPI** steadily increases over time and exhibits very little variation (_i.e._, strong persistence).
+- The **industry production index** steadily increased for half of the sample and then plateaued. It also has very little variation (_i.e._, strong persistence).
+- The **unemployment rate** does not exhibit any clear trend over time but still exhibits strong persistence.
+::::
+:::
+
+[]{.num} Based on the plots alone, which variables appear likely to be non-stationary in levels (in their means)? Explain your reasoning.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Based on the plots, housing starts, the 30-year mortgage rate, the CPI, and the industry production index appear to be non-stationary in levels. Each exhibits a clear trend over time.
+::::
+:::
+
+[]{.num} How do the Great Recession/Financial Crisis and the COVID-19 Pandemic appear to affect each of the five time-series?
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} The Great Recession (approx. 2007--2009) coincided with a huge drop in housing starts. The housing market still has not reached pre-2007 levels. The industrial production index also sharply dropped and unemployment quickly increased. The Great Recession only shows up as a small blip in CPI.
+
+The COVID-19 Pandemic (approx. 2020--2022) accompanied a much smaller and shorter-lasting impact on housing starts. The industrial production index was similar in size but much shorter lived. The unemployment rate skyrocketed during the pandemic but also recovered quite quickly. Finally, the CPI appears to have taken on new, steeper trends during and after the pandemic.
+::::
+:::
+
+
+## Transformations
+
+[]{.num} Create five new variables:
+
+1. **Change in housing starts**, `diff_housing`: $\Delta\texttt{housing}_t$. <br> This variable is the difference between the current and previous housing starts values.
+1. **Change in the 30-year mortgage rate**,  (`diff_mr`): $\Delta\texttt{mortgage\_rate}_t$. <br> This variable is the difference between the current and previous mortgage rates.
+1. **Inflation**, `infl`: $100\times\dfrac{\Delta\texttt{cpi}_t}{\texttt{cpi}_{t-1}}$ <br> This variable is the percent change in the CPI, which is a common measure of inflation (units are percent).
+1. **Change in industry production index**, (`diff_industry`): $\Delta\texttt{industry}_t$. <br> This variable is the difference between the current and previous industry production index values.
+1. **Change in unemployment rate**, `diff_unemp`: $\Delta\texttt{unemp}_t$. <br> This variable is the difference between the current and previous unemployment rates.
+
+**Important**
+
+- Remember that $\Delta x_t$ means the *difference* between $x_t$ and its lag. So, $\Delta x_t = x_t - x_{t-1}$ and $\Delta\log(x_t) = \log(x_t) - \log(x_{t-1})$.
+- It may also be helpful to remember that differences in logs equal the log of the ratio: $\Delta\log(x_t) = \log(x_t) - \log(x_{t-1}) = \log\left(\frac{x_t}{x_{t-1}}\right)$.
+
+**Hint**: You can use `dplyr::mutate()` to create new variables. You can use `lag()` to access lagged values. It may be helpful to create intermediate (lagged) variables before moving on to the final transformations.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} Let's create the variables.
+```{r}
+# Start with lags; then compute desired variables
+ps_df =
+  ps_df |>
+  mutate(
+    lag_housing = lag(housing),
+    lag_mortgage_rate = lag(mortgage_rate),
+    lag_cpi = lag(cpi),
+    lag_industry = lag(industry),
+    lag_unemp = lag(unemp),
+    diff_housing = housing - lag_housing,
+    diff_mr = mortgage_rate - lag_mortgage_rate,
+    infl = 100 * (cpi - lag_cpi) / lag_cpi,
+    diff_industry = industry - lag_industry,
+    diff_unemp = unemp - lag_unemp
+  )
+```
+::::
+:::
+
+[]{.num} Now make time-series plots of the five new variables.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r}
+#| warning: false
+#| fig-height: 15
+
+# Housing starts growth
+hs =
+  ggplot(ps_df, aes(x = date, y = diff_housing)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Change in housing starts',
+    x = 'Month of sample',
+    y = 'Housing starts (1,000s)'
+  ) +
+  scale_y_continuous(labels = scales::comma_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Diff 30-year mortgage rate
+mr =
+  ggplot(ps_df, aes(x = date, y = diff_mr)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Change in 30-year mortgage rate',
+    x = 'Month of sample',
+    y = 'Mortgage rate (percent)'
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Inflation
+cpi =
+  ggplot(ps_df, aes(x = date, y = infl)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Inflation',
+    x = 'Month of sample',
+    y = 'Inflation rate (percent)'
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Diff industrial production index
+ind =
+  ggplot(ps_df, aes(x = date, y = diff_industry)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Change in industrial production index',
+    x = 'Month of sample',
+    y = 'Industrial production index (base year: 2017)'
+  ) +
+  scale_y_continuous(labels = scales::comma_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Diff unemployment
+ue =
+  ggplot(ps_df, aes(x = date, y = diff_unemp)) +
+  geom_line(linewidth = .1) +
+  geom_point(size = 1) +
+  labs(
+    title = 'Change in unemployment',
+    x = 'Month of sample',
+    y = 'Unemployment rate (percent)'
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal(
+    base_size = 10,
+    base_family = 'Fira Sans Condensed'
+  )
+# Combine the plots
+hs / mr / cpi / ind / ue
+```
+::::
+:::
+
+[]{.num} Did the transformations help to stabilize the time series? Explain your answer.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans} For the most part, it seems like the transformations helped a lot. We might still be worried about variance- and covariance-based non-stationarity, but the transformations seem to have made the series more stable in terms of their means.
+::::
+:::
+
+
+## Time-series models
+
+[]{.num} Let's start with a *static* model with the *untransformed* variables. Estimate the following model:
+
+$$
+\begin{aligned}
+    \text{housing}_t = &\beta_0 +  \\
+    &\beta_1 (\text{mortgage rate})_t + \\
+    &\beta_2 (\text{industrial production})_t + \\
+    &\beta_3 \text{unemployment}_t + u_t
+\end{aligned}
+$$
+
+Report your estimates as a table.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r}
+# The requested regression
+reg_static =
+  feols(
+    housing ~ mortgage_rate + industry + unemp,
+    data = ps_df
+  )
+# Display the regression results
+reg_static |> etable()
+```
+::::
+:::
+
+[]{.num} Interpret the coefficients from the preceding regression.
+
+[]{.num} Why should we be concerned about non-stationarity in the context of this regression? Explain the concern and why it is relevant here.
+
+[]{.num} How can you address the non-stationarity issue in this regression?
+
+[]{.num} Let's now estimate _differenced_ version of the preceding model, _i.e._,
+
+$$
+\begin{aligned}
+    \Delta \text{housing}_t = &\beta_0 +  \\
+    &\beta_1 \Delta (\text{mortgage rate})_t + \\
+    &\beta_2 \Delta (\text{industrial production index})_t + \\
+    &\beta_3 \Delta \text{unemployment}_t + \Delta u_t
+\end{aligned}
+$$
+
+Report your estimates as a table.
+
+To be clear, this model uses the transformed variables from above: your outcome is the change in housing starts (`diff_housing`), and the right-hand-side variables are three of your "new" variables.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r}
+# The requested regression
+reg_static_diff =
+  feols(
+    diff_housing ~ diff_mr + diff_industry + diff_unemp,
+    data = ps_df,
+    panel.id = ~ country + time
+  )
+# Display the regression results
+reg_static_diff |> etable()
+```
+::::
+:::
+
+[]{.num} Interpret the coefficients from the differenced regression.
+
+[]{.num} Are the coefficient estimates from the differenced regression meaningfully different from the original static (un-differenced) regression?
+
+[]{.num} How would an autocorrelated disturbance affect OLS in this setting?
+
+[]{.num} Perform a test for first-order autocorrelation in the residuals of the differenced static model.
+
+**Note:** If you are going to add the residuals to the dataset, you will need to do one of the following to make sure you get the right number of observations:
+
+- use the `na.rm = FALSE` argument in `residuals()` function, *e.g.*, `residuals(model_static, na.rm = FALSE)`, which will return `NA` for the first observation (since the first observation of the dependent variable is a difference, it cannot be calculated for the first quarter);
+- directly add the `NA` to the residuals vector on your own, *e.g.*, `c(NA, residuals(model_static))`.
+
+**Another note/hint:** To regress a variable on its own lag, you can do one of the following:
+
+- Create a new variable that is the lag of the residuals, *e.g.*, `lag_e = lag(e)`, and then regress `e` on `lag_e`.
+- Use the `l()` function in `fixest` to create the lag directly in the regression, *e.g.*, `feols(e ~ l(e, 1), data = ps_df, panel.id = ~ country + time)`, which will regress the residuals on their own first lag. Notice that you need to define the `panel.id` argument in this case.
+- Use the `lag` function (from `tidyverse`) within `lm`, *e.g.*, `lm(e ~ lag(e, 1), data = ps_df)`.
+
+:::{.content-hidden unless-meta="params.showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r}
+# Add the residuals to the dataset
+ps_df$e = residuals(reg_static_diff, na.rm = FALSE)
+# Regress the residuals on their own lag
+reg_bg_ar1 =
+  feols(
+    e ~ l(e, 1),
+    data = ps_df,
+    panel.id = ~ country + time
+  )
+etable(reg_bg_ar1)
+```
+::::
+:::
+
+[]{.num} Update your _differenced_ regression to use Newey-West standard errors and compare the results with the original regression.
+
+Remember that you can use `vcov = 'nw'` with `feols` to obtain Newey-West standard errors, for example,
+
+```{r}
+#| eval: false
+
+feols(
+  y ~ x + l(x),
+  data = fake_data,
+  panel.id = ~ country + time,
+  vcov = 'nw'
+)
+```
+
+[]{.num} Suppose you were interested in adding lags for each of the three explanatory variables and estimate the model
+$$
+\begin{aligned}
+    \Delta \text{housing}_t = &\beta_0 +  \\
+    &\beta_1 \Delta (\text{mortgage rate})_t + \\
+    &\beta_2 \Delta (\text{industrial production index})_t + \\
+    &\beta_3 \Delta \text{unemployment}_t \\
+    &\beta_4 \Delta (\text{mortgage rate})_{t-1} + \\
+    &\beta_5 \Delta (\text{industrial production index})_{t-1} + \\
+    &\beta_6 \Delta \text{unemployment}_{t-1} + \Delta u_t
+\end{aligned}
+$$
+How would autocorrelation affect OLS when estimating this new model?
+
+[]{.num} Now suppose you instead add a lag for the outcome (`diff_housing`).
+$$
+\begin{aligned}
+    \Delta \text{housing}_t = &\beta_0 +  \\
+    &\beta_1 \Delta (\text{mortgage rate})_t + \\
+    &\beta_2 \Delta (\text{industrial production index})_t + \\
+    &\beta_3 \Delta \text{unemployment}_t \\
+    &\beta_4 \Delta \text{housing}_{t-1} + \Delta u_t
+\end{aligned}
+$$
+Is OLS unbiased in this case? Is it consistent? Explain your answer.
+
+[]{.num} Consider the two regressions below (and their results). What do the regressions tell us about non-stationarity of `housing` and `diff_housing`?
+
+```{r}
+feols(
+  housing ~ l(housing, 1),
+  data = ps_df,
+  panel.id = ~ country + time
+) |> etable()
+feols(
+  diff_housing ~ l(diff_housing, 1),
+  data = ps_df,
+  panel.id = ~ country + time
+) |> etable()
+```
+
+## Conclusion
+
+[]{.num} Which of the models that we estimated and/or considered is the most appropriate for our setting—_i.e._, which model would you choose to use in practice? Or would you choose a different model altogether? Explain.
