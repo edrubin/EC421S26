@@ -1,0 +1,625 @@
+---
+title: "Problem Set 3: Causality, panels, DiD, and Final Review"
+subtitle: "EC 421: Introduction to Econometrics"
+author: "Edward Rubin"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+showanswers: false
+---
+
+## Instructions
+
+[**Optional!!!**]{style="text-decoration: underline;"} This problem set is entirely **optional**. If you submit it, it will replace your lowest problem set grade (unless it is lower than your lowest grade). If you do not submit this assignment, your grade will be unchanged. Either way, I encourage you to work through the problems to prepare for the final exam.
+
+[**Due**]{style="text-decoration: underline;"} Upload your answer on Canvas *before* 11:59PM on Tuesday, 02 June 2026.
+
+[**Important**]{style="text-decoration: underline;"} **Submit** your answers as an **HTML or PDF file**. The submitted file should be built from an RMarkdown (`.rmd`) or Quarto (`.qmd`) file. Do not submit the `.rmd` or `.qmd` file. You will not receive credit for it.
+
+If we ask you to create a figure or run a regression, then the figure or regression results should be in the document that you submit (not just the code - we want the actual figure or regression output with coefficients, standard errors, *etc.*).
+
+[**Integrity**]{style="text-decoration: underline;"} If you are suspected of cheating, then you will receive a zero - for the assignment and possibly for the course. We may report you to the dean. Cheating includes copying from your classmates, from the internet, and from previous assignments.
+
+[**README!**]{style="text-decoration: underline;"} The data for this problem set are stored in `data-ps3.csv`. They come from David Card and Alan Krueger's study of the 1992 New Jersey minimum-wage increase and fast-food employment in New Jersey and eastern Pennsylvania. The original data are available from [David Card's data page](https://davidcard.berkeley.edu/data_sets.html), and the paper is [Card and Krueger (1994), *American Economic Review*](https://davidcard.berkeley.edu/papers/njmin-aer.pdf).
+
+The main idea of the study is simple: On April 1, 1992, New Jersey's minimum wage increased from $4.25 to $5.05 per hour. Pennsylvania's minimum wage stayed at $4.25. Card and Krueger surveyed fast-food restaurants in both states before and after the New Jersey increase.
+
+The dataset in this problem set is a cleaned, balanced restaurant panel. Each restaurant appears twice: once before the policy change and once after the policy change.
+
+| Variable name | Description |
+|:--------------|:------------|
+| `store_id` | Restaurant identifier |
+| `state_abb` | State abbreviation (`NJ` or `PA`) |
+| `state_name` | State name |
+| `nj` | Indicator equal to 1 for New Jersey restaurants and 0 for Pennsylvania restaurants |
+| `chain_name` | Restaurant chain |
+| `market` | Local market/geographic area |
+| `company_owned` | Indicator equal to 1 if the restaurant is company owned |
+| `affected_pct` | Pre-treatment share of workers affected by the NJ minimum-wage increase |
+| `period` | `Before` or `After` the NJ minimum-wage increase |
+| `post` | Indicator equal to 1 for the post-treatment period |
+| `nj_after` | Indicator equal to 1 for New Jersey restaurants after the policy change |
+| `min_wage` | Relevant state minimum wage in dollars |
+| `fte_employment` | Full-time-equivalent employment: full-time workers + managers + 0.5 x part-time workers |
+| `starting_wage` | Starting wage in dollars per hour |
+| `hours_open` | Hours open per day |
+| `soda_price` | Price of a medium soda |
+| `fries_price` | Price of small fries |
+| `entree_price` | Price of an entree |
+| `registers` | Number of cash registers |
+| `registers_11am` | Number of cash registers open at 11am |
+
+: Variable names and descriptions
+
+[**Objective**]{style="text-decoration: underline;"} This problem set has three goals:
+
+1. Practice using panel data.
+2. Estimate and interpret fixed-effects and difference-in-differences models.
+3. Review the main ideas from the course to prepare for the final exam.
+
+## Panel Data and Difference-in-Differences
+
+In this section, we will study whether New Jersey's 1992 minimum-wage increase affected employment at fast-food restaurants.
+
+**[00]** Load your `R` packages and the dataset (`data-ps3.csv`). You will likely want `tidyverse`, `scales`, `fixest`, and `here`.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} I am using `read_csv()` from the `tidyverse` package to load the data.
+
+```{r, answer00}
+# Load packages
+library(pacman)
+p_load(tidyverse, scales, fixest, here)
+
+# Load data
+ps3_df = read_csv(here('problem-sets', '003', 'data-ps3.csv'))
+```
+::::
+:::
+
+**[01]** Use `R` to report
+
+- the number of observations,
+- the number of restaurants,
+- the number of states,
+- the number of New Jersey restaurants,
+- the number of Pennsylvania restaurants,
+- the number of observations in each period (`Before` and `After`).
+
+Then explain why these data are panel data.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer01}
+summary_stats =
+  ps3_df |>
+  summarise(
+    observations = n(),
+    restaurants = n_distinct(store_id),
+    states = n_distinct(state_abb),
+    nj_restaurants = n_distinct(store_id[nj == 1]),
+    pa_restaurants = n_distinct(store_id[nj == 0])
+  )
+summary_stats
+
+ps3_df |>
+  count(period)
+```
+
+The data have `r comma(summary_stats$observations)` observations from `r comma(summary_stats$restaurants)` restaurants in `r summary_stats$states` states. There are `r summary_stats$nj_restaurants` New Jersey restaurants and `r summary_stats$pa_restaurants` Pennsylvania restaurants.
+
+These are panel data because we observe the same unit - a restaurant - repeatedly over time.
+::::
+:::
+
+**[02]** Identify the four pieces of the difference-in-differences setup:
+
+1. the treated group,
+2. the control group,
+3. the pre-treatment period,
+4. the post-treatment period.
+
+Then explain why Pennsylvania might be a useful control group for New Jersey.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+The treated group is New Jersey restaurants. The control group is Pennsylvania restaurants. The pre-treatment period is before New Jersey's minimum-wage increase, and the post-treatment period is after New Jersey's minimum-wage increase.
+
+Pennsylvania may be useful because it is geographically close and had the same minimum wage as New Jersey before the policy change. The key hope is that Pennsylvania restaurants provide a reasonable counterfactual for what would have happened to New Jersey restaurants without the minimum-wage increase.
+::::
+:::
+
+**[03]** Create a table of means by state (`state_abb`) and period (`post`). Your table should report
+
+- the number of restaurants,
+- mean full-time-equivalent employment (`fte_employment`),
+- mean starting wage (`starting_wage`),
+- mean relevant minimum wage (`min_wage`).
+
+Briefly summarize the pattern you see.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer03}
+cell_means =
+  ps3_df |>
+  group_by(state_abb, post) |>
+  summarise(
+    restaurants = n_distinct(store_id),
+    mean_fte = mean(fte_employment),
+    mean_starting_wage = mean(starting_wage, na.rm = TRUE),
+    mean_min_wage = mean(min_wage),
+    .groups = 'drop'
+  )
+
+cell_means
+```
+
+New Jersey's mean minimum wage and mean starting wage increase substantially after the policy change. Pennsylvania's minimum wage stays fixed at $4.25, and its mean starting wage is roughly flat. Mean FTE employment rises slightly in New Jersey and falls in Pennsylvania.
+::::
+:::
+
+**[04]** Create a figure that shows mean full-time-equivalent employment before and after the policy change for New Jersey and Pennsylvania.
+
+At a minimum, your figure should
+
+- put `period` or `post` on the horizontal axis,
+- put mean `fte_employment` on the vertical axis,
+- show separate lines or colors for New Jersey and Pennsylvania.
+
+Briefly describe what the figure suggests.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer04}
+#| fig-height: 5
+
+plot_df =
+  ps3_df |>
+  group_by(state_abb, period, post) |>
+  summarise(
+    mean_fte = mean(fte_employment),
+    .groups = 'drop'
+  )
+
+ggplot(plot_df, aes(x = post, y = mean_fte, color = state_abb)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  scale_x_continuous(
+    breaks = c(0, 1),
+    labels = c('Before', 'After')
+  ) +
+  scale_y_continuous('Mean FTE employment') +
+  scale_color_viridis_d(name = 'State', end = .8) +
+  labs(x = NULL) +
+  theme_minimal(base_family = 'Fira Sans Condensed', base_size = 14) +
+  theme(legend.position = 'bottom')
+```
+
+The figure suggests that employment increased slightly in New Jersey and decreased in Pennsylvania. The raw before-after comparison for New Jersey alone does not tell us whether the policy caused employment to rise, but the difference between the New Jersey change and the Pennsylvania change is the DiD comparison.
+::::
+:::
+
+**[05]** Estimate the following pooled OLS regression:
+
+$$
+  \text{FTE employment}_{it} = \beta_0 + \beta_1 \text{Minimum wage}_{it} + u_{it}.
+$$
+
+Use standard errors clustered at the restaurant level.
+
+a) Report your results.
+
+b) Interpret the coefficient on `min_wage`.
+
+c) Why might this pooled OLS estimate be misleading?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer05}
+pooled_mod =
+  feols(
+    fte_employment ~ min_wage,
+    data = ps3_df,
+    vcov = ~store_id
+  )
+
+etable(pooled_mod)
+```
+
+The coefficient on `min_wage` is the estimated association between a one-dollar increase in the minimum wage and FTE employment, pooling all restaurants and periods.
+
+This pooled estimate may be misleading because it mixes within-restaurant changes with permanent differences across restaurants and states. For example, restaurants in New Jersey and Pennsylvania may differ for reasons unrelated to the minimum wage.
+::::
+:::
+
+**[06]** Estimate the fixed-effects regression
+
+$$
+  \text{FTE employment}_{it}
+  = \beta_1 \text{Minimum wage}_{it} + \alpha_i + u_{it},
+$$
+
+where $\alpha_i$ represents restaurant fixed effects. Use standard errors clustered at the restaurant level.
+
+a) Report your results.
+
+b) What do the restaurant fixed effects control for?
+
+c) What variation identifies $\beta_1$ in this model?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer06}
+store_fe_mod =
+  feols(
+    fte_employment ~ min_wage | store_id,
+    data = ps3_df,
+    vcov = ~store_id
+  )
+
+etable(store_fe_mod)
+```
+
+Restaurant fixed effects control for all time-invariant differences across restaurants: location, chain, baseline restaurant size, persistent management differences, and other fixed restaurant-level factors.
+
+The coefficient is identified from within-restaurant changes in minimum wages and employment. In practice, that means the model mostly uses the before-after change among New Jersey restaurants.
+::::
+:::
+
+**[07]** Now estimate a two-way fixed-effects regression:
+
+$$
+  \text{FTE employment}_{it}
+  = \beta_1 \text{Minimum wage}_{it} + \alpha_i + \lambda_t + u_{it},
+$$
+
+where $\alpha_i$ represents restaurant fixed effects and $\lambda_t$ represents period fixed effects. Use standard errors clustered at the restaurant level.
+
+a) Report the pooled OLS, restaurant fixed-effects, and two-way fixed-effects estimates in one table.
+
+b) What do the period fixed effects control for?
+
+c) Why is the two-way fixed-effects model closer to a difference-in-differences design than the restaurant fixed-effects model in **[06]**?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer07}
+twfe_mod =
+  feols(
+    fte_employment ~ min_wage | store_id + post,
+    data = ps3_df,
+    vcov = ~store_id
+  )
+
+etable(pooled_mod, store_fe_mod, twfe_mod)
+```
+
+Period fixed effects control for shocks common to all restaurants in the post period - for example, regional changes in fast-food demand or macroeconomic conditions between the two surveys.
+
+The two-way FE model compares the change in New Jersey restaurants to the change in Pennsylvania restaurants, while controlling for permanent restaurant differences and common period shocks. That is the same logic as DiD.
+::::
+:::
+
+**[08]** Calculate the difference-in-differences estimate by hand from the group-by-period means.
+
+Specifically, calculate
+
+$$
+\left(
+  \overline{Y}_\text{NJ, After} - \overline{Y}_\text{NJ, Before}
+\right)
+-
+\left(
+  \overline{Y}_\text{PA, After} - \overline{Y}_\text{PA, Before}
+\right).
+$$
+
+Interpret the result.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer08}
+did_by_hand =
+  cell_means |>
+  select(state_abb, post, mean_fte) |>
+  pivot_wider(
+    names_from = post,
+    values_from = mean_fte,
+    names_prefix = 'post_'
+  ) |>
+  mutate(change = post_1 - post_0)
+
+did_by_hand
+
+did_est =
+  did_by_hand$change[did_by_hand$state_abb == 'NJ'] -
+  did_by_hand$change[did_by_hand$state_abb == 'PA']
+
+did_est
+```
+
+The DiD estimate is `r round(did_est, 2)`. This means that FTE employment in New Jersey increased by about `r round(did_est, 2)` more workers relative to Pennsylvania after the New Jersey minimum-wage increase.
+::::
+:::
+
+**[09]** Estimate the difference-in-differences regression
+
+$$
+  \text{FTE employment}_{it}
+  = \alpha_i + \lambda_t + \delta \text{NJ After}_{it} + u_{it},
+$$
+
+where `nj_after` equals 1 for New Jersey restaurants after the minimum-wage increase and equals 0 otherwise. Use standard errors clustered at the restaurant level.
+
+a) Report your results.
+
+b) Confirm that the coefficient on `nj_after` matches your by-hand DiD estimate from **[08]**.
+
+c) Interpret the coefficient on `nj_after`.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer09}
+did_mod =
+  feols(
+    fte_employment ~ nj_after | store_id + post,
+    data = ps3_df,
+    vcov = ~store_id
+  )
+
+etable(did_mod)
+```
+
+The coefficient on `nj_after` is `r coef(did_mod)['nj_after'] |> round(2)`, which matches the by-hand DiD estimate. The estimate says that, relative to Pennsylvania restaurants, New Jersey restaurants increased FTE employment by about `r coef(did_mod)['nj_after'] |> round(2)` workers after the minimum-wage increase.
+::::
+:::
+
+**[10]** Before interpreting the DiD estimate as causal, answer the following:
+
+a) What is the parallel-trends assumption in this setting?
+
+b) Give two realistic threats to parallel trends here.
+
+c) Why do we cluster standard errors at the restaurant level?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+Parallel trends means that, absent New Jersey's minimum-wage increase, average employment at New Jersey fast-food restaurants would have followed the same trend as average employment at Pennsylvania fast-food restaurants.
+
+Two threats are: (1) New Jersey and Pennsylvania restaurants may have been on different employment trends even before the policy, and (2) another shock may have hit New Jersey restaurants at the same time as the minimum-wage increase.
+
+We cluster at the restaurant level because each restaurant appears twice, so disturbances for the same restaurant may be correlated over time.
+::::
+:::
+
+**[11]** Estimate a DiD regression with `starting_wage` as the outcome:
+
+$$
+  \text{Starting wage}_{it}
+  = \alpha_i + \lambda_t + \delta \text{NJ After}_{it} + u_{it}.
+$$
+
+Use standard errors clustered at the restaurant level.
+
+a) Report your results.
+
+b) Why is this regression a useful check before studying employment?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+```{r, answer11}
+wage_did_mod =
+  feols(
+    starting_wage ~ nj_after | store_id + post,
+    data = ps3_df,
+    vcov = ~store_id
+  )
+
+etable(wage_did_mod)
+```
+
+This regression checks whether the policy actually changed the wage variable that restaurants faced. The coefficient is positive and large, which is consistent with New Jersey's minimum-wage increase raising starting wages relative to Pennsylvania.
+::::
+:::
+
+## Course Review
+
+This section is mostly conceptual. Keep your answers concise but precise.
+
+**[12]** Define **exogeneity** in a regression model. What happens to OLS if exogeneity fails?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Exogeneity means that the regressors are unrelated to the disturbance, often written as $E[u_i | X_i] = 0$. If exogeneity fails, OLS coefficient estimates are generally biased and inconsistent, so they should not be interpreted as causal effects.
+::::
+:::
+
+**[13]** Explain the two conditions required for omitted-variable bias. If the omitted variable increases $y$ and is positively correlated with an included regressor $x_j$, what direction is the bias in the OLS estimate of $\beta_j$?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Omitted-variable bias requires that the omitted variable affects the outcome and is correlated with an included regressor. If the omitted variable increases $y$ and is positively correlated with $x_j$, then the OLS estimate of $\beta_j$ is biased upward.
+::::
+:::
+
+**[14]** Suppose heteroskedasticity is present, but exogeneity still holds. What happens to
+
+- the OLS coefficient estimates,
+- the usual OLS standard errors,
+- OLS efficiency?
+
+What is one common fix?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} The OLS coefficient estimates remain unbiased and consistent. The usual OLS standard errors are generally biased, so the usual confidence intervals and hypothesis tests are unreliable. OLS is no longer the most efficient linear unbiased estimator. A common fix is to use heteroskedasticity-robust standard errors.
+::::
+:::
+
+**[15]** Explain the difference between heteroskedasticity-robust standard errors, clustered standard errors, and Newey-West standard errors. When would you use each?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Heteroskedasticity-robust standard errors handle unknown heteroskedasticity. Clustered standard errors handle correlation within groups, such as states, firms, classrooms, or restaurants. Newey-West standard errors are used in time-series settings when disturbances may be autocorrelated over time.
+::::
+:::
+
+**[16]** Consider the model
+
+$$
+  \log(\text{Wage}_i)
+  = \beta_0 + \beta_1 \text{Female}_i
+  + \beta_2 \text{Education}_i
+  + \beta_3(\text{Female}_i \times \text{Education}_i)
+  + u_i.
+$$
+
+Interpret $\beta_1$, $\beta_2$, and $\beta_3$.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+- $\beta_1$ is the female-male difference in log wages when education equals zero.
+- $\beta_2$ is the association between one more year of education and log wages for men, the omitted group.
+- $\beta_3$ is the difference in the education slope for women relative to men.
+
+Because the outcome is in logs, small coefficients can be interpreted approximately as percent changes.
+::::
+:::
+
+**[17]** Define consistency. Can an estimator be biased but consistent? Can an estimator be unbiased but inconsistent?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} An estimator is consistent if it converges in probability to the true parameter as the sample size grows. Yes, an estimator can be biased but consistent if the bias disappears as the sample grows. Yes, an estimator can be unbiased but inconsistent if it is centered correctly but does not concentrate around the true parameter as sample size grows.
+::::
+:::
+
+**[18]** What happens to the OLS slope estimate when an explanatory variable is measured with classical measurement error? Why is this often called attenuation bias?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Classical measurement error in an explanatory variable biases the OLS slope toward zero. It is called attenuation bias because the noise weakens the observed relationship between the measured regressor and the outcome, shrinking the estimated effect in magnitude.
+::::
+:::
+
+**[19]** What is the difference between a static time-series model and a dynamic time-series model? Write down an example of each.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} A static time-series model includes only contemporaneous explanatory variables, such as $y_t = \beta_0 + \beta_1 x_t + u_t$. A dynamic model includes lagged explanatory variables and/or lagged outcome variables, such as $y_t = \beta_0 + \beta_1 x_t + \beta_2 x_{t-1} + \beta_3 y_{t-1} + u_t$.
+::::
+:::
+
+**[20]** Consider the dynamic model
+
+$$
+  \text{Sales}_t
+  = \beta_0
+  + \beta_1 \text{Advertising}_t
+  + \beta_2 \text{Advertising}_{t-1}
+  + \beta_3 \text{Advertising}_{t-2}
+  + u_t.
+$$
+
+What is the immediate effect of a one-unit increase in advertising? What is the total effect over three periods?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} The immediate effect is $\beta_1$. The total effect over three periods is $\beta_1 + \beta_2 + \beta_3$ because a one-unit increase in advertising affects current sales and then continues to affect sales through the lagged advertising terms.
+::::
+:::
+
+**[21]** How does autocorrelation affect OLS in
+
+- a static time-series model,
+- a dynamic model with lagged explanatory variables,
+- a dynamic model with a lagged dependent variable?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans}
+
+In static time-series models, autocorrelation generally affects standard errors but not coefficient bias if exogeneity holds. In dynamic models with lagged explanatory variables, the same is generally true if the appropriate exogeneity assumptions hold. In models with lagged dependent variables, autocorrelation can make the lagged dependent variable correlated with the disturbance, causing OLS to be biased and inconsistent.
+::::
+:::
+
+**[22]** What are the null and alternative hypotheses in a Breusch-Godfrey test? If the test rejects the null, what should you conclude?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} The null hypothesis is no autocorrelation up to the tested lag order. The alternative is that the disturbance is autocorrelated up to that lag order. If the test rejects the null, we conclude there is statistically significant evidence of autocorrelation.
+::::
+:::
+
+**[23]** Define stationarity. Why can nonstationary variables create spurious regressions?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} A stationary process has a stable mean, variance, and autocovariance structure over time. Nonstationary variables can trend together even when they are unrelated, creating misleadingly strong regression results.
+::::
+:::
+
+**[24]** Explain the fundamental problem of causal inference using potential outcomes. How does random assignment help?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} The fundamental problem is that we cannot observe both potential outcomes for the same unit at the same time: we observe either $Y_i(1)$ or $Y_i(0)$, but not both. Random assignment helps because it makes treatment status independent of potential outcomes, so the control group can serve as a credible counterfactual for the treated group on average.
+::::
+:::
+
+**[25]** Compare cross-sectional data, time-series data, and panel data. Give one example of each.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Cross-sectional data observe many units at one point in time, such as wages for many workers in 2026. Time-series data observe one unit repeatedly over time, such as monthly U.S. unemployment. Panel data observe many units repeatedly over time, such as restaurants observed before and after a policy change.
+::::
+:::
+
+**[26]** In panel data, what do unit fixed effects absorb? What do time fixed effects absorb? What problems do fixed effects *not* solve?
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Unit fixed effects absorb time-invariant differences across units. Time fixed effects absorb shocks common to all units in the same period. Fixed effects do not solve time-varying omitted variables, reverse causality, measurement error, weak within variation, or violations of the research design's identifying assumptions.
+::::
+:::
+
+**[27]** Explain the parallel-trends assumption in DiD. Give two examples of ways it could fail.
+
+:::{.content-hidden unless-meta="showanswers"}
+::::{.answer}
+[Answer]{.ans} Parallel trends means that, without treatment, the treated and control groups would have followed the same average trend. It could fail if the treated group was already trending differently before treatment, or if another shock affected the treated group at the same time as treatment.
+::::
+:::
